@@ -1,2 +1,2 @@
-# First Lego League Energize Innovation Project - Robotic Builders
-Robotic Builders Energize Innovation Project.
+# First Lego League Energize Season - Robotic Builders
+Robotic Builders Energize Season Code.
