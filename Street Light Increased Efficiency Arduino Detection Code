@@ -1,1 +1,41 @@
+int trig = 5; // set the ultrasonic trig pin
+int echo = 4; // set the ultrasonic echo pin
 
+int led = 6; // set the led pin
+
+float duration, distance; // define duration and distance as floats
+
+int wait_time = 5000; // how long to wait for the user after he/she walks past
+int bright = 255; // the brightness to set for when the user walks past
+int dull = 2; // the brightness to set for when the user is not walking past
+int max_detect = 70; // max distance to detect. WARNING: DO NOT MAKE MORE THAN 12 FOR TESTING
+ 
+void setup() {
+  Serial.begin(9600);
+  pinMode(trig, OUTPUT); // set the ultrasonic's trig pin to output
+  pinMode(echo, INPUT); // set the ultrasonic's echo pin to input(giving data to arduino)
+  pinMode(led, OUTPUT); // set the pin led's pin to output
+  analogWrite(led, dull);
+}
+ 
+void loop() {  
+  digitalWrite(trig, LOW); // set the trig pin to off
+  delayMicroseconds(2); // wait 2 microseconds
+  digitalWrite(trig, HIGH); // set the trig pin to on
+  delayMicroseconds(10); // wait 10 microseconds
+  digitalWrite(trig, LOW); // set the trig pin to off
+ 
+  duration = pulseIn(echo, HIGH); // time for echo pin to become on
+  distance = (duration / 2) * 0.0343; // calculate distance from duration
+  Serial.print("Distance = "); // print the "distance =" string
+  Serial.print(distance); // print the distance
+  Serial.println(" cm"); // print the unit
+  
+  if (distance < max_detect) { // if the object distance is not too far
+    analogWrite(led, bright);
+    delay(wait_time); // wait 10 seconds to have the led on
+    analogWrite(led, dull);
+  }
+    
+  delay(100); // wait to not crash arduino
+}
