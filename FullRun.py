@@ -5,3 +5,5 @@ from math import *
 hub = PrimeHub()
 
 hub.light_matrix.show_image('HAPPY')
+
+# This is the mwhole prohgram
