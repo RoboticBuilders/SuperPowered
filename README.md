@@ -1,2 +1,2 @@
-# First Lego League Energize Season - Robotic Builders
-Robotic Builders Energize Season Code.
+# First Lego League SuperPowered Season - Robotic Builders
+Robotic Builders SuperPowered Innovation Project Season Code.
