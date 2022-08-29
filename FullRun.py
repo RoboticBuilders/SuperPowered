@@ -6,5 +6,4 @@ hub = PrimeHub()
 
 hub.light_matrix.show_image('HAPPY')
 
-
 ## Another test
