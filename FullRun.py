@@ -16,6 +16,7 @@ motors = MotorPair('C', 'E')
 
 motorD = Motor("D")
 motorF = Motor("F")
+_CM_PER_INCH = 2.54
 
 def initialize():
     motors.set_stop_action("hold")
@@ -167,6 +168,38 @@ def testTurnToAngle():
     print("Final Angle is " + str(hub.motion_sensor.get_yaw_angle()))
     end = time.ticks_us()
     print("Total time = " + str(end - start))
+
+
+
+def gyroStraight(targetAngle, distance, speed = 20, backward = False):
+    wheelDiameter = 8.8 # could be 8.8
+    degreesToCover = (distance * 360)/(wheelDiameter * 3.14)
+    #print(degreesToCover)
+    position_start = motorE.get_degrees_counted();
+    #print("Position Start = " + str(position_start))
+    if (backward): 
+        while ((motorE.get_degrees_counted() - position_start)  > degreesToCover * -1  ):
+            #print("degrees = " + str(right_large_motor.get_degrees_counted() - position_start))
+            currentAngle = hub.motion_sensor.get_yaw_angle()
+            correction = targetAngle - currentAngle
+            motors.start(correction, speed * -1  )
+    else:
+         while ((motorE.get_degrees_counted() - position_start)  < degreesToCover  ):
+           # print("degrees = " + str(right_large_motor.get_degrees_counted() - position_start))
+            currentAngle = hub.motion_sensor.get_yaw_angle()
+            correction = targetAngle - currentAngle
+            motors.start(correction, speed)
+
+    motors.stop()
+
+def testGyro():
+    gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*16)
+    gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*2, backward =True)
+    gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*2)
+    gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*2, backward=True)
+    gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*2)
+    gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*3, backward=True)
+
 
 initialize()
 testTurnToAngle()
