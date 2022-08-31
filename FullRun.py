@@ -14,7 +14,9 @@ motorE = Motor("E")
 
 motors = MotorPair('C', 'E')
 
+#right med motor
 motorD = Motor("D")
+#left med motor
 motorF = Motor("F")
 _CM_PER_INCH = 2.54
 
@@ -22,7 +24,7 @@ def initialize():
     motors.set_stop_action("hold")
     motors.set_motor_rotation(27.6, 'cm')
 
-#Utilities
+#region Utilities
 def turn(angle = 0, leftSpeed = 0, rightSpeed = 0):
     """
     Turn Information:
@@ -199,7 +201,66 @@ def testGyro():
     gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*2, backward=True)
     gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*2)
     gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*3, backward=True)
+#endregion Utilities
+
+#region Arisha oil platform
+
+def runArisha():
+    unloadEnergyUnits()
+
+
+def unloadEnergyUnits():
+    #motorF.run_for_degrees(degrees=-400, speed=40)
+    #motorF.run_for_degrees(degrees=-400, speed=40)
+    # motor_pair.move(_CM_PER_INCH*26, 'cm',0,50)
+    # motor_pair.move(_CM_PER_INCH*-2,'cm',0,20)
+    # motor_pair.move(_CM_PER_INCH*2,'cm',0,20)
+    # motor_pair.move(_CM_PER_INCH*-2,'cm',0,20)
+    # motor_pair.move(_CM_PER_INCH*2,'cm',0,20)
+    # motor_pair.move(_CM_PER_INCH*-2,'cm',0,20)
+    hub.motion_sensor.reset_yaw_angle()
+    print('current yaw angle ' +  str(hub.motion_sensor.get_yaw_angle()))
+    gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*10)
+    #turnToAngle(0)
+    print('current yaw angle ' +  str(hub.motion_sensor.get_yaw_angle()))
+    #turnToAngle(0)
+    gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*2, backward =True)
+    #turnToAngle(0)
+    gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*2)
+    #turnToAngle(0)
+    gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*2, backward=True)
+    #turnToAngle(0)
+    gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*2)
+    turnToAngle(0)
+    gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*3, backward=True)
+    turnToAngle(0)
+    #motorF.run_for_degrees(degrees=400, speed=40)
+
+# def pullTruck():
+#     # motor_pair.move(_CM_PER_INCH*26, 'cm',0,50)
+#     # left_med_motor.run_for_degrees(degrees=800, speed=40)
+#     # motor_pair.move(_CM_PER_INCH*5,'cm',0,20)
+#     # time.sleep(0.5)
+#     # left_med_motor.run_for_degrees(degrees=-800, speed=40)
+#     # time.sleep(0.5)
+#     # motor_pair.move(_CM_PER_INCH*-5,'cm',0,20)
+#     hub.motion_sensor.reset_yaw_angle()
+#     #motor_pair.start(0, -20  )
+
+#     left_med_motor.run_for_degrees(degrees=900, speed=40)
+#     gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*7)
+#     time.sleep(0.5)
+#     left_med_motor.run_for_degrees(degrees=-850, speed=40)
+#     time.sleep(0.5)
+#     gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*5, backward=True)
+#     #motor_pair.move(_CM_PER_INCH*-5,'cm',0,20)
+
+
+
+
+# endregion Arisha 
 
 
 initialize()
-testTurnToAngle()
+#testTurnToAngle()
+runArisha()
