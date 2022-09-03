@@ -1,6 +1,7 @@
 from spike import PrimeHub, LightMatrix, Button, StatusLight, ForceSensor, MotionSensor, Speaker, ColorSensor, App, DistanceSensor, Motor, MotorPair
 from spike.control import wait_for_seconds, wait_until, Timer
 from math import *
+# Note that this import is needed, this is different from the PrimeHub import above, this is the way to access the battery.
 import time, hub
 from math import *
 
@@ -18,6 +19,8 @@ motorD = Motor("D")
 #left med motor
 motorF = Motor("F")
 _CM_PER_INCH = 2.54
+
+# -------------------------------------------------------------------  Utilities --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 def initialize():
     print("___________________________________________________")
@@ -173,9 +176,6 @@ def testGyro():
     gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*2, backward=True)
     gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*2)
     gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*3, backward=True)
-#endregion Utilities
-
-
 
 def convertDegToCM(degrees):
     return degrees * WHEEL_RADIUS_CM * pi * 2 / 360
