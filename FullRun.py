@@ -437,6 +437,15 @@ def isBatteryGood():
 def runArisha():
     hub.motion_sensor.reset_yaw_angle()
     unloadEnergyUnits()
+    # unLoadEnergyStorage()
+
+def unLoadEnergyStorage():
+    #Move the arm up
+    #motorF.run_for_degrees(degrees=800, speed=40)
+    #turnToAngle(0)
+    gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*10)
+    turnToAngle(0)
+
 
 def unloadEnergyUnits():
     #motorF.run_for_degrees(degrees=-400, speed=40)
@@ -449,13 +458,10 @@ def unloadEnergyUnits():
     # motor_pair.move(_CM_PER_INCH*-2,'cm',0,20)
     # motor_pair.move(_CM_PER_INCH*2,'cm',0,20)
     # motor_pair.move(_CM_PER_INCH*-2,'cm',0,20)
-    #hub.motion_sensor.reset_yaw_angle()
-    print('current yaw angle ' +  str(hub.motion_sensor.get_yaw_angle()))
-    drive(speed=20, distanceInCM=_CM_PER_INCH*10, targetAngle = 0)
-    #turnToAngle(0)
-    print('current yaw angle ' +  str(hub.motion_sensor.get_yaw_angle()))
-    #turnToAngle(0)
     
+    print('current yaw angle ' +  str(hub.motion_sensor.get_yaw_angle()))
+    gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*10)
+    print('current yaw angle ' +  str(hub.motion_sensor.get_yaw_angle()))
     gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*2, backward =True)
     turnToAngle(0)
     gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*3)
@@ -486,6 +492,11 @@ def unloadEnergyUnits():
 #     time.sleep(0.5)
 #     gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*5, backward=True)
 #     #motor_pair.move(_CM_PER_INCH*-5,'cm',0,20)
+
+
+
+
+# endregion Arisha 
 
 # ------------------------------------------------------------------- END Arisha OIL platform --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def testAxleLogic(degrees,speed,direction):
