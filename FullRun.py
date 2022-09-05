@@ -229,7 +229,6 @@ def _turnRobotWithSlowDown(angleInDegrees, targetAngle, speed, slowTurnRatio, di
         logMessage("In SlowTurn, current_angle:" + str(currentAngle) + " speed=" + str(slowTurnSpeed) + " motorCDegDiff=" + 
             str(motorCDiff) + " motorEDegDiff=" + str(motorEDiff) + " expectedRobotTurn=" + str(robotTurn), level=5)
         """            
-
    
 def testTurnToAngle():
     # TurnToAngle Testing
@@ -270,17 +269,6 @@ def testTurnToAngle():
     turnToAngle(targetAngle = 45, speed = 25, forceTurn = "None", slowTurnRatio = 0.4)
     """
 
-    # Left turn 90
-    #turnToAngle(targetAngle = 90, speed = 25, forceTurn = "None", slowTurnRatio = 0.5)
-    #time.sleep(1)
-    #turnToAngle(targetAngle = -90, speed = 25, forceTurn = "None", slowTurnRatio = 0.4)
-    #turnToAngle(targetAngle = -135, speed = 25, forceTurn = "None", slowTurnRatio = 0.4)
-    #time.sleep(1)
-    #turnToAngle(targetAngle = -135, speed = 25, forceTurn = "None", slowTurnRatio = 0.4)
-    
-
-       
-    
     
 def gyroStraight(distance, speed = 20, backward = False, targetAngle = 0):
     initialDeg = abs(motorC.get_degrees_counted())
@@ -529,9 +517,6 @@ def squareTest():
     turnToAngle(targetAngle = -180, speed = 30)
     drive(speed = 30, distanceInCM = 30, target_angle = -180)
  
-
-
-
 def run4():
     drive(speed = 30, distanceInCM = 50, target_angle = 0)
     #gyroStraight(speed = 20, targetAngle = 0,  distance = 20, backward = False)
