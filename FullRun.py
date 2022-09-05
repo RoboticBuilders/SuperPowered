@@ -25,14 +25,38 @@ _CM_PER_INCH = 2.54
 # -------------------------------------------------------------------  Classes --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 class ContinousAngle:
 
-    def __init__(self,startAngle,direction) :
+    def __init__(self,startAngle,direction,precision=20) :
         self.startAngle = startAngle
         self.direction = direction
         self.currentAngle = startAngle
+        self.precision = precision
         
         self.zeroCrossing = False
 
     def getAngle(self):
+        previousAngle = self.currentAngle
+        newAngle = self.gyro.getReading()
+
+        if abs(newAngle - previousAngle) > self.precision:
+            # This means we are going to produce a non-continous value.
+            if(self.direction == "Right" ):
+                # We are supposed to be turning right, however for some reason
+                # we read got gyro readings that indicate we are going left
+                # This means we got something like 0,1,359... readings.
+                # this we should not return the 359, reading, but return -1
+                if (newAngle > previousAngle):
+                    self.currentAngle = newAngle - 360
+                else:
+                    self.currentAngle = newAngle + 360
+            elif(self.direction == "Left" ):
+                self.currentAngle = newAngle - 360 
+        else:
+            self.currentAngle = newAngle
+
+        return self.currentAngle
+
+
+    def OLDgetAngle(self):
         previousAngle = self.currentAngle
         newAngle = gyroAngleZeroTo360()
         
