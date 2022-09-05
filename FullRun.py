@@ -6,10 +6,11 @@ import time, hub
 from math import *
 
 AXLE_DIAMETER_CM = 12.7
-WHEEL_RADIUS_CM = 4.5
+WHEEL_RADIUS_CM = 4.4
 GLOBAL_LEVEL = 0
 primeHub = PrimeHub()
 
+# Motor C is the left motor and Motor E is the right motor.
 motorC = Motor("C")
 motorE = Motor("E")
 
@@ -104,7 +105,7 @@ def gyroAngleZeroTo360():
         else:
             return yaw
 
-def turnToAngle(targetAngle, speed=20, forceTurn="None", slowTurnRatio=0.2):
+def turnToAngle(targetAngle, speed=20, forceTurn="None", slowTurnRatio=0.2, correction=0):
     """Turns the robot the specified angle.
     It calculates if the right or the left turn is the closest
     way to get to the target angle. Can handle both negative 
@@ -117,13 +118,15 @@ def turnToAngle(targetAngle, speed=20, forceTurn="None", slowTurnRatio=0.2):
     slowTurnRatio -- A number between 0.1 and 1.0. Controls the 
     amount of slow turn. If set to 1.0 the entire turn is a slow turn
     the default value is 0.2, or 20% of the turn is slow.
+    correction -- The correction value in ratio. If its set to 0.05, we are going to 
+    addjust the turnAngle by 5%, if you dont want any correction set it to 0
     """
     motors.stop()
     #motors.set_stop_action("coast")
     currentAngle = gyroAngleZeroTo360()
     
     # Next make the targetAngle between 0-360
-    # targetAngle = targetAngle * 0.922
+    targetAngle = targetAngle * (1 - correction)
     if (targetAngle < 0):
         targetAngle = targetAngle + 360
 
@@ -194,6 +197,8 @@ def _turnRobotWithSlowDown(angleInDegrees, targetAngle, speed, slowTurnRatio, di
                      to slow turn.
     """
     fastTurnDegrees =  (1 - slowTurnRatio) * abs(angleInDegrees)    
+    motorCInitialDeg = abs(motorC.get_degrees_counted())
+    motorEInitialDeg = abs(motorE.get_degrees_counted())
 
     currentAngle = gyroAngleZeroTo360()
     startAngle=currentAngle
@@ -209,53 +214,66 @@ def _turnRobotWithSlowDown(angleInDegrees, targetAngle, speed, slowTurnRatio, di
             slowTurnSpeed = 10
         if (currentAngle > targetAngle):
             motors.start_tank(slowTurnSpeed * -1, slowTurnSpeed)
-            #logMessage("In SlowTurn left turn, current_angle:" + str(currentAngle) + " speed=" + str(slowTurnSpeed), level=5)
+            logMessage("In SlowTurn left turn, current_angle:" + str(currentAngle) + " speed=" + str(slowTurnSpeed), level=5)
         else:
             motors.start_tank(slowTurnSpeed, slowTurnSpeed * -1)
-            #logMessage("In SlowTurn right turn, current_angle:" + str(currentAngle) + " speed=" + str(slowTurnSpeed), level=5)
-        currentAngle = continuousAngle.getAngle()        
+            logMessage("In SlowTurn right turn, current_angle:" + str(currentAngle) + " speed=" + str(slowTurnSpeed), level=5)
+        currentAngle = continuousAngle.getAngle()      
+
+        """
+        motorCDiff = abs(motorC.get_degrees_counted()) - motorCInitialDeg
+        motorEDiff = abs(motorE.get_degrees_counted()) - motorEInitialDeg
+        avgDiff = (abs(motorCDiff) + abs(motorEDiff)) / 2
+        arcLengthCM = convertDegToCM(avgDiff)
+        robotTurn = (arcLengthCM*7*360)/(22*AXLE_DIAMETER_CM)
+        logMessage("In SlowTurn, current_angle:" + str(currentAngle) + " speed=" + str(slowTurnSpeed) + " motorCDegDiff=" + 
+            str(motorCDiff) + " motorEDegDiff=" + str(motorEDiff) + " expectedRobotTurn=" + str(robotTurn), level=5)
+        """            
+
    
 def testTurnToAngle():
     # TurnToAngle Testing
     
+    turnToAngle(targetAngle = 90, speed = 25, forceTurn = "None", slowTurnRatio = 0.4, correction = 0.05)
+
     """
     # Right turn non zero crossing
-    turnToAngle(targetAngle = 45, speed = 25, forceTurn = "None", slowTurnRatio = 0.2)
+    turnToAngle(targetAngle = 45, speed = 25, forceTurn = "None", slowTurnRatio = 0.4)
 
     # Left turn zero crossing.
-    turnToAngle(targetAngle = -45, speed = 25, forceTurn = "None", slowTurnRatio = 0.2)
+    turnToAngle(targetAngle = -45, speed = 25, forceTurn = "None", slowTurnRatio = 0.4)
 
     # Right turn zero crossing.
-    turnToAngle(targetAngle = 45, speed = 25, forceTurn = "None", slowTurnRatio = 0.2)
+    turnToAngle(targetAngle = 45, speed = 25, forceTurn = "None", slowTurnRatio = 0.4)
     """
     
     """
     # Right turn non zero crossing
-    turnToAngle(targetAngle = 45, speed = 25, forceTurn = "None", slowTurnRatio = 0.2)
+    turnToAngle(targetAngle = 45, speed = 25, forceTurn = "None", slowTurnRatio = 0.4)
 
     # Right turn non zero crossing
-    turnToAngle(targetAngle = 135, speed = 25, forceTurn = "None", slowTurnRatio = 0.2)
+    turnToAngle(targetAngle = 135, speed = 25, forceTurn = "None", slowTurnRatio = 0.4)
 
     # Right turn non zero crossing
-    turnToAngle(targetAngle = -135, speed = 25, forceTurn = "None", slowTurnRatio = 0.2)
+    turnToAngle(targetAngle = -135, speed = 25, forceTurn = "None", slowTurnRatio = 0.4)
 
     # Right turn non zero crossing
-    turnToAngle(targetAngle = -45, speed = 25, forceTurn = "None", slowTurnRatio = 0.2)
+    turnToAngle(targetAngle = -45, speed = 25, forceTurn = "None", slowTurnRatio = 0.4)
 
     # Left turn non zero crossing
-    turnToAngle(targetAngle = -135, speed = 25, forceTurn = "None", slowTurnRatio = 0.2)
+    turnToAngle(targetAngle = -135, speed = 25, forceTurn = "None", slowTurnRatio = 0.4)
 
     # Left turn non zero crossing
-    turnToAngle(targetAngle = 135, speed = 25, forceTurn = "None", slowTurnRatio = 0.2)
+    turnToAngle(targetAngle = 135, speed = 25, forceTurn = "None", slowTurnRatio = 0.4)
 
     # Left turn non zero crossing
-    turnToAngle(targetAngle = 45, speed = 25, forceTurn = "None", slowTurnRatio = 0.2)
+    turnToAngle(targetAngle = 45, speed = 25, forceTurn = "None", slowTurnRatio = 0.4)
     """
 
     # Left turn 90
     #turnToAngle(targetAngle = 90, speed = 25, forceTurn = "None", slowTurnRatio = 0.5)
     #time.sleep(1)
-    turnToAngle(targetAngle = -90, speed = 25, forceTurn = "None", slowTurnRatio = 0.4)
+    #turnToAngle(targetAngle = -90, speed = 25, forceTurn = "None", slowTurnRatio = 0.4)
     #turnToAngle(targetAngle = -135, speed = 25, forceTurn = "None", slowTurnRatio = 0.4)
     #time.sleep(1)
     #turnToAngle(targetAngle = -135, speed = 25, forceTurn = "None", slowTurnRatio = 0.4)
@@ -492,10 +510,14 @@ def testAxleLogic(degrees,speed,direction):
         motors.move_tank(toturndegrees, "degrees", speed * -1, speed)
     else:
         motors.move_tank(toturndegrees, "degrees", speed, -1 * speed)
+    motors.stop()
+    time.sleep(2)
     endmotorCDegrees =  motorC.get_degrees_counted()
     endmotorEDegrees = motorE.get_degrees_counted()
     print("MotorC degrees counted: " + str(endmotorCDegrees) + " motorE degrees counted: " + str(endmotorEDegrees))
     print("motorCDiff: " + str(endmotorCDegrees -startmotorCDegrees) + " motor E Diff: " + str(endmotorEDegrees - startmotorEDegrees))
+    currentAngle = gyroAngleZeroTo360()
+    logMessage("Axle:" + str(currentAngle) , level=3)
   
 def squareTest():
     
@@ -518,7 +540,7 @@ initialize()
 #run4()
 #squareTest()
 testTurnToAngle()
-#testAxleLogic(90,20,"Right")
+#testAxleLogic(90,25,"Right")
 
 raise SystemExit
 
