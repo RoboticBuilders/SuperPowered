@@ -27,7 +27,33 @@ absolute_angle = 0
 
 # -------------------------------------------------------------------  Classes --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 class ContinousAngle:
+    """
+    WARNING: This is a very specialed class and only to be used for turn to angle.
 
+    This class produces continous gyro readings. The spike prime
+    gyro produces angles between -179 and +179. This class will avoid the 
+    jump of values between -179 and +179. Here are examples of the values the
+    class produces
+    Example 1:
+    Gyro readings : -10,-5,-4,-1,0,1,5,8
+    Class Output  : -10,-5,-4,-1,0,1,5,8
+
+    Example 2: (note there are two discontinous readings in the series below one from 179 to -179
+    and another from -179 to 179)
+    Gyro readings : 170,175,179,-179,-178,-170,-175,-179,179,175
+    Class Output  : 170,175,179,181,182,190,185,181,179,175
+
+    The way the class works is by converting all the values in the -179 to +179
+    range to 0-360. Thus the discontinuity is around the zero angle.
+    It then uses the precision term to determine if it is in a condition that 
+    is a zero crossing and going to produce a non-continous value.
+    It it is in that condition then it converts it into a contunous value.
+
+    WARNING: This class will not work if between two calls to getAngle the
+    gyro reading changes more than precision. Precision is a input value
+    and can be adjusted. Since it is expected that the class is used in 
+    only a special case in turnToAngle.
+    """
     def __init__(self,startAngle,direction,precision=20) :
         self.startAngle = startAngle
         self.direction = direction
@@ -57,7 +83,6 @@ class ContinousAngle:
             self.currentAngle = newAngle
 
         return self.currentAngle
-
 
     def OLDgetAngle(self):
         previousAngle = self.currentAngle
