@@ -7,7 +7,7 @@ from math import *
 
 AXLE_DIAMETER_CM = 12.7
 WHEEL_RADIUS_CM = 4.4
-GLOBAL_LEVEL = 5
+GLOBAL_LEVEL = 0
 primeHub = PrimeHub()
 
 # Motor C is the left motor and Motor E is the right motor.
@@ -51,6 +51,7 @@ class ContinousAngle:
     and can be adjusted. Since it is expected that the class is used in 
     only a special case in turnToAngle.
     """
+    
     def __init__(self,startAngle,direction,precision=20) :
         self.startAngle = startAngle
         self.direction = direction
@@ -61,7 +62,7 @@ class ContinousAngle:
 
     def getAngle(self):
         previousAngle = self.currentAngle
-        newAngle = self.gyro.getReading()
+        newAngle = gyroAngleZeroTo360()
 
         if abs(newAngle - previousAngle) > self.precision:
             # This means we are going to produce a non-continous value.
@@ -153,6 +154,62 @@ def gyroAngleZeroTo360():
             return 360 + yaw
         else:
             return yaw
+
+def turnRobotRelative(degreesToTurn, speed=20, slowTurnRatio=0.2, correction=0):
+    """Turns the robot the specified angle.
+
+    degreesToTurn: The degrees to turn, use +ve numbers to turn right and -ve numbers to turn left.
+    speed: The speed to turn at.
+    slowTurnRation: The slow turn ratio.
+    correction: The correction to use.
+    """
+    if (degreesToTurn > 179 or degreesToTurn < -179):
+        raise ValueError("degreesToTurn should be between +179 and -179")
+
+    degreesToTurn = degreesToTurn * (1 - correction)
+
+    motors.stop()
+    primeHub.motion_sensor.reset_yaw_angle()
+    currentAngle = gyroAngleZeroTo360()
+    targetAngle = currentAngle + degreesToTurn
+    
+    logMessage("Current Angle:" + str(currentAngle) + " Target angle:" + str(targetAngle) + " degreesToTurn:" + str(degreesToTurn), level=4)
+
+    fastTurnDegrees =  (1 - slowTurnRatio) * abs(degreesToTurn)    
+    #motorCInitialDeg = abs(motorC.get_degrees_counted())
+    #motorEInitialDeg = abs(motorE.get_degrees_counted())
+
+    SLOW_TURN_SPEED = 10
+    startAngle=currentAngle
+    slowTurndegrees = slowTurnRatio * abs(degreesToTurn)
+    while (abs(currentAngle - targetAngle) > 1):
+        degreestravelled = abs(currentAngle-startAngle)
+        if(degreestravelled<fastTurnDegrees):
+            slowTurnSpeed = int(speed + ((SLOW_TURN_SPEED-speed) * degreestravelled/fastTurnDegrees))
+        else:
+            slowTurnSpeed = SLOW_TURN_SPEED
+
+        if (currentAngle > targetAngle):
+            motors.start_tank(slowTurnSpeed * -1, slowTurnSpeed)
+            logMessage("In SlowTurn left turn, current_angle:" + str(currentAngle) + " speed=" + str(slowTurnSpeed), level=5)
+        else:
+            motors.start_tank(slowTurnSpeed, slowTurnSpeed * -1)
+            logMessage("In SlowTurn right turn, current_angle:" + str(currentAngle) + " speed=" + str(slowTurnSpeed), level=5)
+        currentAngle = gyroAngleZeroTo360()      
+
+        """
+        motorCDiff = abs(motorC.get_degrees_counted()) - motorCInitialDeg
+        motorEDiff = abs(motorE.get_degrees_counted()) - motorEInitialDeg
+        avgDiff = (abs(motorCDiff) + abs(motorEDiff)) / 2
+        robotTurn = 0.346*avgDiff
+        logMessage("In SlowTurn, current_angle:" + str(currentAngle) + " speed=" + str(slowTurnSpeed) + " motorCDegDiff=" + 
+            str(motorCDiff) + " motorEDegDiff=" + str(motorEDiff) + " expectedRobotTurn=" + str(robotTurn), level=5)
+        """         
+
+    motors.stop()
+    currentAngle = gyroAngleZeroTo360()
+    logMessage("TurnToAngle complete current_angle:" + str(currentAngle) + " targetAngle:" + str(targetAngle), level=4)
+    
 
 def turnToAngle(targetAngle, speed=20, forceTurn="None", slowTurnRatio=0.2, correction=0.05):
     """Turns the robot the specified angle.
@@ -277,49 +334,7 @@ def _turnRobotWithSlowDown(angleInDegrees, targetAngle, speed, slowTurnRatio, di
         logMessage("In SlowTurn, current_angle:" + str(currentAngle) + " speed=" + str(slowTurnSpeed) + " motorCDegDiff=" + 
             str(motorCDiff) + " motorEDegDiff=" + str(motorEDiff) + " expectedRobotTurn=" + str(robotTurn), level=5)
         """         
-   
 
-def testTurnToAngle():
-    # TurnToAngle Testing
-    
-    turnRobotRelative(degreesToTurn=90, speed=25, slowTurnRatio = 0.2, correction = 0.07)
-    #turnRobotRelative(degreesToTurn=90, speed=25, slowTurnRatio = 0.4, correction = 0.05)
-    #turnRobotRelative(degreesToTurn=90, speed=25, slowTurnRatio = 0.4, correction = 0.05)
-    #turnToAngle(targetAngle = 90, speed = 25, forceTurn = "None", slowTurnRatio = 0.4, correction = 0.05)
-
-    """
-    # Right turn non zero crossing
-    turnToAngle(targetAngle = 45, speed = 25, forceTurn = "None", slowTurnRatio = 0.4)
-
-    # Left turn zero crossing.
-    turnToAngle(targetAngle = -45, speed = 25, forceTurn = "None", slowTurnRatio = 0.4)
-
-    # Right turn zero crossing.
-    turnToAngle(targetAngle = 45, speed = 25, forceTurn = "None", slowTurnRatio = 0.4)
-    """
-    
-    """
-    # Right turn non zero crossing
-    turnToAngle(targetAngle = 45, speed = 25, forceTurn = "None", slowTurnRatio = 0.4)
-
-    # Right turn non zero crossing
-    turnToAngle(targetAngle = 135, speed = 25, forceTurn = "None", slowTurnRatio = 0.4)
-
-    # Right turn non zero crossing
-    turnToAngle(targetAngle = -135, speed = 25, forceTurn = "None", slowTurnRatio = 0.4)
-
-    # Right turn non zero crossing
-    turnToAngle(targetAngle = -45, speed = 25, forceTurn = "None", slowTurnRatio = 0.4)
-
-    # Left turn non zero crossing
-    turnToAngle(targetAngle = -135, speed = 25, forceTurn = "None", slowTurnRatio = 0.4)
-
-    # Left turn non zero crossing
-    turnToAngle(targetAngle = 135, speed = 25, forceTurn = "None", slowTurnRatio = 0.4)
-
-    # Left turn non zero crossing
-    turnToAngle(targetAngle = 45, speed = 25, forceTurn = "None", slowTurnRatio = 0.4)
-    """
     
 def gyroStraight(distance, speed = 20, backward = False, targetAngle = 0):
     initialDeg = abs(motorC.get_degrees_counted())
@@ -481,6 +496,54 @@ def isBatteryGood():
 
     return True
  
+
+def testTurnToAngle():
+    # TurnToAngle Testing
+    
+    #turnRobotRelative(degreesToTurn=90, speed=25, slowTurnRatio = 0.2, correction = 0.05)
+    turnToAngle(targetAngle = 90, speed = 25, forceTurn = "None", slowTurnRatio = 0.4, correction = 0.05)
+    time.sleep(1)
+    turnToAngle(targetAngle = 180, speed = 25, forceTurn = "None", slowTurnRatio = 0.4, correction = 0.05)
+    time.sleep(1)
+    turnToAngle(targetAngle = -90, speed = 25, forceTurn = "None", slowTurnRatio = 0.4, correction = 0.05)
+    time.sleep(1)
+    turnToAngle(targetAngle = 0, speed = 25, forceTurn = "None", slowTurnRatio = 0.4, correction = 0.05)
+    time.sleep(1)
+    turnToAngle(targetAngle = 90, speed = 25, forceTurn = "None", slowTurnRatio = 0.4, correction = 0.05)
+
+    """
+    # Right turn non zero crossing
+    turnToAngle(targetAngle = 45, speed = 25, forceTurn = "None", slowTurnRatio = 0.4)
+
+    # Left turn zero crossing.
+    turnToAngle(targetAngle = -45, speed = 25, forceTurn = "None", slowTurnRatio = 0.4)
+
+    # Right turn zero crossing.
+    turnToAngle(targetAngle = 45, speed = 25, forceTurn = "None", slowTurnRatio = 0.4)
+    """
+    
+    """
+    # Right turn non zero crossing
+    turnToAngle(targetAngle = 45, speed = 25, forceTurn = "None", slowTurnRatio = 0.4)
+
+    # Right turn non zero crossing
+    turnToAngle(targetAngle = 135, speed = 25, forceTurn = "None", slowTurnRatio = 0.4)
+
+    # Right turn non zero crossing
+    turnToAngle(targetAngle = -135, speed = 25, forceTurn = "None", slowTurnRatio = 0.4)
+
+    # Right turn non zero crossing
+    turnToAngle(targetAngle = -45, speed = 25, forceTurn = "None", slowTurnRatio = 0.4)
+
+    # Left turn non zero crossing
+    turnToAngle(targetAngle = -135, speed = 25, forceTurn = "None", slowTurnRatio = 0.4)
+
+    # Left turn non zero crossing
+    turnToAngle(targetAngle = 135, speed = 25, forceTurn = "None", slowTurnRatio = 0.4)
+
+    # Left turn non zero crossing
+    turnToAngle(targetAngle = 45, speed = 25, forceTurn = "None", slowTurnRatio = 0.4)
+    """
  # ------------------------------------------------------------------- End Utilities --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
  # ------------------------------------------------------------------- Arisha OIL platform --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def runArisha():
@@ -559,14 +622,13 @@ def run1():
     logMessage("Gyro after 2nd move" + str(gyroAngleZeroTo360()), 3)
     turnToAngle(targetAngle = -45, speed = 25)
     logMessage("Gyro after 3rd move" + str(gyroAngleZeroTo360()), 3)
-    drive(speed = 30, distanceInCM = 50, target_angle = -45)
+    drive(speed = 30, distanceInCM = 45, target_angle = -45)
     logMessage("Gyro after 4th move" + str(gyroAngleZeroTo360()), 3)
     turnToAngle(targetAngle = 45, speed = 25)
     logMessage("Gyro after 5th move" + str(gyroAngleZeroTo360()), 3)
     drive(speed = 30, distanceInCM = 23, target_angle = 45)
     logMessage("Gyro after 6th move" + str(gyroAngleZeroTo360()), 3)
 
-    """
     for i in range(2):
         motors.move(amount = 5, unit = "cm", steering = 0, speed = -20)
         logMessage("Gyro after 7th move" + str(gyroAngleZeroTo360()), 3)
@@ -575,17 +637,16 @@ def run1():
         time.sleep(0.5)
     motors.move(amount = 25, unit = "cm", steering = 0, speed = -30)
     logMessage("Gyro after 9th move" + str(gyroAngleZeroTo360()), 3)
-    turnToAngle(targetAngle = -45, speed = 25)
-    logMessage("Gyro after 10th move" + str(gyroAngleZeroTo360()), 3)
-    drive(speed = 30, distanceInCM = 30, target_angle = -45)
-    logMessage("Gyro after 11th move" + str(gyroAngleZeroTo360()), 3)
-    """
+    # turnToAngle(targetAngle = -45, speed = 25)
+    # logMessage("Gyro after 10th move" + str(gyroAngleZeroTo360()), 3)
+    # drive(speed = 30, distanceInCM = 30, target_angle = -45)
+    # logMessage("Gyro after 11th move" + str(gyroAngleZeroTo360()), 3)
 
 initialize()
 #testTurnToAngle()
 
-#run1()
+run1()
 #run4()
-raise SystemExit
+#raise SystemExit
 
 #runArisha()

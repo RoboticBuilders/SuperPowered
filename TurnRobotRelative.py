@@ -1,3 +1,27 @@
+from spike import PrimeHub, LightMatrix, Button, StatusLight, ForceSensor, MotionSensor, Speaker, ColorSensor, App, DistanceSensor, Motor, MotorPair
+from spike.control import wait_for_seconds, wait_until, Timer
+from math import *
+# Note that the "hub" import is needed, this is different from the PrimeHub import above, this is the way to access the battery.
+import time, hub
+from math import *
+
+AXLE_DIAMETER_CM = 12.7
+WHEEL_RADIUS_CM = 4.4
+GLOBAL_LEVEL = 5
+primeHub = PrimeHub()
+
+# Motor C is the left motor and Motor E is the right motor.
+motorC = Motor("C")
+motorE = Motor("E")
+
+motors = MotorPair('C', 'E')
+
+#right med motor
+motorD = Motor("D")
+#left med motor
+motorF = Motor("F")
+_CM_PER_INCH = 2.54
+
 def turnRobotRelative(degreesToTurn, speed=20, slowTurnRatio=0.2, correction=0):
     """Turns the robot the specified angle.
 
@@ -55,3 +79,6 @@ def turnRobotRelative(degreesToTurn, speed=20, slowTurnRatio=0.2, correction=0):
     currentAngle = gyroAngleZeroTo360()
     logMessage("TurnToAngle complete current_angle:" + str(currentAngle) + " targetAngle:" + str(targetAngle), level=4)
     absolute_angle = absolute_angle + degreesToTurn
+
+
+motors.start_tank(20, 20)

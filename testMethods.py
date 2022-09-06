@@ -29,3 +29,46 @@ def squareTest():
 
     turnToAngle(targetAngle = -180, speed = 30)
     drive(speed = 30, distanceInCM = 30, target_angle = -180)
+
+
+def testTurnToAngle():
+    # TurnToAngle Testing
+    
+    turnRobotRelative(degreesToTurn=90, speed=25, slowTurnRatio = 0.2, correction = 0.07)
+    #turnRobotRelative(degreesToTurn=90, speed=25, slowTurnRatio = 0.4, correction = 0.05)
+    #turnRobotRelative(degreesToTurn=90, speed=25, slowTurnRatio = 0.4, correction = 0.05)
+    #turnToAngle(targetAngle = 90, speed = 25, forceTurn = "None", slowTurnRatio = 0.4, correction = 0.05)
+
+    """
+    # Right turn non zero crossing
+    turnToAngle(targetAngle = 45, speed = 25, forceTurn = "None", slowTurnRatio = 0.4)
+
+    # Left turn zero crossing.
+    turnToAngle(targetAngle = -45, speed = 25, forceTurn = "None", slowTurnRatio = 0.4)
+
+    # Right turn zero crossing.
+    turnToAngle(targetAngle = 45, speed = 25, forceTurn = "None", slowTurnRatio = 0.4)
+    """
+    
+    """
+    # Right turn non zero crossing
+    turnToAngle(targetAngle = 45, speed = 25, forceTurn = "None", slowTurnRatio = 0.4)
+
+    # Right turn non zero crossing
+    turnToAngle(targetAngle = 135, speed = 25, forceTurn = "None", slowTurnRatio = 0.4)
+
+    # Right turn non zero crossing
+    turnToAngle(targetAngle = -135, speed = 25, forceTurn = "None", slowTurnRatio = 0.4)
+
+    # Right turn non zero crossing
+    turnToAngle(targetAngle = -45, speed = 25, forceTurn = "None", slowTurnRatio = 0.4)
+
+    # Left turn non zero crossing
+    turnToAngle(targetAngle = -135, speed = 25, forceTurn = "None", slowTurnRatio = 0.4)
+
+    # Left turn non zero crossing
+    turnToAngle(targetAngle = 135, speed = 25, forceTurn = "None", slowTurnRatio = 0.4)
+
+    # Left turn non zero crossing
+    turnToAngle(targetAngle = 45, speed = 25, forceTurn = "None", slowTurnRatio = 0.4)
+    """
