@@ -211,7 +211,7 @@ def turnRobotRelative(degreesToTurn, speed=20, slowTurnRatio=0.2, correction=0):
     logMessage("TurnToAngle complete current_angle:" + str(currentAngle) + " targetAngle:" + str(targetAngle), level=4)
     
 
-def turnToAngle(targetAngle, speed=20, forceTurn="None", slowTurnRatio=0.2, correction=0.05):
+def turnToAngle(targetAngle, speed=20, forceTurn="None", slowTurnRatio=0.2, correction=0.07):
     """Turns the robot the specified angle.
     It calculates if the right or the left turn is the closest
     way to get to the target angle. Can handle both negative 
@@ -290,10 +290,24 @@ def turnToAngle(targetAngle, speed=20, forceTurn="None", slowTurnRatio=0.2, corr
     if(direction == "Left" and currentAngle < targetAngle):
         targetAngle = targetAngle - 360  
 
+    logMessage("Continous target angle:" + str(targetAngle) + " direction:" + direction + " degreesToTurn:" + str(degreesToTurn), level=4)
+
     # Use the correction to correct the target angle and the degreesToTurn
-
-
-    logMessage("Continous target angle:" + str(targetAngle) + " direction:" + direction + " degreedToTurn:" + str(degreesToTurn), level=4)
+    if (direction == "Right"):
+        assert degreesToTurn >= 0
+        assert targetAngle >= 0
+        targetAngle = targetAngle - (degreesToTurn * correction)
+        degreesToTurn = degreesToTurn * (1-correction)
+    elif (direction == "Left"):
+        assert degreesToTurn <= 0
+        assert targetAngle >= 0
+        # Same formula as above, since degreesToTurn is -ve, thus,
+        # targetAngle will become a little larger than before, resulting
+        # in a smaller turn.
+        targetAngle = targetAngle - (degreesToTurn * correction)
+        degreesToTurn = degreesToTurn * (1-correction)
+        
+    logMessage("After correction Continous target angle:" + str(targetAngle) + " direction:" + direction + " degreesToTurn:" + str(degreesToTurn), level=4)
     _turnRobotWithSlowDown(degreesToTurn, targetAngle, speed, slowTurnRatio, direction)
 
     motors.stop()
@@ -321,8 +335,7 @@ def _turnRobotWithSlowDown(angleInDegrees, targetAngle, speed, slowTurnRatio, di
     startAngle=currentAngle
     slowTurndegrees = slowTurnRatio * abs(angleInDegrees)
     continuousAngle = ContinousAngle(currentAngle, direction)
-    logMessage("After fast turn current_angle:" + str(currentAngle) + " targetAngle:" + str(targetAngle), level=3)
-    
+        
     while (abs(currentAngle - targetAngle) > 1):
         degreestravelled = abs(currentAngle-startAngle)
         if(degreestravelled<fastTurnDegrees):
@@ -513,19 +526,23 @@ def testTurnToAngle():
     # TurnToAngle Testing
     
     #turnRobotRelative(degreesToTurn=90, speed=25, slowTurnRatio = 0.2, correction = 0.05)
-    turnToAngle(targetAngle = 90, speed = 25, forceTurn = "None", slowTurnRatio = 0.4, correction = 0.05)
-    time.sleep(1)
-    turnToAngle(targetAngle = 180, speed = 25, forceTurn = "None", slowTurnRatio = 0.4, correction = 0.05)
-    time.sleep(1)
-    
-    
-    turnToAngle(targetAngle = -90, speed = 25, forceTurn = "None", slowTurnRatio = 0.4, correction = 0.05)
-    time.sleep(1)
     GLOBAL_LEVEL = 5
-    turnToAngle(targetAngle = 0, speed = 25, forceTurn = "None", slowTurnRatio = 0.4, correction = 0.05)
+    turnToAngle(targetAngle = 90, speed = 25, forceTurn = "None", slowTurnRatio = 0.4, correction = 0.05)
     time.sleep(1)
     GLOBAL_LEVEL = 0
+
+    """
+    turnToAngle(targetAngle = 180, speed = 25, forceTurn = "None", slowTurnRatio = 0.4, correction = 0.05)
+    time.sleep(1)
+        
+    turnToAngle(targetAngle = -90, speed = 25, forceTurn = "None", slowTurnRatio = 0.4, correction = 0.05)
+    time.sleep(1)
+    
+    turnToAngle(targetAngle = 0, speed = 25, forceTurn = "None", slowTurnRatio = 0.4, correction = 0.05)
+    time.sleep(1)
+    
     turnToAngle(targetAngle = 90, speed = 25, forceTurn = "None", slowTurnRatio = 0.4, correction = 0.05)
+    """
 
     """
     # Right turn non zero crossing
