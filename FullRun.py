@@ -216,7 +216,7 @@ def turnToAngle(targetAngle, speed=20, forceTurn="None", slowTurnRatio=0.2, corr
     It calculates if the right or the left turn is the closest
     way to get to the target angle. Can handle both negative 
     targetAngle and negative gyro readings.
-    targetAngle -- the final gyro angle to turn the robot to
+    targetAngle -- the final gyro angle to turn the robot to. This should be between -179 and +179
     speed -- the speed to turn.
     forceTurn -- Can be "None", "Right" or "Left" strings, forcing
     the robot to turn left or right independent of the shortest 
@@ -226,16 +226,25 @@ def turnToAngle(targetAngle, speed=20, forceTurn="None", slowTurnRatio=0.2, corr
     the default value is 0.2, or 20% of the turn is slow.
     correction -- The correction value in ratio. If its set to 0.05, we are going to 
     addjust the turnAngle by 5%, if you dont want any correction set it to 0
+
+    Note about the algorithm. There are three angle spaces involved in this algo.
+    1. Spike prime gyro angles: -179 to +179. This is the input targetAngle and also the readings from the gyro.
+    2. Spike prime 0-360 space. We first convert spike prime gyro angles to 0-360 
+       (this is because its easier to think in this space)
+       Its still discontinous and cannot be used for absolute angles.
+    3. Spike Prime Continous space. This is the angles produced by the ContinousAngle class. This is what the loop
+       in the _turnRobotWithSlowDown operates in. This space depends upon the start angle and zero crossings.
+       Examples: 
+       a) Turning right: 350,351,355,359,360,361,362,365...
+       b) Turning left: 5,4,3,1,0,-1,-2,-3,-5....
+    In the code its confusing what space a particular angle is in. So be careful when changing code.
     """
     motors.stop()
-    #motors.set_stop_action("coast")
     currentAngle = gyroAngleZeroTo360()
     
-    # Next make the targetAngle between 0-360
-    targetAngle = targetAngle * (1 - correction)
     if (targetAngle < 0):
         targetAngle = targetAngle + 360
-
+    
     logMessage("TurnToAngle current_angle:" + str(currentAngle) + " targetAngle:" + str(targetAngle), level=4)
 
     # Compute whether the left or the right
@@ -265,7 +274,7 @@ def turnToAngle(targetAngle, speed=20, forceTurn="None", slowTurnRatio=0.2, corr
     elif (forceTurn == "Left"):
         degreesToTurn = degreesToTurnLeft * -1
         direction = "Left"
-
+    
     # Set the targetAngle to be in the continous space.
     # i.e. if we cross zero then the target Angle is set to be
     # continous. 
@@ -281,6 +290,9 @@ def turnToAngle(targetAngle, speed=20, forceTurn="None", slowTurnRatio=0.2, corr
     if(direction == "Left" and currentAngle < targetAngle):
         targetAngle = targetAngle - 360  
 
+    # Use the correction to correct the target angle and the degreesToTurn
+
+
     logMessage("Continous target angle:" + str(targetAngle) + " direction:" + direction + " degreedToTurn:" + str(degreesToTurn), level=4)
     _turnRobotWithSlowDown(degreesToTurn, targetAngle, speed, slowTurnRatio, direction)
 
@@ -290,13 +302,11 @@ def turnToAngle(targetAngle, speed=20, forceTurn="None", slowTurnRatio=0.2, corr
     logMessage("TurnToAngle complete current_angle:" + str(currentAngle) + " targetAngle:" + str(targetAngle), level=4)
 
 def _turnRobotWithSlowDown(angleInDegrees, targetAngle, speed, slowTurnRatio, direction):
-    """Turns the Robot accurately using robot.drive.
-    This method first turns the robot with
-    speed using robot.turn for a % of the angleInDegrees
-    determined by slowTurnRatio. For the remainder of the turn
-    i.e. slowturnRatio * angleInDegrees it turns using robot.drive
-    with a speed of 30.
+    """
+    Turns the Robot using a loop to start turning at speed, and gradually decelerates
+    to SLOW_SPEED
     angleInDegrees -- Angle in degrees to turn. Can be +ve or -ve.
+    targetAngle -- targetAngle it should be in continous angle space.
     speed -- Fast turn speed. 
     slowTurnRatio -- This is the % of the turn that we want to slow turn.
                      For example 0.2 means that 20% of the turn we want
@@ -306,6 +316,7 @@ def _turnRobotWithSlowDown(angleInDegrees, targetAngle, speed, slowTurnRatio, di
     motorCInitialDeg = abs(motorC.get_degrees_counted())
     motorEInitialDeg = abs(motorE.get_degrees_counted())
 
+    SLOW_SPEED = 10
     currentAngle = gyroAngleZeroTo360()
     startAngle=currentAngle
     slowTurndegrees = slowTurnRatio * abs(angleInDegrees)
@@ -315,9 +326,9 @@ def _turnRobotWithSlowDown(angleInDegrees, targetAngle, speed, slowTurnRatio, di
     while (abs(currentAngle - targetAngle) > 1):
         degreestravelled = abs(currentAngle-startAngle)
         if(degreestravelled<fastTurnDegrees):
-            slowTurnSpeed = int(speed + ((10-speed) * degreestravelled/fastTurnDegrees))
+            slowTurnSpeed = int(speed + ((SLOW_SPEED-speed) * degreestravelled/fastTurnDegrees))
         else:
-            slowTurnSpeed = 10
+            slowTurnSpeed = SLOW_SPEED
         if (currentAngle > targetAngle):
             motors.start_tank(slowTurnSpeed * -1, slowTurnSpeed)
             logMessage("In SlowTurn left turn, current_angle:" + str(currentAngle) + " speed=" + str(slowTurnSpeed), level=5)
@@ -498,6 +509,7 @@ def isBatteryGood():
  
 
 def testTurnToAngle():
+    global GLOBAL_LEVEL
     # TurnToAngle Testing
     
     #turnRobotRelative(degreesToTurn=90, speed=25, slowTurnRatio = 0.2, correction = 0.05)
@@ -505,10 +517,14 @@ def testTurnToAngle():
     time.sleep(1)
     turnToAngle(targetAngle = 180, speed = 25, forceTurn = "None", slowTurnRatio = 0.4, correction = 0.05)
     time.sleep(1)
+    
+    
     turnToAngle(targetAngle = -90, speed = 25, forceTurn = "None", slowTurnRatio = 0.4, correction = 0.05)
     time.sleep(1)
+    GLOBAL_LEVEL = 5
     turnToAngle(targetAngle = 0, speed = 25, forceTurn = "None", slowTurnRatio = 0.4, correction = 0.05)
     time.sleep(1)
+    GLOBAL_LEVEL = 0
     turnToAngle(targetAngle = 90, speed = 25, forceTurn = "None", slowTurnRatio = 0.4, correction = 0.05)
 
     """
@@ -643,10 +659,10 @@ def run1():
     # logMessage("Gyro after 11th move" + str(gyroAngleZeroTo360()), 3)
 
 initialize()
-#testTurnToAngle()
+testTurnToAngle()
 
-run1()
+#run1()
 #run4()
-#raise SystemExit
+raise SystemExit
 
 #runArisha()
