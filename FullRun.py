@@ -108,7 +108,7 @@ class ContinousAngle:
         return self.currentAngle
 
 # -------------------------------------------------------------------  Utilities --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
+#region Utilities
 def initialize():
     print("___________________________________________________")
     primeHub.motion_sensor.reset_yaw_angle()
@@ -584,9 +584,11 @@ def testTurnToAngle():
     #turnToAngle(targetAngle = 90, speed = 25, forceTurn = "None", slowTurnRatio = 0.4)
     
  # ------------------------------------------------------------------- End Utilities --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ #endregion
  # ------------------------------------------------------------------- Arisha OIL platform --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 def runArisha():
-    hub.motion_sensor.reset_yaw_angle()
+    primeHub.motion_sensor.reset_yaw_angle()
     unloadEnergyUnits()
     # unLoadEnergyStorage()
 
@@ -599,9 +601,11 @@ def unLoadEnergyStorage():
 
 
 def unloadEnergyUnits():
-    #motorF.run_for_degrees(degrees=-400, speed=40)
     #Move the arm down
-    motorF.run_for_degrees(degrees=-200, speed=40)
+    #motorF.run_for_degrees(degrees=-200, speed=40)
+    #Move the arm up
+    motorF.run_for_degrees(degrees=600, speed=40)
+
 
     # motor_pair.move(_CM_PER_INCH*26, 'cm',0,50)
     # motor_pair.move(_CM_PER_INCH*-2,'cm',0,20)
@@ -610,16 +614,20 @@ def unloadEnergyUnits():
     # motor_pair.move(_CM_PER_INCH*2,'cm',0,20)
     # motor_pair.move(_CM_PER_INCH*-2,'cm',0,20)
     
-    print('current yaw angle ' +  str(hub.motion_sensor.get_yaw_angle()))
+    print('current yaw angle ' +  str(primeHub.motion_sensor.get_yaw_angle()))
     gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*10)
-    print('current yaw angle ' +  str(hub.motion_sensor.get_yaw_angle()))
+    print('current yaw angle ' +  str(primeHub.motion_sensor.get_yaw_angle()))
     gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*2, backward =True)
-    turnToAngle(0)
+    #turnToAngle(targetAngle=0)
     gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*3)
     gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*2, backward=True)
-    turnToAngle(0)
+    #turnToAngle(targetAngle=0)
     gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*3)
     gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*3, backward=True)
+    gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*3)
+    motorF.run_for_degrees(degrees=-600, speed=40)
+    gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*10, backward=True)
+
     # turnToAngle(45)
     # gyroStraight(targetAngle = 45,  distance = _CM_PER_INCH*7)
 
@@ -682,10 +690,11 @@ def run1():
     # logMessage("Gyro after 11th move" + str(gyroAngleZeroTo360()), 3)
 
 initialize()
-testTurnToAngle()
+#testTurnToAngle()
 
 #run1()
 #run4()
-raise SystemExit
+runArisha()
+#raise SystemExit
 
 #runArisha()
