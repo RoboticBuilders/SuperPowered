@@ -670,6 +670,23 @@ def unloadEnergyUnits():
 
 # ------------------------------------------------------------------- END Arisha OIL platform --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
  
+
+#region Anya 
+#powerPlant
+def runAnya():
+    global GLOBAL_LEVEL
+    startGlobalValue = GLOBAL_LEVEL
+    GLOBAL_LEVEL = 3
+
+
+    primeHub.motion_sensor.reset_yaw_angle()
+    #unloadEnergyUnits()
+    # unLoadEnergyStorage()
+    # reset the Global Value to what it was
+    GLOBAL_LEVEL = startGlobalValue
+#endregion Anya 
+
+
 def run4():
     drive(speed = 30, distanceInCM = 3, target_angle = 0)
     turnToAngle(targetAngle=55, speed=20)
