@@ -588,9 +588,16 @@ def testTurnToAngle():
  # ------------------------------------------------------------------- Arisha OIL platform --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 def runArisha():
+    global GLOBAL_LEVEL
+    startGlobalValue = GLOBAL_LEVEL
+    GLOBAL_LEVEL = 3
+
+
     primeHub.motion_sensor.reset_yaw_angle()
     unloadEnergyUnits()
     # unLoadEnergyStorage()
+    # reset the Global Value to what it was
+    GLOBAL_LEVEL = startGlobalValue
 
 def unLoadEnergyStorage():
     #Move the arm up
@@ -614,14 +621,18 @@ def unloadEnergyUnits():
     # motor_pair.move(_CM_PER_INCH*2,'cm',0,20)
     # motor_pair.move(_CM_PER_INCH*-2,'cm',0,20)
     
-    print('current yaw angle ' +  str(primeHub.motion_sensor.get_yaw_angle()))
-    gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*10)
-    print('current yaw angle ' +  str(primeHub.motion_sensor.get_yaw_angle()))
-    gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*2, backward =True)
-    #turnToAngle(targetAngle=0)
+    logMessage('current yaw angle ' +  str(primeHub.motion_sensor.get_yaw_angle()), 3)
+    #gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*10)
+    #drive(speed = 30, distanceInCM = 10, target_angle = 0)
+
+    logMessage('current yaw angle ' +  str(primeHub.motion_sensor.get_yaw_angle()), 3)
+    #gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*2, backward =True)
+    turnToAngle(targetAngle=0)
+    logMessage('current yaw angle after turnToAngle ' +  str(primeHub.motion_sensor.get_yaw_angle()), 3)
     gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*3)
     gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*2, backward=True)
-    #turnToAngle(targetAngle=0)
+    turnToAngle(targetAngle=0)
+    logMessage('current yaw angle after turnToAngle ' +  str(primeHub.motion_sensor.get_yaw_angle()), 3)
     gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*3)
     gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*3, backward=True)
     gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*3)
