@@ -336,6 +336,7 @@ def _turnRobotWithSlowDown(angleInDegrees, targetAngle, speed, slowTurnRatio, di
     if (direction == "Left"):
         motors.start_tank(speed * -1, speed)
     halfAngleToTurn = int(abs(currentAngle - targetAngle)) * slowTurnRatio
+
     while (abs(currentAngle - targetAngle) > halfAngleToTurn):
         """
         degreestravelled = abs(currentAngle-startAngle)
