@@ -677,13 +677,46 @@ def runAnya():
     global GLOBAL_LEVEL
     startGlobalValue = GLOBAL_LEVEL
     GLOBAL_LEVEL = 3
-
-
     primeHub.motion_sensor.reset_yaw_angle()
-    #unloadEnergyUnits()
-    # unLoadEnergyStorage()
+    getToPowerPlant()
+    ReleaseEnergyUnitsLowerFirst3()
     # reset the Global Value to what it was
     GLOBAL_LEVEL = startGlobalValue
+
+
+def getToPowerPlant():
+    hub.motion_sensor.reset_yaw_angle()
+    gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*17)
+    turnToAngle(-45)
+    print('current yaw angle ' +  str(hub.motion_sensor.get_yaw_angle()))
+    gyroStraight(targetAngle = -45,  distance = _CM_PER_INCH*18)
+    turnToAngle(90)
+    print('current yaw angle ' +  str(hub.motion_sensor.get_yaw_angle()))
+    gyroStraight(targetAngle = 90,  distance = _CM_PER_INCH*9)
+    print('current yaw angle ' +  str(hub.motion_sensor.get_yaw_angle()))
+
+
+def ReleaseEnergyUnitsLowerFirst3(baseGyro = 0):
+    # gyroStraight(targetAngle=0, distance=_CM_PER_INCH * 6)
+    # motorD.run_for_degrees(degrees=-50, speed=100)
+    gyroStraight(targetAngle=baseGyro, distance=_CM_PER_INCH * 4)
+    # time.sleep(5)
+    motorD.run_for_degrees(degrees=-50, speed=50)
+    motorD.run_for_degrees(degrees=-150, speed=100)
+    # time.sleep(5)
+    # gyroStraight(targetAngle=baseGyro, distance=_CM_PER_INCH * 1)
+    # time.sleep(5)
+    # motorD.run_for_degrees(degrees=-50, speed=100)
+    # time.sleep(5)
+    gyroStraight(targetAngle=baseGyro, distance=_CM_PER_INCH * 0.5)
+    # time.sleep(5)
+    # gyroStraight(targetAngle=baseGyro, distance=_CM_PER_INCH * 0.2, backward=True)
+    # time.sleep(5)
+    motorD.run_for_degrees(degrees=250, speed=70)
+
+
+
+
 #endregion Anya 
 
 
