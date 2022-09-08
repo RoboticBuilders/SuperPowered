@@ -23,7 +23,6 @@ motorD = Motor("D")
 motorF = Motor("F")
 _CM_PER_INCH = 2.54
 
-# -------------------------------------------------------------------  Classes --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 class ContinousAngle:
     """
     WARNING: This is a very specialed class and only to be used for turn to angle.
@@ -107,8 +106,7 @@ class ContinousAngle:
         
         return self.currentAngle
 
-# -------------------------------------------------------------------  Utilities --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
+#region Utilities
 def initialize():
     print("___________________________________________________")
     primeHub.motion_sensor.reset_yaw_angle()
@@ -584,11 +582,22 @@ def testTurnToAngle():
     #turnToAngle(targetAngle = 90, speed = 25, forceTurn = "None", slowTurnRatio = 0.4)
     
  # ------------------------------------------------------------------- End Utilities --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- # ------------------------------------------------------------------- Arisha OIL platform --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ #endregion
+
+#------------------------------------------------------------------- Arisha OIL platform --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+#region Arisha
 def runArisha():
-    hub.motion_sensor.reset_yaw_angle()
+    global GLOBAL_LEVEL
+    startGlobalValue = GLOBAL_LEVEL
+    GLOBAL_LEVEL = 3
+
+
+    primeHub.motion_sensor.reset_yaw_angle()
     unloadEnergyUnits()
     # unLoadEnergyStorage()
+    # reset the Global Value to what it was
+    GLOBAL_LEVEL = startGlobalValue
 
 def unLoadEnergyStorage():
     #Move the arm up
@@ -599,9 +608,11 @@ def unLoadEnergyStorage():
 
 
 def unloadEnergyUnits():
-    #motorF.run_for_degrees(degrees=-400, speed=40)
     #Move the arm down
-    motorF.run_for_degrees(degrees=-200, speed=40)
+    #motorF.run_for_degrees(degrees=-200, speed=40)
+    #Move the arm up
+    motorF.run_for_degrees(degrees=600, speed=40)
+
 
     # motor_pair.move(_CM_PER_INCH*26, 'cm',0,50)
     # motor_pair.move(_CM_PER_INCH*-2,'cm',0,20)
@@ -610,16 +621,24 @@ def unloadEnergyUnits():
     # motor_pair.move(_CM_PER_INCH*2,'cm',0,20)
     # motor_pair.move(_CM_PER_INCH*-2,'cm',0,20)
     
-    print('current yaw angle ' +  str(hub.motion_sensor.get_yaw_angle()))
-    gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*10)
-    print('current yaw angle ' +  str(hub.motion_sensor.get_yaw_angle()))
-    gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*2, backward =True)
-    turnToAngle(0)
+    logMessage('current yaw angle ' +  str(primeHub.motion_sensor.get_yaw_angle()), 3)
+    #gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*10)
+    #drive(speed = 30, distanceInCM = 10, target_angle = 0)
+
+    logMessage('current yaw angle ' +  str(primeHub.motion_sensor.get_yaw_angle()), 3)
+    #gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*2, backward =True)
+    turnToAngle(targetAngle=0)
+    logMessage('current yaw angle after turnToAngle ' +  str(primeHub.motion_sensor.get_yaw_angle()), 3)
     gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*3)
     gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*2, backward=True)
-    turnToAngle(0)
+    turnToAngle(targetAngle=0)
+    logMessage('current yaw angle after turnToAngle ' +  str(primeHub.motion_sensor.get_yaw_angle()), 3)
     gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*3)
     gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*3, backward=True)
+    gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*3)
+    motorF.run_for_degrees(degrees=-600, speed=40)
+    gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*10, backward=True)
+
     # turnToAngle(45)
     # gyroStraight(targetAngle = 45,  distance = _CM_PER_INCH*7)
 
@@ -645,10 +664,60 @@ def unloadEnergyUnits():
 #     #motor_pair.move(_CM_PER_INCH*-5,'cm',0,20)
 
 
-# endregion Arisha 
+#endregion Arisha 
 
 # ------------------------------------------------------------------- END Arisha OIL platform --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
  
+
+#region Anya 
+#powerPlant
+def runAnya():
+    global GLOBAL_LEVEL
+    startGlobalValue = GLOBAL_LEVEL
+    GLOBAL_LEVEL = 3
+    primeHub.motion_sensor.reset_yaw_angle()
+    getToPowerPlant()
+    ReleaseEnergyUnitsLowerFirst3()
+    # reset the Global Value to what it was
+    GLOBAL_LEVEL = startGlobalValue
+
+
+def getToPowerPlant():
+    hub.motion_sensor.reset_yaw_angle()
+    gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*17)
+    turnToAngle(-45)
+    print('current yaw angle ' +  str(hub.motion_sensor.get_yaw_angle()))
+    gyroStraight(targetAngle = -45,  distance = _CM_PER_INCH*18)
+    turnToAngle(90)
+    print('current yaw angle ' +  str(hub.motion_sensor.get_yaw_angle()))
+    gyroStraight(targetAngle = 90,  distance = _CM_PER_INCH*9)
+    print('current yaw angle ' +  str(hub.motion_sensor.get_yaw_angle()))
+
+
+def ReleaseEnergyUnitsLowerFirst3(baseGyro = 0):
+    # gyroStraight(targetAngle=0, distance=_CM_PER_INCH * 6)
+    # motorD.run_for_degrees(degrees=-50, speed=100)
+    gyroStraight(targetAngle=baseGyro, distance=_CM_PER_INCH * 4)
+    # time.sleep(5)
+    motorD.run_for_degrees(degrees=-50, speed=50)
+    motorD.run_for_degrees(degrees=-150, speed=100)
+    # time.sleep(5)
+    # gyroStraight(targetAngle=baseGyro, distance=_CM_PER_INCH * 1)
+    # time.sleep(5)
+    # motorD.run_for_degrees(degrees=-50, speed=100)
+    # time.sleep(5)
+    gyroStraight(targetAngle=baseGyro, distance=_CM_PER_INCH * 0.5)
+    # time.sleep(5)
+    # gyroStraight(targetAngle=baseGyro, distance=_CM_PER_INCH * 0.2, backward=True)
+    # time.sleep(5)
+    motorD.run_for_degrees(degrees=250, speed=70)
+
+
+
+
+#endregion Anya 
+
+
 def run4():
     #Driving forward 30 cm from home
     drive(speed = 30, distanceInCM = 30, target_angle = 0)
@@ -702,5 +771,11 @@ initialize()
 #run1(75, 75)
 run4()
 raise SystemExit
+#testTurnToAngle()
+
+#run1()
+#run4()
+runArisha()
+#raise SystemExit
 
 #runArisha()
