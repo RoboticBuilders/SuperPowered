@@ -1,10 +1,10 @@
+#from turtle import towards
 from spike import PrimeHub, LightMatrix, Button, StatusLight, ForceSensor, MotionSensor, Speaker, ColorSensor, App, DistanceSensor, Motor, MotorPair
 from spike.control import wait_for_seconds, wait_until, Timer
 from math import *
 # Note that the "hub" import is needed, this is different from the PrimeHub import above, this is the way to access the battery.
 import time, hub
 from math import *
-
 
 AXLE_DIAMETER_CM = 12.7
 WHEEL_RADIUS_CM = 4.4
@@ -115,6 +115,7 @@ def initialize():
     motors.set_stop_action("brake")
     motors.set_motor_rotation(2*3.14*WHEEL_RADIUS_CM, 'cm')
     isBatteryGood()
+  
 
 def logMessage(message = "", level=1):
     """
@@ -141,7 +142,7 @@ def moveArm(degrees = 0, speed = 0, motor = motorD):
     startDegrees = motor.get_degrees_counted()
     currentDegrees = motor.get_degrees_counted()
     motor.start_at_power(speed)
-    while abs(currentDegrees) - abs(startDegrees) < abs(degrees):
+    while abs(currentDegrees - startDegrees) < abs(degrees):
         currentDegrees = motor.get_degrees_counted()
         #print("MotorD smaller: " + str(abs(currentDegrees) - abs(startDegrees)))
     motor.stop()
@@ -353,6 +354,7 @@ def _turnRobotWithSlowDown(angleInDegrees, targetAngle, speed, slowTurnRatio, di
             logMessage("In SlowTurn right turn, current_angle:" + str(currentAngle) + " speed=" + str(slowTurnSpeed), level=5)
         
         """
+        logMessage("In SlowTurn , current_angle:" + str(currentAngle) + " targetAngle=" + str(targetAngle) + " HalfAngleTurn: " + str(halfAngleToTurn), level=5)
         time.sleep_ms(7)
         currentAngle = continuousAngleGyro.getAngle()    
 
@@ -366,7 +368,6 @@ def _turnRobotWithSlowDown(angleInDegrees, targetAngle, speed, slowTurnRatio, di
     while (abs(currentAngle - targetAngle) > 1):
         time.sleep_ms(7)
         currentAngle = continuousAngleGyro.getAngle()    
-        
 
         """
         motorCDiff = abs(motorC.get_degrees_counted()) - motorCInitialDeg
@@ -537,7 +538,6 @@ def isBatteryGood():
 
     return True
  
-
 def testTurnToAngle():
     global GLOBAL_LEVEL
     # TurnToAngle Testing
@@ -650,42 +650,57 @@ def unloadEnergyUnits():
 # ------------------------------------------------------------------- END Arisha OIL platform --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
  
 def run4():
-    drive(speed = 30, distanceInCM = 3, target_angle = 0)
-    turnToAngle(targetAngle=55, speed=20)
-    drive(speed= 30, distanceInCM= 25, target_angle= 45)
+    #Driving forward 30 cm from home
+    drive(speed = 30, distanceInCM = 30, target_angle = 0)
+    #Turning towards the first looped water unit
+    turnToAngle(targetAngle = -45, speed = 20)
+    #Cathing the first looped water unit
+    drive(speed = 30, distanceInCM = 12, target_angle = -45)
+    # Turning to next do the hydroelectric dam
+    turnToAngle(targetAngle = -15, speed = 5)
+    # Going forward to do hydroelectric dam
+    drive(speed = 30, distanceInCM = 27, target_angle = -15)
+    #Done with the hydroelectric dam now turning and getting ready to do second looped water unit
+    turnToAngle(targetAngle = -45, speed = 1)
 
-def run1():
-    drive(speed = 30, distanceInCM = 50, target_angle = 0)
-    logMessage("Gyro after 1st move" + str(gyroAngleZeroTo360()), 3)
-    motors.move(amount = 15, unit = "cm", steering = 0, speed = -30)
-    logMessage("Gyro after 2nd move" + str(gyroAngleZeroTo360()), 3)
-    turnToAngle(targetAngle = -45, speed = 25)
-    logMessage("Gyro after 3rd move" + str(gyroAngleZeroTo360()), 3)
-    drive(speed = 30, distanceInCM = 45, target_angle = -45)
-    logMessage("Gyro after 4th move" + str(gyroAngleZeroTo360()), 3)
-    turnToAngle(targetAngle = 45, speed = 25)
-    logMessage("Gyro after 5th move" + str(gyroAngleZeroTo360()), 3)
-    drive(speed = 30, distanceInCM = 23, target_angle = 45)
-    logMessage("Gyro after 6th move" + str(gyroAngleZeroTo360()), 3)
 
-    for i in range(2):
+def test_thread():
+    print("inside thread")
+
+
+def run1(moveArmDegrees, armSpeed):
+    drive(speed = 30, distanceInCM = 50, target_angle = 0) #Drive to Watch Television
+    motors.move(amount = 15, unit = "cm", steering = 0, speed = -30) #Backup from Watch Television
+    turnToAngle(targetAngle = -45, speed = 25) #Turn towards Hybrid Car
+    drive(speed = 30, distanceInCM = 45, target_angle = -45) #Drive towards Hybrid Car
+    turnToAngle(targetAngle = 45, speed = 25) #Turn towards Wind Turbine
+    drive(speed = 30, distanceInCM = 28, target_angle = 45) #Drive towards Wind Turbine and push the lever once
+
+    for i in range(2): #Push the lever the remaining two times
         motors.move(amount = 5, unit = "cm", steering = 0, speed = -20)
-        logMessage("Gyro after 7th move" + str(gyroAngleZeroTo360()), 3)
         drive(speed = 30, distanceInCM = 5, target_angle = 35)
-        logMessage("Gyro after 8th move" + str(gyroAngleZeroTo360()), 3)
         time.sleep(0.5)
-    motors.move(amount = 25, unit = "cm", steering = 0, speed = -30)
-    logMessage("Gyro after 9th move" + str(gyroAngleZeroTo360()), 3)
-    # turnToAngle(targetAngle = -45, speed = 25)
-    # logMessage("Gyro after 10th move" + str(gyroAngleZeroTo360()), 3)
-    # drive(speed = 30, distanceInCM = 30, target_angle = -45)
-    # logMessage("Gyro after 11th move" + str(gyroAngleZeroTo360()), 3)
+    motors.move(amount = 11, unit = "cm", steering = 0, speed = -30) #Backup from Wind Turbine
+    turnToAngle(targetAngle = -50, speed = 25) #Turn towards Hybrid Car
+    moveArm(degrees = moveArmDegrees, speed = armSpeed, motor = motorF) #Lower the Hybrid Car arm
+    drive(speed = 30, distanceInCM = 20, target_angle = -50) # Drive towards the Hybrid Car
+    moveArm(degrees = -1 * moveArmDegrees, speed = ceil(-0.75 * armSpeed), motor = motorF) #Raise the Hybrid Car arm and complete the mission
+    motors.move(amount = 30, unit = "cm", steering = 0, speed = -30) #Backup from the Hybrid Car
+    turnToAngle(targetAngle = -70, speed = 20) #Turn towards Rechargable Battery
+    moveArm(degrees = moveArmDegrees, speed = armSpeed, motor = motorF)
+    time.sleep(1)
+    motors.move(amount = 70, unit = "cm", steering = 0, speed = -50)
+    turnToAngle(targetAngle = -90, speed = 100)
 
 initialize()
-testTurnToAngle()
+#turnToAngle(targetAngle = 10, speed = 25)
+#turnToAngle(targetAngle = 20, speed = 25)
+#turnToAngle(targetAngle = 20, speed = 25)
+#testTurnToAngle()
+# run1
 
-#run1()
-#run4()
+#run1(75, 75)
+run4()
 raise SystemExit
 
 #runArisha()
