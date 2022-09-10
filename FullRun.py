@@ -7,7 +7,7 @@ from math import *
 
 AXLE_DIAMETER_CM = 12.7
 WHEEL_RADIUS_CM = 4.4
-GLOBAL_LEVEL = 0
+GLOBAL_LEVEL = 2
 primeHub = PrimeHub()
 
 # Motor C is the left motor and Motor E is the right motor.
@@ -26,7 +26,7 @@ _CM_PER_INCH = 2.54
 def initialize():
     print("___________________________________________________")
     primeHub.motion_sensor.reset_yaw_angle()
-    motors.set_stop_action("coast")
+    motors.set_stop_action("brake")
     motors.set_motor_rotation(2*3.14*WHEEL_RADIUS_CM, 'cm')
     isBatteryGood()
   
@@ -272,7 +272,8 @@ def drive(speed, distanceInCM, target_angle, gain = 1):
     motors.stop()
     logMessage("driveStraight for distance: " + str(distanceInCM) + " and target angle: " + str(target_angle), level=4)
     initialDeg = abs(motorC.get_degrees_counted())
-
+    remainingDistance = distanceInCM
+    
     # If the distance is small, then just drive over that distance at speed.
     if (distanceInCM < 5):
         _driveStraightWithSlowDown(distanceInCM, speed, target_angle, gain, slowDown=False)    
@@ -287,18 +288,22 @@ def drive(speed, distanceInCM, target_angle, gain = 1):
     distanceTravelled = convertDegToCM(abs(motorC.get_degrees_counted()) - initialDeg)
     remainingDistance = distanceInCM - distanceTravelled
     logMessage("Distance travelled after first part = "  + str(distanceTravelled) + " error=" + str(distanceTravelled-distance80), level=4)
+    logMessage("remainingDistance=" + str(remainingDistance), level=1)
 
     distance16 = remainingDistance * 0.8
     _driveStraightWithSlowDown(distance16, speed, target_angle, gain, slowDown=True)
-
+    
     distanceTravelled = convertDegToCM(abs(motorC.get_degrees_counted()) - initialDeg)
     remainingDistance = distanceInCM - distanceTravelled
     logMessage("Distance travelled after second part= "  + str(distanceTravelled) + " error=" + str(distanceTravelled - (distance80+distance16)), level=4)
-
+    logMessage("remainingDistance=" + str(remainingDistance), level=1)
+    
     # Drive the final 4% of the distance at speed 5
-    FINAL_SLOW_SPEED = 5
-    motors.move_tank(remainingDistance, "cm", FINAL_SLOW_SPEED, FINAL_SLOW_SPEED)
-
+    # If we have already overshot the target, then dont correct for it.
+    if remainingDistance > 0:
+        FINAL_SLOW_SPEED = 5
+        motors.move_tank(remainingDistance, "cm", FINAL_SLOW_SPEED, FINAL_SLOW_SPEED)
+    
     motors.stop()
     finalDeg = abs(motorC.get_degrees_counted())
 
@@ -324,6 +329,9 @@ def _driveStraightWithSlowDown(distance, speed, target_angle, gain, slowDown):
 
     # Drop the speed from speed to five in distanceInDeg.
     distanceInDegTravelled = 0
+    
+    motors.start(0, int(currentSpeed))
+    correction = previousCorrection = 0
     while  distanceInDegTravelled <= distanceInDeg:
         if (slowDown == True):
             currentSpeed = (distanceInDegTravelled * (10 - speed) / (distanceInDeg)) + speed
@@ -333,10 +341,13 @@ def _driveStraightWithSlowDown(distance, speed, target_angle, gain, slowDown):
         if (target_angle == 180 and current_yaw_angle < 0):
             current_yaw_angle = (360 + current_yaw_angle)
 
+        previousCorrection = correction
         correction = target_angle - current_yaw_angle
+        
         turn_rate = correction * gain
         logMessage("currentSpeed = " + str(int(currentSpeed)) + " distanceInDegTravelled = " + str(distanceInDegTravelled) + " distanceInDeg=" + str(distanceInDeg) + " target_angle= " + str(target_angle) + " current_yaw_angle = " + str(current_yaw_angle) +" correction= " + str(correction), level=5)
-        motors.start(turn_rate, int(currentSpeed))
+        if (previousCorrection - correction > 2):
+            motors.start(turn_rate, int(currentSpeed))
         distanceInDegTravelled = abs(motorC.get_degrees_counted()) - startDistanceInDeg
     logMessage("Drivestraight completed", level=5)
 
@@ -503,7 +514,7 @@ def unloadEnergyUnits():
 #endregion Arisha 
 
 # ------------------------------------------------------------------- END Arisha OIL platform --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- 
+
 
 #region Anya 
 #powerPlant
@@ -579,45 +590,27 @@ def run4slider():
 
 
 def run4():
-    # Drive in a semi-circle from home
-    #motors.move_tank(36, 'cm', left_speed=20, right_speed=25)
+    # Drive till the hydro plant to pick up the first water
+    # unit
+    drive(speed=35, distanceInCM=12, target_angle=0)
+    turnToAngle(targetAngle= -45,speed= 25)
+    drive(speed=35, distanceInCM=22, target_angle=-45)
     
-    # Turn so as to hit the hydro arm and then drive in a semi-circle
-    # to get to the other water units.
-    drive(speed=20, distanceInCM=16, target_angle=0)
-    turnToAngle(targetAngle= -45,speed= 20)
-    drive(speed=20, distanceInCM=22, target_angle=-45)
-    turnToAngle(targetAngle= 45,speed= 20)
-    drive(speed=20, distanceInCM=14, target_angle=45)
-    turnToAngle(targetAngle= -40,speed= 20)
-    drive(speed=20, distanceInCM=45, target_angle=-40)
+    # Turn away from the plant to get to the two water units behind
+    turnToAngle(targetAngle=45,speed= 25)
+    drive(speed=35, distanceInCM=12, target_angle=45)
+    turnToAngle(targetAngle=-40,speed= 25)
+    drive(speed=35, distanceInCM=47, target_angle=-40)
+
+    # Pick up the last two water units.
     turnToAngle(targetAngle= -110,speed= 20)
     drive(speed=20, distanceInCM=30, target_angle=-110)
     turnToAngle(targetAngle= -160,speed= 20)
     drive(speed=20, distanceInCM=18, target_angle=-160)
     turnToAngle(targetAngle= 150,speed= 20)
     drive(speed=50, distanceInCM=70, target_angle=150)
-    #motors.move_tank(36, 'cm', left_speed=15, right_speed=25)
-
-    # Drive forward to pick up the last two water units
-    #motors.move_tank(20, 'cm', left_speed=18, right_speed=20)
-
-    # Go home
-    #turnToAngle(targetAngle=-135,speed=20)
-    #motors.move_tank(40, 'cm', left_speed=20, right_speed=35)
-
-    '''
-    drive(speed=20, distanceInCM=15, target_angle=0)
-    turnToAngle(targetAngle=-16 ,speed= 20)
-    motors.move_tank(45, 'cm', left_speed=15, right_speed=25)
-    '''
-
-    #drive(speed=20, distanceInCM=50, target_angle=-15)
-
+    
 #endregion Nami
-
-def test_thread():
-    print("inside thread")
 
 #region Rishabh
 def run1(moveArmDegrees, armSpeed):
@@ -654,7 +647,11 @@ initialize()
 #run1()
 
 #run1(75, 75)
-run4()
+
+drive(speed=40,distanceInCM= 10, target_angle= 0)
+#turnToAngle(targetAngle= -30 ,speed= 20)
+    
+#run4()
 
 
 
