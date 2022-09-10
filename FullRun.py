@@ -580,16 +580,27 @@ def run4slider():
 
 def run4():
     # Drive in a semi-circle from home
-    motors.move_tank(36, 'cm', left_speed=20, right_speed=25)
+    #motors.move_tank(36, 'cm', left_speed=20, right_speed=25)
     
     # Turn so as to hit the hydro arm and then drive in a semi-circle
     # to get to the other water units.
-    turnToAngle(targetAngle= 0,speed= 20)
-    drive(speed=20, distanceInCM=20, target_angle=0)
-    motors.move_tank(36, 'cm', left_speed=15, right_speed=25)
+    drive(speed=20, distanceInCM=16, target_angle=0)
+    turnToAngle(targetAngle= -45,speed= 20)
+    drive(speed=20, distanceInCM=22, target_angle=-45)
+    turnToAngle(targetAngle= 45,speed= 20)
+    drive(speed=20, distanceInCM=14, target_angle=45)
+    turnToAngle(targetAngle= -40,speed= 20)
+    drive(speed=20, distanceInCM=45, target_angle=-40)
+    turnToAngle(targetAngle= -110,speed= 20)
+    drive(speed=20, distanceInCM=30, target_angle=-110)
+    turnToAngle(targetAngle= -160,speed= 20)
+    drive(speed=20, distanceInCM=18, target_angle=-160)
+    turnToAngle(targetAngle= 150,speed= 20)
+    drive(speed=50, distanceInCM=70, target_angle=150)
+    #motors.move_tank(36, 'cm', left_speed=15, right_speed=25)
 
     # Drive forward to pick up the last two water units
-    motors.move_tank(20, 'cm', left_speed=18, right_speed=20)
+    #motors.move_tank(20, 'cm', left_speed=18, right_speed=20)
 
     # Go home
     #turnToAngle(targetAngle=-135,speed=20)
