@@ -438,7 +438,7 @@ def runArisha():
     primeHub.motion_sensor.reset_yaw_angle()
     getToOilPlatform()
     unloadEnergyUnits()
-    #goBackHomeFromOilPlatform()
+    goBackHomeFromOilPlatform()
 
     # reset the Global Value to what it was
     GLOBAL_LEVEL = startGlobalValue
@@ -489,7 +489,7 @@ def unloadEnergyUnits():
     wiggleOilPlatform()
     motorF.run_for_degrees(degrees=-600, speed=40)
     #gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*10, backward =True)
-    motors.move(amount = 30, unit = "in", steering = 0, speed = -30)
+    motors.move(amount = 10, unit = "in", steering = 0, speed = -30)
 
 def wiggleOilPlatform():
     turnToAngle(2)
@@ -500,7 +500,7 @@ def wiggleOilPlatform():
 
 def goBackHomeFromOilPlatform():
     turnToAngle(45)
-    motors.move(amount = 30, unit = "in", steering = 0, speed = -30) # Back home doesnt require accuracy
+    motors.move(amount = 20, unit = "in", steering = 0, speed = -30) # Back home doesnt require accuracy
 
 # def pullTruck():
 #     # motor_pair.move(_CM_PER_INCH*26, 'cm',0,50)
