@@ -219,13 +219,13 @@ def gyroStraight(distance, speed = 20, backward = False, targetAngle = 0):
     if (backward): 
         while ((motorE.get_degrees_counted() - position_start)  >= degreesToCover * -1):
             currentAngle = primeHub.motion_sensor.get_yaw_angle()
-            correction = targetAngle - currentAngle
-            motors.start(correction, speed * -1)
+            correction = getCorrectionForDrive(targetAngle) # - currentAngle
+            motors.start(steering=correction, speed=speed * -1)
     else:
          while ((motorE.get_degrees_counted() - position_start)  <= degreesToCover):
             currentAngle = primeHub.motion_sensor.get_yaw_angle()
-            correction = targetAngle - currentAngle
-            motors.start(correction, speed)
+            correction = getCorrectionForDrive(targetAngle) # targetAngle - currentAngle
+            motors.start(steering = correction, speed=speed)
 
     motors.stop()
 
@@ -233,6 +233,18 @@ def gyroStraight(distance, speed = 20, backward = False, targetAngle = 0):
 
     totalDistanceTravelled = convertDegToCM(finalDeg - initialDeg)
     logMessage("Total distance travelled = " + str(totalDistanceTravelled) + " error=" + str(distance-totalDistanceTravelled), level=4)
+
+def getCorrectionForDrive(targetAngle):
+    currentAngle = primeHub.motion_sensor.get_yaw_angle()
+    if( (currentAngle <= 0 and targetAngle <=0) or
+            (currentAngle>0 and targetAngle > 0) or
+            (abs(currentAngle) < 90 and abs(targetAngle)<90)):
+        return targetAngle - currentAngle
+    elif (currentAngle >= 90):
+        return (360 - abs(currentAngle) - abs(targetAngle))
+    else:
+        return -1*(360 - abs(currentAngle) - abs(targetAngle))
+
 
 def testGyro():
     gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*16)
@@ -457,13 +469,6 @@ def getToOilPlatform():
 
 def unloadEnergyUnits():
     motorF.run_for_degrees(degrees=600, speed=40)
-    
-    # motor_pair.move(_CM_PER_INCH*26, 'cm',0,50)
-    # motor_pair.move(_CM_PER_INCH*-2,'cm',0,20)
-    # motor_pair.move(_CM_PER_INCH*2,'cm',0,20)
-    # motor_pair.move(_CM_PER_INCH*-2,'cm',0,20)
-    # motor_pair.move(_CM_PER_INCH*2,'cm',0,20)
-    # motor_pair.move(_CM_PER_INCH*-2,'cm',0,20)
     print('current yaw angle ' +  str(primeHub.motion_sensor.get_yaw_angle()))
     # gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*8)
     # gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*2, backward =True)
@@ -550,35 +555,67 @@ def getToPowerPlantFromHome1():
 
 
 def getToPowerPlantFromHome2():
-    primeHub.motion_sensor.reset_yaw_angle()
-    gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*10)
+    print('Starting getToPowerPlantFromHome2 function')
+    print('Going forward 9.5 in. Current yaw angle ' +  str(primeHub.motion_sensor.get_yaw_angle()))
+    # gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*9.5)
+    drive(distanceInCM=_CM_PER_INCH*9.5, target_angle=0, speed=20)
+    print('Turning to angle: -90. Current yaw angle ' +  str(primeHub.motion_sensor.get_yaw_angle()))
     turnToAngle(-90)
-    print('current yaw angle ' +  str(primeHub.motion_sensor.get_yaw_angle()))
-    gyroStraight(targetAngle = -90,  distance = _CM_PER_INCH*18)
-    turnToAngle(targetAngle = -179, speed = 25)
-    print('current yaw angle ' +  str(primeHub.motion_sensor.get_yaw_angle()))
-    gyroStraight(targetAngle = -179,  distance = _CM_PER_INCH*5)
-    print('current yaw angle ' +  str(primeHub.motion_sensor.get_yaw_angle()))
+    # time.sleep(5)
+    print('Going forward 36 in. Current yaw angle ' +  str(primeHub.motion_sensor.get_yaw_angle()))
+    #gyroStraight(targetAngle = -90,  distance = _CM_PER_INCH*36)
+    #drive(distanceInCM=_CM_PER_INCH*35, target_angle=-90, speed=20)
+    gyroStraight(targetAngle = -90,  distance = _CM_PER_INCH*26)
+    ToyFactory()
+    # time.sleep(5)
+    print('Turning to angle: -135. Current yaw angle ' +  str(primeHub.motion_sensor.get_yaw_angle()))
+    turnToAngle(targetAngle = -135, speed = 25)
+    # time.sleep(5)
+    print('Going back 2 in. Current yaw angle ' +  str(primeHub.motion_sensor.get_yaw_angle()))
+    gyroStraight(targetAngle=-135, distance=_CM_PER_INCH*2, backward = True)
+    time.sleep(10)
+    print('Turning to angle: -179. Current yaw angle ' +  str(primeHub.motion_sensor.get_yaw_angle()))
+    turnToAngle(targetAngle=-179, speed=25)
     time.sleep(5)
+    print('Going forward 5 in. Current yaw angle ' +  str(primeHub.motion_sensor.get_yaw_angle()))
+    gyroStraight(targetAngle = -179,  distance = _CM_PER_INCH*5)
+    # drive(speed=50, distanceInCM=_CM_PER_INCH*5, target_angle=-179)
+    # time.sleep(5)
+    print('current yaw angle ' +  str(primeHub.motion_sensor.get_yaw_angle()))
+    print('getToPowerPlantFromHome2 function Done')
+
+def ToyFactory():
+    turnToAngle(-135)
+    gyroStraight(targetAngle = -135,  distance = _CM_PER_INCH*4, backward=True)
+    gyroStraight(targetAngle = -135,  distance = _CM_PER_INCH*4)
+    turnToAngle(-90)
+    gyroStraight(targetAngle = -90,  distance = _CM_PER_INCH*9)
 
 
 def ReleaseEnergyUnitsLowerFirst3(baseGyro = 0):
     # gyroStraight(targetAngle=0, distance=_CM_PER_INCH * 6)
     # motorD.run_for_degrees(degrees=-50, speed=100)
-    gyroStraight(targetAngle=baseGyro, distance=_CM_PER_INCH * 4)
+    # gyroStraight(targetAngle=baseGyro, distance=_CM_PER_INCH * 4)
     # time.sleep(5)
-    motorD.run_for_degrees(degrees=-50, speed=50)
-    motorD.run_for_degrees(degrees=-150, speed=100)
+    logMessage("lower arm", level=3)
+    motorD.run_for_degrees(degrees=-100, speed=100)#original values -50
+    print('Lowering ARM done')
+    time.sleep(10)
+    motorD.run_for_degrees(degrees=75, speed=50)#original values 150
+    time.sleep(0.5)
+    motorD.run_for_degrees(degrees=175, speed=100)#original values 150
+    print('Raising ARM done')
+    time.sleep(1)
     # time.sleep(5)
     # gyroStraight(targetAngle=baseGyro, distance=_CM_PER_INCH * 1)
     # time.sleep(5)
     # motorD.run_for_degrees(degrees=-50, speed=100)
     # time.sleep(5)
-    gyroStraight(targetAngle=baseGyro, distance=_CM_PER_INCH * 0.5)
-    # time.sleep(5)
-    # gyroStraight(targetAngle=baseGyro, distance=_CM_PER_INCH * 0.2, backward=True)
-    # time.sleep(5)
-    motorD.run_for_degrees(degrees=250, speed=70)
+    # gyroStraight(targetAngle = -179, distance=_CM_PER_INCH * 0.5)
+    # # time.sleep(5)
+    # # gyroStraight(targetAngle=baseGyro, distance=_CM_PER_INCH * 0.2, backward=True)
+    # # time.sleep(5)
+    # motorD.run_for_degrees(degrees=250, speed=70)
 
 
 
@@ -666,4 +703,5 @@ initialize()
 #raise SystemExit
 
 #run1()
-runArisha()
+#runArisha()
+runAnya()
