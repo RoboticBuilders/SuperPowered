@@ -573,10 +573,10 @@ def getToPowerPlantFromHome2():
     # time.sleep(5)
     print('Going back 2 in. Current yaw angle ' +  str(primeHub.motion_sensor.get_yaw_angle()))
     gyroStraight(targetAngle=-135, distance=_CM_PER_INCH*2, backward = True)
-    time.sleep(10)
+    # time.sleep(10)
     print('Turning to angle: -179. Current yaw angle ' +  str(primeHub.motion_sensor.get_yaw_angle()))
     turnToAngle(targetAngle=-179, speed=25)
-    time.sleep(5)
+    # time.sleep(5)
     print('Going forward 5 in. Current yaw angle ' +  str(primeHub.motion_sensor.get_yaw_angle()))
     gyroStraight(targetAngle = -179,  distance = _CM_PER_INCH*5)
     # drive(speed=50, distanceInCM=_CM_PER_INCH*5, target_angle=-179)
@@ -589,7 +589,7 @@ def ToyFactory():
     gyroStraight(targetAngle = -135,  distance = _CM_PER_INCH*4, backward=True)
     gyroStraight(targetAngle = -135,  distance = _CM_PER_INCH*4)
     turnToAngle(-90)
-    gyroStraight(targetAngle = -90,  distance = _CM_PER_INCH*9)
+    gyroStraight(targetAngle = -90,  distance = _CM_PER_INCH*10.5)
 
 
 def ReleaseEnergyUnitsLowerFirst3(baseGyro = 0):
@@ -600,12 +600,18 @@ def ReleaseEnergyUnitsLowerFirst3(baseGyro = 0):
     logMessage("lower arm", level=3)
     motorD.run_for_degrees(degrees=-100, speed=100)#original values -50
     print('Lowering ARM done')
-    time.sleep(10)
+    #gyroStraight(targetAngle=-179, distance=_CM_PER_INCH*1)
+    # time.sleep(10)
     motorD.run_for_degrees(degrees=75, speed=50)#original values 150
-    time.sleep(0.5)
-    motorD.run_for_degrees(degrees=175, speed=100)#original values 150
+    # time.sleep(0.5)
+    motorD.run_for_degrees(degrees=200, speed=100)#original values 150
     print('Raising ARM done')
-    time.sleep(1)
+    motorD.run_for_degrees(degrees=-100, speed=100)#original values -50
+    print('Lowering ARM 2nd time done')
+    motorD.run_for_degrees(degrees=75, speed=50)#original values 150
+    motorD.run_for_degrees(degrees=200, speed=100)#original values 150
+    print('Raising ARM 2nd time done')
+    # time.sleep(1)
     # time.sleep(5)
     # gyroStraight(targetAngle=baseGyro, distance=_CM_PER_INCH * 1)
     # time.sleep(5)
@@ -616,10 +622,6 @@ def ReleaseEnergyUnitsLowerFirst3(baseGyro = 0):
     # # gyroStraight(targetAngle=baseGyro, distance=_CM_PER_INCH * 0.2, backward=True)
     # # time.sleep(5)
     # motorD.run_for_degrees(degrees=250, speed=70)
-
-
-
-
 #endregion Anya 
 
 #region Nami
