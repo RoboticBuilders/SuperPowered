@@ -447,12 +447,10 @@ def testTurnToAngle():
 
 #region Arisha
 def runArisha():
-   
     primeHub.motion_sensor.reset_yaw_angle()
     # getToOilPlatform()
     # unloadEnergyUnits()
     # goBackHomeFromOilPlatform()
-
     pullTruck()
 
 
@@ -493,41 +491,20 @@ def goBackHomeFromOilPlatform():
 def pullTruck():
     #Move arm up
     motorF.run_for_degrees(degrees=600, speed=40)
-    gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*7)
-    time.sleep(0.5)
-    #move arm down
-    motorF.run_for_degrees(degrees=-850, speed=40)
-    time.sleep(0.5)
-    gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*5, backward=True)
-    #motor_pair.move(_CM_PER_INCH*-5,'cm',0,20)
-
+    turnToAngle(-15)
+    drive(speed = 25, distanceInCM = _CM_PER_INCH*16, target_angle = -15)
+    motorF.run_for_degrees(degrees=-600, speed=40)
+    gyroStraight(targetAngle = -15,  distance = _CM_PER_INCH*15, backward=True)
 
 #endregion Arisha 
 
 #region Anya 
 #powerPlant
 def runAnya():
-    global GLOBAL_LEVEL
-    startGlobalValue = GLOBAL_LEVEL
-    GLOBAL_LEVEL = 3
+    
     primeHub.motion_sensor.reset_yaw_angle()
     getToPowerPlantFromHome2()
     ReleaseEnergyUnitsLowerFirst3()
-    # reset the Global Value to what it was
-    GLOBAL_LEVEL = startGlobalValue
-
-
-def getToPowerPlantFromHome1():
-    primeHub.motion_sensor.reset_yaw_angle()
-    gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*17)
-    turnToAngle(-45)
-    print('current yaw angle ' +  str(primeHub.motion_sensor.get_yaw_angle()))
-    gyroStraight(targetAngle = -45,  distance = _CM_PER_INCH*18)
-    turnToAngle(90)
-    print('current yaw angle ' +  str(primeHub.motion_sensor.get_yaw_angle()))
-    gyroStraight(targetAngle = 90,  distance = _CM_PER_INCH*9)
-    print('current yaw angle ' +  str(primeHub.motion_sensor.get_yaw_angle()))
-
 
 def getToPowerPlantFromHome2():
     print('Starting getToPowerPlantFromHome2 function')
@@ -536,26 +513,20 @@ def getToPowerPlantFromHome2():
     drive(distanceInCM=_CM_PER_INCH*9.5, target_angle=0, speed=20)
     print('Turning to angle: -90. Current yaw angle ' +  str(primeHub.motion_sensor.get_yaw_angle()))
     turnToAngle(-90)
-    # time.sleep(5)
     print('Going forward 36 in. Current yaw angle ' +  str(primeHub.motion_sensor.get_yaw_angle()))
     #gyroStraight(targetAngle = -90,  distance = _CM_PER_INCH*36)
     #drive(distanceInCM=_CM_PER_INCH*35, target_angle=-90, speed=20)
     gyroStraight(targetAngle = -90,  distance = _CM_PER_INCH*26)
     ToyFactory()
-    # time.sleep(5)
     print('Turning to angle: -135. Current yaw angle ' +  str(primeHub.motion_sensor.get_yaw_angle()))
     turnToAngle(targetAngle = -135, speed = 25)
-    # time.sleep(5)
     print('Going back 2 in. Current yaw angle ' +  str(primeHub.motion_sensor.get_yaw_angle()))
     gyroStraight(targetAngle=-135, distance=_CM_PER_INCH*2, backward = True)
-    # time.sleep(10)
     print('Turning to angle: -179. Current yaw angle ' +  str(primeHub.motion_sensor.get_yaw_angle()))
     turnToAngle(targetAngle=-179, speed=25)
-    # time.sleep(5)
     print('Going forward 5 in. Current yaw angle ' +  str(primeHub.motion_sensor.get_yaw_angle()))
     gyroStraight(targetAngle = -179,  distance = _CM_PER_INCH*5)
     # drive(speed=50, distanceInCM=_CM_PER_INCH*5, target_angle=-179)
-    # time.sleep(5)
     print('current yaw angle ' +  str(primeHub.motion_sensor.get_yaw_angle()))
     print('getToPowerPlantFromHome2 function Done')
 
