@@ -448,14 +448,16 @@ def testTurnToAngle():
 #region Arisha
 def runArisha():
     primeHub.motion_sensor.reset_yaw_angle()
-    # getToOilPlatform()
-    # unloadEnergyUnits()
-    # goBackHomeFromOilPlatform()
-    pullTruck()
+    getToOilPlatform()
+    #unloadEnergyUnits()
+    #pgoBackHomeFromOilPlatform()
+    #pullTruck()
 
 
 
 def getToOilPlatform():
+    #drive(speed = 25, distanceInCM = _CM_PER_INCH*8, target_angle = 0) 
+    #turnToAngle(-90)
     drive(speed = 20, distanceInCM = _CM_PER_INCH*11.5, target_angle = 0)   
     turnToAngle(45)
     drive(speed = 20, distanceInCM = 23, target_angle = 45)  
@@ -494,14 +496,14 @@ def pullTruck():
     turnToAngle(-15)
     drive(speed = 25, distanceInCM = _CM_PER_INCH*16, target_angle = -15)
     motorF.run_for_degrees(degrees=-600, speed=40)
-    gyroStraight(targetAngle = -15,  distance = _CM_PER_INCH*15, backward=True)
+    #gyroStraight(targetAngle = -15,  distance = _CM_PER_INCH*15, backward=True)
+    motors.move(amount = 14, unit = "in", steering = 0, speed = -40)
 
 #endregion Arisha 
 
 #region Anya 
 #powerPlant
 def runAnya():
-    
     primeHub.motion_sensor.reset_yaw_angle()
     getToPowerPlantFromHome2()
     ReleaseEnergyUnitsLowerFirst3()
@@ -651,5 +653,12 @@ initialize()
 #raise SystemExit
 
 #run1()
-runArisha()
-#runAnya()
+
+t1_start = time.ticks_ms()
+#runArisha()
+runAnya()
+t1_end = time.ticks_ms()
+print("Time taken timetakenfor this run " + 
+str( time.ticks_diff(t1_end,t1_start)) + " milliseconds")
+
+
