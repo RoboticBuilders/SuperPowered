@@ -507,18 +507,23 @@ def runAnya():
     primeHub.motion_sensor.reset_yaw_angle()
     getToPowerPlantFromHome2()
     ReleaseEnergyUnitsLowerFirst3()
+    goToHome1()
+
+def goToHome1():
+    motors.move(amount = 1, unit = "in", steering = 0, speed = -40)
+    turnToAngle(-90)
+    motors.move(amount = 25, unit = "in", steering = 0, speed = 40)
 
 def getToPowerPlantFromHome2():
     print('Starting getToPowerPlantFromHome2 function')
     print('Going forward 9.5 in. Current yaw angle ' +  str(primeHub.motion_sensor.get_yaw_angle()))
     # gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*9.5)
-    drive(distanceInCM=_CM_PER_INCH*9.5, target_angle=0, speed=20)
+    gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*6)
     print('Turning to angle: -90. Current yaw angle ' +  str(primeHub.motion_sensor.get_yaw_angle()))
     turnToAngle(-90)
     print('Going forward 36 in. Current yaw angle ' +  str(primeHub.motion_sensor.get_yaw_angle()))
     #gyroStraight(targetAngle = -90,  distance = _CM_PER_INCH*36)
-    #drive(distanceInCM=_CM_PER_INCH*35, target_angle=-90, speed=20)
-    gyroStraight(targetAngle = -90,  distance = _CM_PER_INCH*26)
+    gyroStraight(targetAngle = -90,  distance = _CM_PER_INCH*30)
     ToyFactory()
     print('Turning to angle: -135. Current yaw angle ' +  str(primeHub.motion_sensor.get_yaw_angle()))
     turnToAngle(targetAngle = -135, speed = 25)
@@ -536,8 +541,11 @@ def ToyFactory():
     turnToAngle(-135)
     gyroStraight(targetAngle = -135,  distance = _CM_PER_INCH*4, backward=True)
     gyroStraight(targetAngle = -135,  distance = _CM_PER_INCH*4)
+    #drive(distanceInCM=_CM_PER_INCH*4, target_angle=-135, speed=20)
     turnToAngle(-90)
     gyroStraight(targetAngle = -90,  distance = _CM_PER_INCH*10.5)
+    #drive(distanceInCM=_CM_PER_INCH*10.5, target_angle=-90, speed=20)
+    time.sleep(10)
 
 
 def ReleaseEnergyUnitsLowerFirst3(baseGyro = 0):
