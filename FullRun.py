@@ -449,8 +449,8 @@ def testTurnToAngle():
 def runArisha():
     primeHub.motion_sensor.reset_yaw_angle()
     getToOilPlatform()
-    #unloadEnergyUnits()
-    #pgoBackHomeFromOilPlatform()
+    unloadEnergyUnits()
+    goBackHomeFromOilPlatform()
     #pullTruck()
 
 
@@ -458,37 +458,54 @@ def runArisha():
 def getToOilPlatform():
     #drive(speed = 25, distanceInCM = _CM_PER_INCH*8, target_angle = 0) 
     #turnToAngle(-90)
-    drive(speed = 20, distanceInCM = _CM_PER_INCH*11.5, target_angle = 0)   
+    #working code 1
+    # drive(speed = 30, distanceInCM = _CM_PER_INCH*10.5, target_angle = 0)
+    gyroStraight(distance=_CM_PER_INCH*11.5, speed=20, targetAngle=0)
     turnToAngle(45)
-    drive(speed = 20, distanceInCM = 23, target_angle = 45)  
+    # drive(speed = 30, distanceInCM = 23, target_angle = 45)  
+    gyroStraight(distance=_CM_PER_INCH*10, speed=20, targetAngle=45)
+    # 
+    # turnToAngle(22)
+    # drive(speed = 20, distanceInCM = 49, target_angle = 22)  
     turnToAngle(0)
-    drive(speed = 20, distanceInCM = _CM_PER_INCH*9, target_angle = 0)
-    time.sleep(5)
+    # time.sleep(5)
+    motorF.run_for_degrees(degrees=600, speed=20)
+    # drive(speed = 20, distanceInCM = _CM_PER_INCH*9, target_angle = 0)
+    gyroStraight(distance=_CM_PER_INCH*10, speed=20, targetAngle=0)
+    # time.sleep(5)
 
 def unloadEnergyUnits():
-    motorF.run_for_degrees(degrees=600, speed=40)
+    #motorF.run_for_degrees(degrees=600, speed=40)
     print('current yaw angle ' +  str(primeHub.motion_sensor.get_yaw_angle()))
     for i in range(3):
-        drive(speed = 20, distanceInCM = _CM_PER_INCH*6, target_angle = 0)
+        # drive(speed = 20, distanceInCM = _CM_PER_INCH*8, target_angle = 0)
+        gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*8, speed=20)
         wiggleOilPlatform()
         gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*2, backward =True)
         turnToAngle(0)
-    drive(speed = 10, distanceInCM = _CM_PER_INCH*4, target_angle = 0)
+
+    gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*8, speed=20)
+    # drive(speed = 20, distanceInCM = _CM_PER_INCH*8, target_angle = 0)
     wiggleOilPlatform()
     motorF.run_for_degrees(degrees=-600, speed=40)
-    #gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*10, backward =True)
+    #working 4th run
+    #drive(speed = 10, distanceInCM = _CM_PER_INCH*4, target_angle = 0)
+    #wiggleOilPlatform()
+    #motorF.run_for_degrees(degrees=-600, speed=40)
     motors.move(amount = 10, unit = "in", steering = 0, speed = -30)
 
 def wiggleOilPlatform():
     turnToAngle(2)
-    turnToAngle(-2)
+    turnToAngle(-1)
     turnToAngle(2)
-    turnToAngle(-2)
+    # turnToAngle(-2)
     turnToAngle(0)
 
 def goBackHomeFromOilPlatform():
     turnToAngle(60)
     motors.move(amount = 22, unit = "in", steering = 0, speed = -30) # Back home doesnt require accuracy
+   #turnToAngle(30)
+   #motors.move(amount = 11, unit = "in", steering = 0, speed = -30) # Back home doesnt require accuracy
 
 def pullTruck():
     #Move arm up
@@ -504,81 +521,76 @@ def pullTruck():
 #region Anya 
 #powerPlant
 def runAnya():
-    primeHub.motion_sensor.reset_yaw_angle()
+    # primeHub.motion_sensor.reset_yaw_angle()
+    # raiseEnergyUnitCollectingArm(200)# at least 245 But we don't know
     getToPowerPlantFromHome2()
     ReleaseEnergyUnitsLowerFirst3()
     goToHome1()
 
+def raiseEnergyUnitCollectingArm(deg = 90, raiseArm = True):
+    multiplier = 1
+    if raiseArm == True:
+        multiplier = -1
+
+    motorF.run_for_degrees(degrees=deg * 24 * multiplier, speed=40)
+
 def goToHome1():
-    motors.move(amount = 1, unit = "in", steering = 0, speed = -40)
-    turnToAngle(-90)
-    motors.move(amount = 25, unit = "in", steering = 0, speed = 40)
+    motors.move(amount = 4, unit = "in", steering = 0, speed = -40)
+    turnToAngle(-95)#original value -90
+    motors.move(amount = 35, unit = "in", steering = 0, speed = 40)#original speed 40
 
 def getToPowerPlantFromHome2():
+
     print('Starting getToPowerPlantFromHome2 function')
     print('Going forward 9.5 in. Current yaw angle ' +  str(primeHub.motion_sensor.get_yaw_angle()))
-    # gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*9.5)
     gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*6)
     print('Turning to angle: -90. Current yaw angle ' +  str(primeHub.motion_sensor.get_yaw_angle()))
     turnToAngle(-90)
     print('Going forward 36 in. Current yaw angle ' +  str(primeHub.motion_sensor.get_yaw_angle()))
-    #gyroStraight(targetAngle = -90,  distance = _CM_PER_INCH*36)
-    gyroStraight(targetAngle = -90,  distance = _CM_PER_INCH*30)
+    gyroStraight(targetAngle = -90,  distance = _CM_PER_INCH*29, speed=40)
+
     ToyFactory()
-    print('Turning to angle: -135. Current yaw angle ' +  str(primeHub.motion_sensor.get_yaw_angle()))
-    turnToAngle(targetAngle = -135, speed = 25)
-    print('Going back 2 in. Current yaw angle ' +  str(primeHub.motion_sensor.get_yaw_angle()))
-    gyroStraight(targetAngle=-135, distance=_CM_PER_INCH*2, backward = True)
-    print('Turning to angle: -179. Current yaw angle ' +  str(primeHub.motion_sensor.get_yaw_angle()))
+
+    # print('Turning to angle: -135. Current yaw angle ' +  str(primeHub.motion_sensor.get_yaw_angle()))
+    # turnToAngle(targetAngle = -135, speed = 25)
+    # print('Going back 2 in. Current yaw angle ' +  str(primeHub.motion_sensor.get_yaw_angle()))
+    # gyroStraight(targetAngle=-135, distance=_CM_PER_INCH*5, backward = True)
+    # print('Turning to angle: -179. Current yaw angle ' +  str(primeHub.motion_sensor.get_yaw_angle()))
+
     turnToAngle(targetAngle=-179, speed=25)
+    # turnToAngle(targetAngle=170, speed=25)
+    time.sleep(5)
     print('Going forward 5 in. Current yaw angle ' +  str(primeHub.motion_sensor.get_yaw_angle()))
-    gyroStraight(targetAngle = -179,  distance = _CM_PER_INCH*5)
-    # drive(speed=50, distanceInCM=_CM_PER_INCH*5, target_angle=-179)
+    gyroStraight(targetAngle = -179,  distance = _CM_PER_INCH*7)
+    # gyroStraight(targetAngle = 170,  distance = _CM_PER_INCH*4)
+    turnToAngle(targetAngle=-179, speed = 25)
+    gyroStraight(targetAngle = -179,  distance = _CM_PER_INCH*3)
     print('current yaw angle ' +  str(primeHub.motion_sensor.get_yaw_angle()))
     print('getToPowerPlantFromHome2 function Done')
 
 def ToyFactory():
-    turnToAngle(-135)
-    gyroStraight(targetAngle = -135,  distance = _CM_PER_INCH*4, backward=True)
-    gyroStraight(targetAngle = -135,  distance = _CM_PER_INCH*4)
-    #drive(distanceInCM=_CM_PER_INCH*4, target_angle=-135, speed=20)
+    turnToAngle(-130)
+    gyroStraight(targetAngle = -130,  distance = _CM_PER_INCH*4, backward=True)
+    gyroStraight(targetAngle = -130,  distance = _CM_PER_INCH*2)
     turnToAngle(-90)
-    gyroStraight(targetAngle = -90,  distance = _CM_PER_INCH*10.5)
-    #drive(distanceInCM=_CM_PER_INCH*10.5, target_angle=-90, speed=20)
-    time.sleep(10)
+    gyroStraight(targetAngle = -90,  distance = _CM_PER_INCH*10)
+    # time.sleep(3)
 
 
 def ReleaseEnergyUnitsLowerFirst3(baseGyro = 0):
-    # gyroStraight(targetAngle=0, distance=_CM_PER_INCH * 6)
-    # motorD.run_for_degrees(degrees=-50, speed=100)
-    # gyroStraight(targetAngle=baseGyro, distance=_CM_PER_INCH * 4)
-    # time.sleep(5)
     logMessage("lower arm", level=3)
-    motorD.run_for_degrees(degrees=-100, speed=100)#original values -50
+    motorD.run_for_degrees(degrees=-150, speed=100)#original values -50
     print('Lowering ARM done')
-    #gyroStraight(targetAngle=-179, distance=_CM_PER_INCH*1)
-    # time.sleep(10)
+    raiseEnergyUnitCollectingArm(deg=180, raiseArm=False)
     motorD.run_for_degrees(degrees=75, speed=50)#original values 150
-    # time.sleep(0.5)
     motorD.run_for_degrees(degrees=200, speed=100)#original values 150
     print('Raising ARM done')
     motorD.run_for_degrees(degrees=-100, speed=100)#original values -50
     print('Lowering ARM 2nd time done')
-    motorD.run_for_degrees(degrees=75, speed=50)#original values 150
-    motorD.run_for_degrees(degrees=200, speed=100)#original values 150
-    print('Raising ARM 2nd time done')
-    # time.sleep(1)
-    # time.sleep(5)
-    # gyroStraight(targetAngle=baseGyro, distance=_CM_PER_INCH * 1)
-    # time.sleep(5)
-    # motorD.run_for_degrees(degrees=-50, speed=100)
-    # time.sleep(5)
-    # gyroStraight(targetAngle = -179, distance=_CM_PER_INCH * 0.5)
-    # # time.sleep(5)
-    # # gyroStraight(targetAngle=baseGyro, distance=_CM_PER_INCH * 0.2, backward=True)
-    # # time.sleep(5)
-    # motorD.run_for_degrees(degrees=250, speed=70)
-#endregion Anya 
+    # motorD.run_for_degrees(degrees=75, speed=50)#original values 150
+    # motorD.run_for_degrees(degrees=200, speed=100)#original values 150
+    # print('Raising ARM 2nd time done')
+    #endregion Anya 
 
 #region Nami
 def run4slider():
@@ -642,31 +654,10 @@ def run1(moveArmDegrees, armSpeed):
 #endregion Rishabh
 
 initialize()
-#moveArm(degrees = 1200, speed = 100, motor = motorF)
-#time.sleep(5)
-#moveArm(degrees = 1200, speed = -100, motor = motorF)
-#testTurnToAngle
-# ()
-#run1()
-
-#run1(75, 75)
-
-#drive(speed=40,distanceInCM= 10, target_angle= 0)
-#turnToAngle(targetAngle= -30 ,speed= 20)
-    
-#run4()
-
-
-
-#raise SystemExit
-
-#run1()
 
 t1_start = time.ticks_ms()
-#runArisha()
+# runArisha()
 runAnya()
 t1_end = time.ticks_ms()
-print("Time taken timetakenfor this run " + 
+print("Time taken time takenfor this run " + 
 str( time.ticks_diff(t1_end,t1_start)) + " milliseconds")
-
-
