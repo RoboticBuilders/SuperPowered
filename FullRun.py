@@ -254,15 +254,15 @@ def _turnRobotWithSlowDown(angleInDegrees, targetAngle, speed, slowTurnRatio, di
 def gyroStraight(distance, speed = 20, backward = False, targetAngle = 0):
     initialDeg = abs(motorC.get_degrees_counted())
 
-    #print("GYROSTRAIGHT START: targetAngle  is " + str(targetAngle))
-    degreesToCover = (distance * 360)/(WHEEL_RADIUS_CM * 2 * 3.14)
+    logMessage("GYROSTRAIGHT START: targetAngle  is " + str(targetAngle), level=4)
+    degreesToCover = (distance * 360)/(WHEEL_RADIUS_CM * 2 * 3.1416)
     position_start = motorE.get_degrees_counted()
     if (backward): 
         while ((motorE.get_degrees_counted() - position_start)  >= degreesToCover * -1):
            
             currentAngle = primeHub.motion_sensor.get_yaw_angle()
             correction = getCorrectionForDrive(targetAngle) # - currentAngle
-            motors.start(steering=correction, speed=speed * -1)
+            motors.start(steering = -correction, speed=speed * -1)
     else:
          while ((motorE.get_degrees_counted() - position_start)  <= degreesToCover):
            
@@ -276,19 +276,24 @@ def gyroStraight(distance, speed = 20, backward = False, targetAngle = 0):
 
     totalDistanceTravelled = convertDegToCM(finalDeg - initialDeg)
     logMessage("Total distance travelled = " + str(totalDistanceTravelled) + " error=" + str(distance-totalDistanceTravelled), level=4)
+    logMessage("======== gyroStraight done for distance " + str(distance) + "==========", 4)
    
 
 def getCorrectionForDrive(targetAngle):
     currentAngle = primeHub.motion_sensor.get_yaw_angle()
+    logMessage("CurrentAngle: " + str(currentAngle) + " and targetAngle: " + str(targetAngle), 4)
     if( (currentAngle <= 0 and targetAngle <=0) or
             (currentAngle>0 and targetAngle > 0) or
             (abs(currentAngle) < 90 and abs(targetAngle)<90)):
-        return targetAngle - currentAngle
+        correction = targetAngle - currentAngle
     elif (currentAngle >= 90):
-        return (360 - abs(currentAngle) - abs(targetAngle))
+        correction = (360 - abs(currentAngle) - abs(targetAngle))
     else:
-        return -1*(360 - abs(currentAngle) - abs(targetAngle))
+        correction = -1*(360 - abs(currentAngle) - abs(targetAngle))
 
+    logMessage("Correction needed = " + str(correction), 4)
+    correctionMultiplier = 2 # being off by more than 20 degrees will cause the robot to do a full turn to correct
+    return correction * correctionMultiplier
 
 def testGyro():
     gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*16)
@@ -643,11 +648,56 @@ def _testTurnToAngle():
 #region Arisha
 def runArisha():
     primeHub.motion_sensor.reset_yaw_angle()
-    getToOilPlatform()
-    unloadEnergyUnits()
-    goBackHomeFromOilPlatform()
-    #pullTruck()
+    #active
+    #getToOilPlatform_v2()
+    #getToOilPlatform_v2Point1()
+    #activeOilPlatform()
+    #goBackHomeFromOilPlatform()
+    #static
+    #getToOilPlatform()
+    #unloadEnergyUnits()
+    #goBackHomeFromOilPlatform()
+    # pullTruck()
+    #pullTruckLeftArm()
+    pullTruckGoStraight()
 
+
+def getToOilPlatform_v2():
+    print("Running now")
+   
+    #gyroStraight(distance=_CM_PER_INCH*11.5, speed=20, targetAngle=0)
+    gyroStraight(distance=_CM_PER_INCH*9.5, speed=40, targetAngle=0)
+    _turnToAngle(45)
+    gyroStraight(distance=_CM_PER_INCH*10, speed=40, targetAngle=45)
+    #_driveTillLine(speed = 20, distanceInCM = _CM_PER_INCH*10, target_angle = 45)
+    _turnToAngle(0)
+    motorD.run_for_degrees(degrees=900, speed=100)   
+    time.sleep(10) 
+    gyroStraight(distance=_CM_PER_INCH*10, speed=30, targetAngle=0)
+    # time.sleep(5)
+
+
+def getToOilPlatform_v2Point1():
+    print("Running now")
+    #gyroStraight(distance=_CM_PER_INCH*11.5, speed=20, targetAngle=0)
+    gyroStraight(distance=_CM_PER_INCH*9.5, speed=40, targetAngle=0)
+    _turnToAngle(90)
+    #gyroStraight(distance=_CM_PER_INCH*10, speed=40, targetAngle=45)
+    _driveTillLine(speed = 20, distanceInCM = _CM_PER_INCH*10, target_angle = 90)
+    _turnToAngle(0)
+    motorD.run_for_degrees(degrees=900, speed=100)   
+    time.sleep(10) 
+    gyroStraight(distance=_CM_PER_INCH*10, speed=30, targetAngle=0)
+    # time.sleep(5)
+
+def activeOilPlatform():
+    gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*2, speed=20)
+    motorD.run_for_degrees(degrees=-900, speed=100)
+    gyroStraight(distance=_CM_PER_INCH*1, speed=20, targetAngle=0, backward=True)
+    for i in range(3):
+        motorF.run_for_degrees(degrees=-1000, speed=100)
+        motorF.run_for_degrees(degrees=1000, speed=100)
+    motors.move(amount = 10, unit = "in", steering = 0, speed = -30)
 
 
 def getToOilPlatform():
@@ -664,10 +714,10 @@ def getToOilPlatform():
     # drive(speed = 20, distanceInCM = 49, target_angle = 22)  
     _turnToAngle(0)
     # time.sleep(5)
-    motorF.run_for_degrees(degrees=600, speed=20)
+    motorD.run_for_degrees(degrees=600, speed=20)
     #drive(speed = 30, distanceInCM = _CM_PER_INCH*10, target_angle = 0)
     gyroStraight(distance=_CM_PER_INCH*10, speed=20, targetAngle=0)
-    # time.sleep(5)
+    time.sleep(5)
 
 def unloadEnergyUnits():
     #motorF.run_for_degrees(degrees=600, speed=40)
@@ -682,7 +732,7 @@ def unloadEnergyUnits():
     gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*8, speed=20)
     # drive(speed = 20, distanceInCM = _CM_PER_INCH*8, target_angle = 0)
     wiggleOilPlatform()
-    motorF.run_for_degrees(degrees=-600, speed=40)
+    motorD.run_for_degrees(degrees=-600, speed=40)
     #working 4th run
     #drive(speed = 10, distanceInCM = _CM_PER_INCH*4, target_angle = 0)
     #wiggleOilPlatform()
@@ -698,29 +748,54 @@ def wiggleOilPlatform():
 
 def goBackHomeFromOilPlatform():
     _turnToAngle(60)
-    motors.move(amount = 22, unit = "in", steering = 0, speed = -30) # Back home doesnt require accuracy
+    motors.move(amount = 20, unit = "in", steering = 0, speed = -40) # Back home doesnt require accuracy
    #turnToAngle(30)
    #motors.move(amount = 11, unit = "in", steering = 0, speed = -30) # Back home doesnt require accuracy
 
+def pullTruckLeftArm():
+    motorF.run_for_degrees(degrees=400, speed=100)
+    motors.move(amount = 18, unit = "in", steering = 0, speed = 30)
+
+    motorF.run_for_degrees(degrees=-400, speed=100)
+    motors.move(amount = 18, unit = "in", steering = 0, speed = -30)
+def pullTruckGoStraight():
+    # motorF.run_for_degrees(degrees=1000, speed=100)
+    gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH * 10, speed=30)
+    motorF.run_for_degrees(degrees=-1000, speed=100)
+    motors.move(amount = 10, unit = "in", steering = 0, speed = -30)
+
 def pullTruck():
     #Move arm up
-    motorF.run_for_degrees(degrees=600, speed=40)
-    _turnToAngle(-15)
-    drive(speed = 40, distanceInCM = _CM_PER_INCH*16, target_angle = -15)
-    motorF.run_for_degrees(degrees=-700, speed=40)
-    #gyroStraight(targetAngle = -15,  distance = _CM_PER_INCH*15, backward=True)
+    motorD.run_for_degrees(degrees=800, speed=100)# actually it is 700
+    #motorD.start(100)
+    _turnToAngle(-55)
+    # drive(speed = 30, distanceInCM = 12, target_angle = -55)
+    gyroStraight(targetAngle = -55,  distance = 12, speed=30)
+    #motorD.stop()
+    time.sleep(5)
+    _turnToAngle(-5)
+    # drive(speed = 30, distanceInCM = 29.5, target_angle = 0)
+    gyroStraight(targetAngle = -2,  distance = 29.5, speed=30)
+    # _turnToAngle(-15)
+    # drive(speed = 30, distanceInCM = _CM_PER_INCH*16, target_angle = -15)
+    # _turnToAngle(-5)
+    # drive(speed = 30, distanceInCM = _CM_PER_INCH*1, target_angle =-5)
+    motorD.run_for_degrees(degrees=-800, speed=100)
+    # # _turnToAngle(-5)
+    # #gyroStraight(targetAngle = -15,  distance = _CM_PER_INCH*15, backward=True)
     motors.move(amount = 13, unit = "in", steering = 0, speed = -40)
-
 #endregion Arisha 
 
 #region Anya 
 #powerPlant
 def runAnya():
-    # primeHub.motion_sensor.reset_yaw_angle()
+    primeHub.motion_sensor.reset_yaw_angle()
     # raiseEnergyUnitCollectingArm(200)# at least 245 But we don't know
     getToPowerPlantFromHome2()
-    ReleaseEnergyUnitsLowerFirst3()
+    ReleaseEnergyUnitsLowerFirst()
+    # ReleaseEnergyUnitsRaiseFirst()
     goToHome1()
+    print("Battery voltage: " + str(hub.battery.voltage()))
 
 def raiseEnergyUnitCollectingArm(deg = 90, raiseArm = True):
     multiplier = 1
@@ -730,10 +805,10 @@ def raiseEnergyUnitCollectingArm(deg = 90, raiseArm = True):
     motorF.run_for_degrees(degrees=deg * 24 * multiplier, speed=40)
 
 def goToHome1():
-    motors.move(amount = 4, unit = "in", steering = 0, speed = -40)
-    _turnToAngle(ANYA_RUN_START_OFFSET_TO_MAT_NORTH - 95)#original value -90
+    motors.move(amount = 5, unit = "in", steering = 0, speed = -40)
+    _turnToAngle(ANYA_RUN_START_OFFSET_TO_MAT_NORTH - 105)#original value -90
     # motors.move(amount = 35, unit = "in", steering = 0, speed = 90)#original speed 40
-    gyroStraight(targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_NORTH - 95,  distance = _CM_PER_INCH*35, speed=90)
+    gyroStraight(targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_NORTH - 105,  distance = _CM_PER_INCH*35, speed=90)
 
 def getToPowerPlantFromHome2():
 
@@ -743,8 +818,11 @@ def getToPowerPlantFromHome2():
     # print('Turning to angle: -90. Current yaw angle ' +  str(primeHub.motion_sensor.get_yaw_angle()))
     # _turnToAngle(ANYA_RUN_START_OFFSET_TO_MAT_NORTH - 90)
     # print('Going forward 36 in. Current yaw angle ' +  str(primeHub.motion_sensor.get_yaw_angle()))
-    gyroStraight(targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_NORTH - 90,  distance = _CM_PER_INCH*28, speed=60)
-    gyroStraight(targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_NORTH - 90,  distance = _CM_PER_INCH*2, speed=40)
+    # gyroStraight(targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_NORTH - 90,  distance = _CM_PER_INCH*29, speed=60) # was 29 and then 2 more at 40 speed below
+    drive(speed= 60,distanceInCM= _CM_PER_INCH*29, target_angle= ANYA_RUN_START_OFFSET_TO_MAT_NORTH - 90)
+    time.sleep(10)
+    # gyroStraight(targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_NORTH - 90,  distance = _CM_PER_INCH*2, speed=40)
+    drive(speed= 40,distanceInCM= _CM_PER_INCH*2, target_angle= ANYA_RUN_START_OFFSET_TO_MAT_NORTH - 90)
     time.sleep(10)
 
     ToyFactory()
@@ -757,43 +835,52 @@ def getToPowerPlantFromHome2():
 
     _turnToAngle(targetAngle=ANYA_RUN_START_OFFSET_TO_MAT_NORTH - 179, speed=25)
     # turnToAngle(targetAngle=170, speed=25)
-    # time.sleep(5)
+    time.sleep(5)
     # print('Going forward 5 in. Current yaw angle ' +  str(primeHub.motion_sensor.get_yaw_angle()))
-    gyroStraight(targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_NORTH - 179,  distance = _CM_PER_INCH*8)
+    gyroStraight(targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_NORTH - 179,  distance = _CM_PER_INCH*8.5)
     # gyroStraight(targetAngle = 170,  distance = _CM_PER_INCH*4)
     # _turnToAngle(targetAngle=ANYA_RUN_START_OFFSET_TO_MAT_NORTH - 179, speed = 25)
     # gyroStraight(targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_NORTH - 179,  distance = _CM_PER_INCH*3)
     # print('current yaw angle ' +  str(primeHub.motion_sensor.get_yaw_angle()))
     # print('getToPowerPlantFromHome2 function Done')
-    # time.sleep(5)
 
 def ToyFactory():
+    # time.sleep(5)
     _turnToAngle(ANYA_RUN_START_OFFSET_TO_MAT_NORTH - 110)
-    gyroStraight(targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_NORTH - 130,  distance = _CM_PER_INCH*4, backward=True)
-    time.sleep(10)
+    gyroStraight(targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_NORTH - 110,  distance = _CM_PER_INCH*3, backward=True)
     _turnToAngle(ANYA_RUN_START_OFFSET_TO_MAT_NORTH - 130)
-    gyroStraight(targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_NORTH - 130,  distance = _CM_PER_INCH*3, backward=True)
-    time.sleep(10)
+    # time.sleep(10)
+    gyroStraight(targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_NORTH - 130,  distance = _CM_PER_INCH*4, backward=True)
+    # time.sleep(10)
     gyroStraight(targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_NORTH - 130,  distance = _CM_PER_INCH*3)
     _turnToAngle(ANYA_RUN_START_OFFSET_TO_MAT_NORTH - 90)
-    gyroStraight(targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_NORTH - 90,  distance = _CM_PER_INCH*9.5) # Original was 8
-    # time.sleep(3)
-
-
-def ReleaseEnergyUnitsLowerFirst3():
-    # logMessage("lower arm", level=3)
-    motorD.run_for_degrees(degrees=-150, speed=100)#original values -150 working value 100
-    # print('Lowering ARM done')
-    #raiseEnergyUnitCollectingArm(deg=180, raiseArm=False)
-    motorD.run_for_degrees(degrees=75, speed=50)#original values 150
-    motorD.run_for_degrees(degrees=150, speed=100)#original values 150
-    # print('Raising ARM done')
-    # motorD.run_for_degrees(degrees=-100, speed=100)#original values -50
-    # print('Lowering ARM 2nd time done')
+    _driveTillLine(speed = 20, distanceInCM = _CM_PER_INCH*9, target_angle = ANYA_RUN_START_OFFSET_TO_MAT_NORTH - 90)
+    gyroStraight(targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_NORTH - 90,  distance = 5) # Original was 8
     # time.sleep(5)
-    # motorD.run_for_degrees(degrees=75, speed=50)#original values 150
-    # motorD.run_for_degrees(degrees=200, speed=100)#original values 150
-    # print('Raising ARM 2nd time done')
+
+def ReleaseEnergyUnitsLowerFirst():
+    motorD.run_for_degrees(degrees=-130, speed=100)
+    #motorD.run_for_degrees(degrees=70, speed=100)
+    time.sleep(0.5)
+    #motorD.run_for_degrees(degrees=150, speed=100)
+    motorD.run_for_degrees(degrees=250, speed=100)
+    time.sleep(15)
+
+def ReleaseEnergyUnitsRaiseFirst():
+    # logMessage("lower arm", level=3)
+    motorD.run_for_degrees(degrees=100, speed=100) #original values 150
+
+    # gyroStraight(targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_NORTH - 90, distance = _CM_PER_INCH*0.5, backward=True)
+
+
+    # Lower arm after lifting the cover
+    motorD.run_for_degrees(degrees=-150, speed=100)#original values -150 working value 100
+    # time.sleep(0.2)
+
+    # time.sleep(10)
+    # Wait for the Arm to fall down so we can try raising again
+    
+    motorD.run_for_degrees(degrees=100, speed=100)
     #endregion Anya 
 
 #region Nami
@@ -906,7 +993,7 @@ initialize()
 
 #drive(speed=40,distanceInCM= 10, target_angle= 0)
 #turnToAngle(targetAngle= -30 ,speed= 20)
-    
+
 #run4()
 
 #doRunWithTiming(run5)
@@ -923,10 +1010,8 @@ initialize()
 
 
 t1_start = time.ticks_ms()
-# runArisha()
+#runArisha()
 runAnya()
 t1_end = time.ticks_ms()
-print("Time taken timetakenfor this run " + 
+print("Time taken time taken for this run " + 
 str( time.ticks_diff(t1_end,t1_start)) + " milliseconds")
-
-
