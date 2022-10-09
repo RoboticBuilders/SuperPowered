@@ -147,7 +147,6 @@ def _turnToAngle(targetAngle, speed=20, forceTurn="None", slowTurnRatio=0.4, cor
     if (targetAngle > currentAngle):
         degreesToTurnRight = targetAngle - currentAngle
         degreesToTurnLeft = (360-targetAngle) + currentAngle
-       
     else:
         degreesToTurnLeft = currentAngle - targetAngle
         degreesToTurnRight = (360-currentAngle) + targetAngle
@@ -845,7 +844,7 @@ def _run4():
     _turnToAngle(targetAngle=-70,speed=15)
     
     drive(speed=20, distanceInCM=15, target_angle=-70)
-
+'''
     # backup before solar farm units
     gyroStraight(distance=2, speed = 20, backward = True, targetAngle = -70)
     _turnToAngle(targetAngle=-150,speed=15)
@@ -856,7 +855,7 @@ def _run4():
 
       # Turn towards home and go home.    
     _turnToAngle(targetAngle=160,speed=20)
-    drive(speed=90, distanceInCM=95, target_angle=160, dontSlowDown=True)
+    drive(speed=90, distanceInCM=95, target_angle=160, dontSlowDown=True)'''
     
 # Drop water units
 # Drop off energy units and innovation project
@@ -906,7 +905,7 @@ def _dropRechargeableBatteryAndOilTruck():
     _turnToAngle(targetAngle = 0 + targetAngleAdjustment, speed = 20)
 
     # Drive past the n-s line in front of the toy factory
-    drive(speed = 35, distanceInCM = 20, target_angle = 0 + targetAngleAdjustment)
+    drive(speed = 35, distanceInCM = 25, target_angle = 0 + targetAngleAdjustment)
 
     # We expect the arm to have come up by now.
     motorF.stop()
@@ -941,37 +940,185 @@ def _dropRechargeableBatteryAndOilTruck():
 #endregion Nami
 
 #region Rishabh
-def _run1(moveArmDegrees, armSpeed):
-    drive(speed = 30, distanceInCM = 50, target_angle = 0) #Drive to Watch Television
-    motors.move(amount = 15, unit = "cm", steering = 0, speed = -30) #Backup from Watch Television
-    _turnToAngle(targetAngle = -45, speed = 25) #Turn towards Hybrid Car
-    drive(speed = 30, distanceInCM = 45, target_angle = -45) #Drive towards Hybrid Car
-    _turnToAngle(targetAngle = 45, speed = 25) #Turn towards Wind Turbine
-    drive(speed = 30, distanceInCM = 28, target_angle = 45) #Drive towards Wind Turbine and push the lever once
+def run1Old(moveArmDegrees, armSpeed):
+    def full():
+        drive(speed = 30, distanceInCM = 50, target_angle = 0) #Drive to Watch Tele
+        motors.move(amount = 15, unit = "cm", steering = 0, speed = -30) #Backup from Watch Television
+        _turnToAngle(targetAngle = -45, speed = 25) #Turn towards Hybrid Car
+        drive(speed = 30, distanceInCM = 45, target_angle = -45) #Drive towards Hybrid Car
+        _turnToAngle(targetAngle = 45, speed = 25) #Turn towards Wind Turbine
+        drive(speed = 30, distanceInCM = 29, target_angle = 45) #Drive towards Wind Turbine and push the lever once
 
-    for i in range(2): #Push the lever the remaining two times
-        motors.move(amount = 5, unit = "cm", steering = 0, speed = -20)
-        drive(speed = 30, distanceInCM = 5, target_angle = 35)
-        time.sleep(0.5)
-    motors.move(amount = 11, unit = "cm", steering = 0, speed = -30) #Backup from Wind Turbine
-    _turnToAngle(targetAngle = -50, speed = 25) #Turn towards Hybrid Car
-    moveArm(degrees = moveArmDegrees, speed = armSpeed, motor = motorF) #Lower the Hybrid Car arm
-    drive(speed = 30, distanceInCM = 20, target_angle = -50) # Drive towards the Hybrid Car
-    moveArm(degrees = -1 * moveArmDegrees, speed = ceil(-0.75 * armSpeed), motor = motorF) #Raise the Hybrid Car arm and complete the mission
-    motors.move(amount = 30, unit = "cm", steering = 0, speed = -30) #Backup from the Hybrid Car
-    _turnToAngle(targetAngle = -70, speed = 20) #Turn towards Rechargable Battery
-    moveArm(degrees = moveArmDegrees, speed = armSpeed, motor = motorF)
-    time.sleep(1)
-    motors.move(amount = 70, unit = "cm", steering = 0, speed = -50)
-    _turnToAngle(targetAngle = -90, speed = 100)
+        for i in range(2): #Push the lever the remaining two times
+            motors.move(amount = 7, unit = "cm", steering = 0, speed = -20)
+            drive(speed = 20, distanceInCM = 7, target_angle = 35)
+            time.sleep(0.5)
+        motors.move(amount = 11, unit = "cm", steering = 0, speed = -30) #Backup from Wind Turbine
+        _turnToAngle(targetAngle = -50, speed = 25) #Turn towards Hybrid Car
+        moveArm(degrees = moveArmDegrees, speed = armSpeed, motor = motorF) #Lower the Hybrid Car arm
+        drive(speed = 30, distanceInCM = 20, target_angle = -50) # Drive towards the Hybrid Car
+        moveArm(degrees = -1 * moveArmDegrees, speed = ceil(-0.75 * armSpeed), motor = motorF) #Raise the Hybrid Car arm and complete the mission
+        motors.move(amount = 30, unit = "cm", steering = 0, speed = -30) #Backup from the Hybrid Car
+        _turnToAngle(targetAngle = -70, speed = 20) #Turn towards Rechargable Battery
+        moveArm(degrees = moveArmDegrees, speed = armSpeed, motor = motorF)
+        time.sleep(1)
+        motors.move(amount = 70, unit = "cm", steering = 0, speed = -50)
+        _turnToAngle(targetAngle = -90, speed = 100)
+
+    def watchTV():
+        # Drive to Watch Television
+        drive(speed = 25, distanceInCM = 52, target_angle = 0) 
+        
+        #Backup from Watch Television
+        gyroStraight(distance=10, speed = 20, backward = True, targetAngle = 0)
+
+    def getToWindTurbine():
+        # Turn towards the hybrid car.
+        _turnToAngle(targetAngle = -20, speed = 25) 
+
+        # We should have turned such that we are able to find the black line in front of the wind turbine.
+        _driveTillLine(speed=25, distanceInCM=45, target_angle=-20, colorSensorToUse="Right", blackOrWhite="Black")
+
+        # Drive to align the arm with the wind turbine.
+
+        # The Forward below used to be 10, we made it 8.
+        drive(speed = 25, distanceInCM = 8, target_angle = -20) 
+        _turnToAngle(targetAngle = 20, speed = 20) 
+        gyroStraight(distance=12, speed = 20, backward = True, targetAngle = 20)
+        _turnToAngle(targetAngle = 40, speed = 20)
+
+        # Turn towards the wind turbine, using a force turn to avoid hitting the turbine.
+        #_turnToAngle(targetAngle = 45, speed = 25, forceTurn="Left") 
+
+    def windTurbine():
+        drive(speed = 10, distanceInCM = 20, target_angle = 42) #Drive towards Wind Turbine and push the lever once
+        time.sleep(1)
+        gyroStraight(distance=10, speed = 20, backward = True, targetAngle = 42)
+        # for i in range(2): #Push the lever the remaining two times
+        #     motors.move(amount = 10, unit = "cm", steering = 0, speed = -20) #Backup so the robot can push the Wind Turbine again
+        #     drive(speed = 20, distanceInCM = 7, target_angle = 35) #Drive forward to push the Wind Turbine
+        #     time.sleep(0.5) #Wait slightly
+        # motors.move(amount = 11, unit = "cm", steering = 0, speed = -30) #Backup from Wind Turbine
+
+    def hybridCar(moveArmDegrees, armSpeed):
+        _turnToAngle(targetAngle = -50, speed = 25) #Turn towards Hybrid Car
+        moveArm(degrees = moveArmDegrees, speed = armSpeed, motor = motorF) #Lower the Hybrid Car arm
+        drive(speed = 30, distanceInCM = 20, target_angle = -50) # Drive towards the Hybrid Car
+        moveArm(degrees = -1 * moveArmDegrees, speed = ceil(-0.75 * armSpeed), motor = motorF) #Raise the Hybrid Car arm and complete the mission
+        motors.move(amount = 30, unit = "cm", steering = 0, speed = -30) #Backup from the Hybrid Car
+
+    def rechargableBattery(moveArmDegrees, armSpeed):
+        _turnToAngle(targetAngle = -70, speed = 20) #Turn towards Rechargable Battery
+        moveArm(degrees = moveArmDegrees, speed = armSpeed, motor = motorF) #Lower arm for Rechargable Battery
+        time.sleep(1)
+
+    def goHome():
+        motors.move(amount = 70, unit = "cm", steering = 0, speed = -50)
+        _turnToAngle(targetAngle = -90, speed = 100)
     
-#endregion Rishabh
-initialize()
-doRunWithTiming(_run5)
-#doRunWithTiming(_run4)
+def run1(moveArmDegrees, armSpeed):
+    def watchTV():
+        # Drive to Watch Television
+        drive(speed = 25, distanceInCM = 43, target_angle = 0) 
+        
+        #Backup from Watch Television
+        gyroStraight(distance=19, speed = 20, backward = True, targetAngle = 0)
 
-#run1()
-#run1(75, 75)
+    def testHybridCarArm():
+        # Bring arm down
+        moveArm(degrees = 2800, speed = -100, motor = motorD)
+
+        # Bring arm up
+        moveArm(degrees = 2800, speed = 100, motor = motorD)
+
+    def getToWindTurbine():
+        # Turn towards the hybrid car.
+        # URGENT: THE ROBOT SOMETIMES TURNS INFINITY ON THIS TURN
+        _turnToAngle(targetAngle = -30, speed = 25) 
+
+        # We should have turned such that we are able to find the black line in front of the wind turbine.
+        _driveTillLine(speed=25, distanceInCM=45, target_angle=-30, colorSensorToUse="Right", blackOrWhite="Black")
+
+        # Drive to align the arm with the wind turbine.
+
+        # The Forward below used to be 10, we made it 8.
+        drive(speed = 25, distanceInCM = 12, target_angle = -20) 
+        _turnToAngle(targetAngle = 20, speed = 20) 
+        gyroStraight(distance=3, speed = 20, backward = True, targetAngle = 20)
+        _turnToAngle(targetAngle = 40, speed = 20)
+
+    def windTurbine():
+        drive(speed = 20, distanceInCM = 20, target_angle = 40) #Drive towards Wind Turbine and push the lever once
+        time.sleep(1)
+        #gyroStraight(distance=10, speed = 20, backward = True, targetAngle = 42)
+        for i in range(2): #Push the lever the remaining two times
+            motors.move(amount = 10, unit = "cm", steering = 0, speed = -20) #Backup so the robot can push the Wind Turbine again
+            drive(speed = 20, distanceInCM = 20, target_angle = 40) #Drive forward to push the Wind Turbine
+            time.sleep(0.5) #Wait slightly
+        motors.move(amount = 16, unit = "cm", steering = 0, speed = -30) #Backup from Wind Turbine
+
+    def hybridCar(moveArmDegrees, armSpeed):
+        _turnToAngle(targetAngle = 120, speed = 25) #Turn towards Hybrid Car
+        # drive(speed = 30, distanceInCM = 20, target_angle = 140) # Drive towards the Hybrid Car
+        gyroStraight(distance=15, speed = 20, backward = True, targetAngle = 120)
+        moveArm(degrees = -1 * moveArmDegrees, speed = ceil(-0.75 * armSpeed), motor = motorD) #Lower the Hybrid Car arm
+        moveArm(degrees = ceil(0.85 * moveArmDegrees), speed = armSpeed, motor = motorD) #Raise the Hybrid Car arm and complete the mission
+        # motors.move(amount = 30, unit = "cm", steering = 0, speed = -30) #Backup from the Hybrid Car
+        drive(speed = 30, distanceInCM = 22, target_angle = 120)
+        _turnToAngle(targetAngle = 145, speed = 20)
+        moveArm(degrees = ceil(-0.85 * moveArmDegrees), speed = ceil(-0.75 * armSpeed), motor = motorD)
+        _turnToAngle(targetAngle = 120, speed = 20)
+        drive(speed = 30, distanceInCM = 5, target_angle = 120)
+    
+    def rechargableBattery(moveArmDegrees, armSpeed):
+        _turnToAngle(targetAngle = 90, speed = 20) #Turn towards Rechargable Battery
+        moveArm(degrees = ceil(-0.75 * moveArmDegrees), speed = -1 * armSpeed, motor = motorD) #Lower arm for Rechargable Battery
+        _turnToAngle(targetAngle = 120, speed = 20)
+        #time.sleep(1)
+
+    def goHome():
+        #motors.move(amount = 70, unit = "cm", steering = 0, speed = -50)
+        drive(speed = 30, distanceInCM = 25, target_angle = 100)
+        #_turnToAngle(targetAngle = -90, speed = 100)
+    
+    watchTV()
+    getToWindTurbine()
+    windTurbine()
+    hybridCar(moveArmDegrees, armSpeed)
+    # rechargableBattery(moveArmDegrees, armSpeed)
+    # goHome()
+    #testHybridCarArm()
+
+    
+#endregion
+
+#region Function Calls
+initialize()
+
+# Lower the Hybrid Car arm
+moveArm(degrees = -1750, speed = -100, motor = motorD)
+
+# Raise the Hybrid Car arm and complete the mission
+moveArm(degrees = 1700, speed = 100, motor = motorD)
+
+# Lower the Hybrid Car arm 
+moveArm(degrees = -1000, speed = -100, motor = motorD)
+
+# Drive forward
+drive(speed = 30, distanceInCM = 30, target_angle = 0)
+
+# Lower the Hybrid Car arm 
+moveArm(degrees = -1 * 500, speed = -100, motor = motorD)
+drive(speed = 30, distanceInCM = 36, target_angle = 0)
+
+#_run5()
+#motorF.start_at_power(100)
+#run1(moveArmDegrees = 2750, armSpeed = 100)
+#_turnToAngle(speed = 20, targetAngle = 115)
+#drive(speed = 20, distanceInCM = 30, target_angle = 0)
+
+#doRunWithTiming(_run4)
+#doRunWithTiming(_run5)
 #runArisha()
 raise SystemExit
 
