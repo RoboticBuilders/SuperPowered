@@ -729,8 +729,7 @@ def runArisha():
     #getToOilPlatform()
     #unloadEnergyUnits()
     #goBackHomeFromOilPlatform()
-    # pullTruck()
-    #pullTruckLeftArm()
+
     #pullTruckGoStraight()
 
 
@@ -767,16 +766,6 @@ def getToOilPlatform_v2Point1():
     #turnUntilColor(colorsensor=rightColorSensor, isColorBlack=False, isTurnLeft=True)
     gyroStraight(distance=_CM_PER_INCH*10.5, speed=30, targetAngle=0)
 
-# def correctpositionForOilPlatform():
-    # gyroStraight(distance=_CM_PER_INCH*9.5, speed=40, targetAngle=0)
-    # _turnToAngle(30)
-    # _driveTillLine(speed = 20, distanceInCM = _CM_PER_INCH*10, target_angle = 30)
-    # time.sleep(15)
-    # gyroStraight(distance=7, speed=40, targetAngle=30)
-    # _turnToAngle(0)
-    # time.sleep(5)
-    # gyroStraight(distance=_CM_PER_INCH*10.5, speed=30, targetAngle=0)
-    # time.sleep(5)
 
 def turnUntilColor(colorsensor, isColorBlack, isTurnLeft):
     """
@@ -820,7 +809,6 @@ def activeOilPlatform():
     # motorD.stop()
     motors.move(amount = 10, unit = "in", steering = 0, speed = -40)
 
-def getToOilPlatform():
     #drive(speed = 25, distanceInCM = _CM_PER_INCH*8, target_angle = 0) 
     #turnToAngle(-90)
     #working code 1
@@ -839,118 +827,18 @@ def getToOilPlatform():
     gyroStraight(distance=_CM_PER_INCH*10, speed=20, targetAngle=0)
     time.sleep(5)
 
-def unloadEnergyUnits():
-    #motorF.run_for_degrees(degrees=600, speed=40)
-    print('current yaw angle ' +  str(primeHub.motion_sensor.get_yaw_angle()))
-    for i in range(3):
-        # drive(speed = 20, distanceInCM = _CM_PER_INCH*8, target_angle = 0)
-        gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*8, speed=20)
-        wiggleOilPlatform()
-        gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*2, backward =True)
-        _turnToAngle(2)
-
-    gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*8, speed=20)
-    # drive(speed = 20, distanceInCM = _CM_PER_INCH*8, target_angle = 0)
-    wiggleOilPlatform()
-    motorD.run_for_degrees(degrees=-600, speed=40)
-    #working 4th run
-    #drive(speed = 10, distanceInCM = _CM_PER_INCH*4, target_angle = 0)
-    #wiggleOilPlatform()
-    #motorF.run_for_degrees(degrees=-600, speed=40)
-    motors.move(amount = 10, unit = "in", steering = 0, speed = -30)
-
-def wiggleOilPlatform():
-    _turnToAngle(2)
-    _turnToAngle(-1)
-    _turnToAngle(2)
-    # turnToAngle(-2)
-    _turnToAngle(0)
-
 def goBackHomeFromOilPlatform():
     _turnToAngle(60)
     motors.move(amount = 20, unit = "in", steering = 0, speed = -40) # Back home doesnt require accuracy
    #turnToAngle(30)
    #motors.move(amount = 11, unit = "in", steering = 0, speed = -30) # Back home doesnt require accuracy
 
-def pullTruckLeftArm():
-    motorF.run_for_degrees(degrees=400, speed=100)
-    motors.move(amount = 18, unit = "in", steering = 0, speed = 30)
 
-    motorF.run_for_degrees(degrees=-400, speed=100)
-    motors.move(amount = 18, unit = "in", steering = 0, speed = -30)
 def pullTruckGoStraight():
     # motorF.run_for_degrees(degrees=1000, speed=100)
     gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH * 10, speed=40)
     motorF.run_for_degrees(degrees=-1000, speed=100)
     motors.move(amount = 10, unit = "in", steering = 0, speed = -30)
-
-def pullTruck():
-    #Move arm up
-    motorD.run_for_degrees(degrees=800, speed=100)# actually it is 700
-    #motorD.start(100)
-    _turnToAngle(-55)
-    # drive(speed = 30, distanceInCM = 12, target_angle = -55)
-    gyroStraight(targetAngle = -55,  distance = 12, speed=30)
-    #motorD.stop()
-    time.sleep(5)
-    _turnToAngle(-5)
-    # drive(speed = 30, distanceInCM = 29.5, target_angle = 0)
-    gyroStraight(targetAngle = -2,  distance = 29.5, speed=30)
-    # _turnToAngle(-15)
-    # drive(speed = 30, distanceInCM = _CM_PER_INCH*16, target_angle = -15)
-    # _turnToAngle(-5)
-    # drive(speed = 30, distanceInCM = _CM_PER_INCH*1, target_angle =-5)
-    motorD.run_for_degrees(degrees=-800, speed=100)
-    # # _turnToAngle(-5)
-    # #gyroStraight(targetAngle = -15,  distance = _CM_PER_INCH*15, backward=True)
-    motors.move(amount = 13, unit = "in", steering = 0, speed = -40)
-
-#functions / methods
-# def line_follow_secs(seconds):
-#     timer.reset()
-#     motors.set_default_speed(20)
-#     while timer.now()<seconds:
-#         motors.start((rightColorSensor.get_reflected_light()-50)*2)
-#     motors.stop()
-
-# def line_follow_degrees(degrees):
-#     right_large_motor.set_degrees_counted(0)
-#     motors.set_default_speed(20)
-#     while right_large_motor.get_degrees_counted()<degrees:
-#         motors.start((rightColorSensor.get_reflected_light()-50)*2)
-#     motors.stop()
-# def line_follow():
-#     Kp = 0.3
-#     Ki = 0.001
-#     Kd = 1.0
-
-#     I = 0
-#     previous_error = 0
-#     base_power = 30
-#     loop_counter = 0
-
-#     #hub.left_button.wait_until_pressed()
-
-#     while True:
-#         light_sensor_value = leftColorSensor.get_reflected_light()
-#         print(light_sensor_value)
-#         error = light_sensor_value - 50
-#         P = error
-#         I = I + error
-#         D = error - previous_error
-#         previous_error = error
-        
-#         correction = int((P * Kp) + (I * Ki) + (D * Kd))
-#         left_motor = base_power + correction
-#         right_motor = base_power - correction
-
-#         motors.start_tank_at_power(left_motor, right_motor)
-
-#         loop_counter += 1
-
-#         if loop_counter % 500 == 0 :
-#             primeHub.speaker.beep(60)
-
 
 def scale(amt):
     in_min  =  BLACK_COLOR
@@ -1003,7 +891,7 @@ def line_follow(distance, speed = 20):
         time.sleep(0.01)
         if ((motorE.get_degrees_counted() - position_start)  >= degreesToCover):
             break
-        #endregion Arisha 
+       
     motors.stop()
     finalDeg = abs(motorE.get_degrees_counted())
 
@@ -1026,6 +914,7 @@ def testingGyroStraight():
         gyroStraight(targetAngle = 0,  distance = 8*_CM_PER_INCH, speed=60)
         gyroStraight(targetAngle = 0,  distance = 2*_CM_PER_INCH, speed=40)
         time.sleep(1)
+#endregion Arisha
 
 #region Anya 
 #powerPlant
