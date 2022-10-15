@@ -932,7 +932,7 @@ def turnUntilColor(colorsensor, isColorBlack, isTurnLeft):
     wheels.stop()
 
 def activeOilPlatform():
-    gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*2, speed=40)
+    gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*2.5, speed=40)
     # left_large_motor.run_for_degrees(degrees=90, speed=-40)
     # right_large_motor.run_for_degrees(degrees=90, speed=40)
     #time.sleep(1)
@@ -941,7 +941,7 @@ def activeOilPlatform():
     # time.sleep(1)
     #gyroStraight(distance=1, speed=20, targetAngle=0, backward=True) # if this does not work then change it to 0.5
     # motorD.run_for_degrees(degrees=-2500, speed=100) # it was 1200 degrees before.Then it was 2400.
-    gyroStraight(distance=0.5, speed=20, targetAngle=0, backward=True) # if this does not work then change it to back to 1
+    # gyroStraight(distance=0.5, speed=20, targetAngle=0, backward=True) # if this does not work then change it to back to 1
     motorD.run_for_degrees(degrees=-1000, speed=100)# it was 1400 before (4 wheel rotations) now it is 2 wheel rotations
     # time.sleep(1)
     gyroStraight(distance=1, speed=20, targetAngle=0, backward=True)
@@ -956,8 +956,9 @@ def activeOilPlatform():
 
 
 def goBackHomeFromOilPlatform():
-    _turnToAngle(60)
-    wheels.move(amount = 20, unit = "in", steering = 0, speed = -40) # Back home doesnt require accuracy
+    _turnToAngle(45)
+    gyroStraight(distance=20*_CM_PER_INCH, speed=100, targetAngle=45, backward=True) # Back home doesnt require accuracy
+    # wheels.move(amount = 20, unit = "in", steering = 0, speed = -100) # Back home doesnt require accuracy
    #turnToAngle(30)
    #wheels.move(amount = 11, unit = "in", steering = 0, speed = -30) # Back home doesnt require accuracy
 
@@ -1465,7 +1466,7 @@ def run1(moveArmDegrees, armSpeed):
 
 #region Function Calls
 initialize()
-testLineSquaring()
+#testLineSquaring()
 
 # If we are comfortable with this code, then move it into the run1 code.
 def doHybridCar():
@@ -1528,3 +1529,4 @@ doRunWithTiming(runArisha)
 ## t1_end = time.ticks_ms()
 ## print("Time taken time taken for this run " + 
 ## str( time.ticks_diff(t1_end,t1_start)) + " milliseconds")
+# def ArmReset():
