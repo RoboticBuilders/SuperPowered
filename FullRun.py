@@ -25,7 +25,7 @@ motorE = Motor("E")
 right_large_motor = motorE
 
 # The motor pair
-motors = MotorPair('C', 'E')
+wheels = MotorPair('C', 'E')
 
 # Right medium motor
 motorD = Motor("D")
@@ -53,8 +53,8 @@ def initialize():
     
     print("___________________________________________________")
     primeHub.motion_sensor.reset_yaw_angle()
-    motors.set_stop_action("brake")
-    motors.set_motor_rotation(2*3.14*WHEEL_RADIUS_CM, 'cm')
+    wheels.set_stop_action("brake")
+    wheels.set_motor_rotation(2*3.14*WHEEL_RADIUS_CM, 'cm')
     isBatteryGood()
     
   
@@ -138,7 +138,7 @@ def _turnToAngle(targetAngle, speed=20, forceTurn="None", slowTurnRatio=0.4, cor
     In the code its confusing what space a particular angle is in. So be careful when changing code.
     """
     logMessage("Starting turn", level=4)
-    motors.stop()
+    wheels.stop()
     currentAngle = gyroAngleZeroTo360()
     
     if (targetAngle < 0):
@@ -235,16 +235,16 @@ def _turnRobotWithSlowDown(angleInDegrees, targetAngle, speed, slowTurnRatio, di
     # slow turn using the slow speed.
     turnRobot(direction, SLOW_SPEED, oneWheelTurn)
     # if (direction == "Right"):
-    #     motors.start_tank(SLOW_SPEED, SLOW_SPEED * -1)
+    #     wheels.start_tank(SLOW_SPEED, SLOW_SPEED * -1)
     # if (direction == "Left"):
-    #     motors.start_tank(SLOW_SPEED * -1, SLOW_SPEED)
+    #     wheels.start_tank(SLOW_SPEED * -1, SLOW_SPEED)
 
     while (abs(currentAngle - targetAngle) > 2):
         time.sleep_ms(7)
         
         currentAngle = primeHub.motion_sensor.get_yaw_angle()
 
-    motors.stop()
+    wheels.stop()
    
     """
     motorCDiff = abs(motorC.get_degrees_counted()) - motorCInitialDeg
@@ -259,9 +259,9 @@ def _turnRobotWithSlowDown(angleInDegrees, targetAngle, speed, slowTurnRatio, di
 def turnRobot(direction, speed, oneWheelTurn):
     if (oneWheelTurn == "None"):
         if (direction == "Right"):
-            motors.start_tank(speed, speed * -1)
+            wheels.start_tank(speed, speed * -1)
         if (direction == "Left"):
-            motors.start_tank(speed * -1, speed)
+            wheels.start_tank(speed * -1, speed)
     elif (oneWheelTurn == "Left"):
         left_large_motor.start(speed)
     else:
@@ -271,7 +271,7 @@ def gyroStraight(distance, speed = 20, backward = False, targetAngle = 0):
     initialDeg = abs(motorE.get_degrees_counted())
     if(distance < _CM_PER_INCH*3):
         _gyroStraightNoSlowDownNoStop(distance = distance, speed = 20, targetAngle=targetAngle, backward=backward, correctionMultiplier = 2)
-        motors.stop()
+        wheels.stop()
         return
     
     gradualAccelerationDistance = _CM_PER_INCH*1
@@ -281,7 +281,7 @@ def gyroStraight(distance, speed = 20, backward = False, targetAngle = 0):
     _gyroStraightNoSlowDownNoStop(distance = gradualAccelerationDistance, speed = 20, targetAngle=targetAngle, backward=backward, correctionMultiplier = 2)
     _gyroStraightNoSlowDownNoStop(distance = distance - slowDistance - gradualAccelerationDistance, speed = speed, targetAngle=targetAngle, backward=backward, correctionMultiplier = 2)
     _gyroStraightNoSlowDownNoStop(distance = slowDistance, speed = 20, targetAngle=targetAngle, backward=backward, correctionMultiplier = 2)
-    motors.stop()
+    wheels.stop()
 
     finalDeg = abs(motorE.get_degrees_counted())
 
@@ -303,13 +303,13 @@ def _gyroStraightNoSlowDownNoStop(distance, speed = 20, backward = False, target
            
             # currentAngle = primeHub.motion_sensor.get_yaw_angle()
             correction = getCorrectionForDrive(targetAngle, correctionMultiplier = correctionMultiplier) # - currentAngle
-            motors.start(steering = -correction, speed=speed * -1)
+            wheels.start(steering = -correction, speed=speed * -1)
     else:
          while ((motorE.get_degrees_counted() - position_start)  <= degreesToCover):
            
             # currentAngle = primeHub.motion_sensor.get_yaw_angle()
             correction = getCorrectionForDrive(targetAngle, correctionMultiplier = correctionMultiplier) # targetAngle - currentAngle
-            motors.start(steering = correction, speed=speed)   
+            wheels.start(steering = correction, speed=speed)   
 
 def getCorrectionForDrive(targetAngle, correctionMultiplier = 2):
     currentAngle = primeHub.motion_sensor.get_yaw_angle()
@@ -364,17 +364,17 @@ def drive(speed, distanceInCM, target_angle, gain = 1, dontSlowDown=False):
     15% of distance with linear slow down from speed to 10
     5% of distance with speed of FINAL_SLOW_SPEED.
     _____
-    Speed - Speed the motors travel at. Integer from -100 to 100
+    Speed - Speed the wheels travel at. Integer from -100 to 100
     DistanceInCM - Distance to travel in centimeters. Integer greater than 0
     TargetAngle - The angle the robot should drive at. Integer from 0 to 360
     Gain - The multiplier off the error. Integer greater than 0
     dontSlowDown - Set this to true to run at speed all the way. Typically used for going home. 
     """
     
-    #motors.move_tank(distanceInCM, "cm", speed, speed)
+    #wheels.move_tank(distanceInCM, "cm", speed, speed)
     #return
     
-    motors.stop()
+    wheels.stop()
     logMessage("driveStraight for distance: " + str(distanceInCM) + " and target angle: " + str(target_angle), level=2)
     #Added to try the fix for negative degreescounted and high error rate
     
@@ -407,7 +407,7 @@ def drive(speed, distanceInCM, target_angle, gain = 1, dontSlowDown=False):
 
     # Only run this whole thing in case there is any remaining distance.
     # this check is meant to catch the case when for some reason
-    # the currently travelled distance returned by motors are wrong for some
+    # the currently travelled distance returned by wheels are wrong for some
     # reason.
     if (remainingDistance > 0):
         distance16 = remainingDistance * 0.6
@@ -423,9 +423,9 @@ def drive(speed, distanceInCM, target_angle, gain = 1, dontSlowDown=False):
         if remainingDistance > 1:
             FINAL_SLOW_SPEED = 15
             _driveStraightWithSlowDown(remainingDistance, FINAL_SLOW_SPEED, target_angle, gain, slowDown=False)
-            #motors.move_tank(remainingDistance, "cm", FINAL_SLOW_SPEED, FINAL_SLOW_SPEED)
+            #wheels.move_tank(remainingDistance, "cm", FINAL_SLOW_SPEED, FINAL_SLOW_SPEED)
     
-    motors.stop()
+    wheels.stop()
     finalDeg = abs(motorC.get_degrees_counted())
 
     totalDistanceTravelled = convertDegToCM(finalDeg - initialDeg)
@@ -452,7 +452,7 @@ def _driveStraightWithSlowDown(distance, speed, target_angle, gain, slowDown):
     distanceInDegTravelled = 0
 
     FINAL_SLOW_SPEED = 15
-    motors.start(0, int(currentSpeed))
+    wheels.start(0, int(currentSpeed))
     correction = previousCorrection = 0
     while  distanceInDegTravelled <= distanceInDeg:
         if (slowDown == True):
@@ -474,7 +474,7 @@ def _driveStraightWithSlowDown(distance, speed, target_angle, gain, slowDown):
           + " distanceInDegTravelled = " + str(distanceInDegTravelled) + " distanceToTravelInDeg=" + str(distanceInDeg) 
          + " target_angle= " + str(target_angle) + " current_yaw_angle = " + str(current_yaw_angle) +" correction= " + str(correction), level=5)
         if (abs(correction) > 1):
-            motors.start(turn_rate, int(currentSpeed))
+            wheels.start(turn_rate, int(currentSpeed))
 
         distanceInDegTravelled = abs(motorC.get_degrees_counted()) - startDistanceInDeg
     logMessage("Drivestraight completed", level=5)
@@ -488,7 +488,7 @@ def _driveTillLine(speed, distanceInCM, target_angle, gain = 1, colorSensorToUse
     80% of distance at speed
     20% of distance with FINAL_SLOW_SPEED
     _____
-    Speed - Speed the motors travel at. Integer from -100 to 100
+    Speed - Speed the wheels travel at. Integer from -100 to 100
     DistanceInCM - Distance to travel in centimeters. Integer greater than 0
     TargetAngle - The angle the robot should drive at. Integer from 0 to 360
     Gain - The multiplier off the error. Integer greater than 0
@@ -498,7 +498,7 @@ def _driveTillLine(speed, distanceInCM, target_angle, gain = 1, colorSensorToUse
     assert(colorSensorToUse == "Left" or colorSensorToUse == "Right")
     assert(blackOrWhite == "Black" or blackOrWhite == "White" or blackOrWhite == "Green")
 
-    motors.stop()
+    wheels.stop()
    
     logMessage("driveStraight for distance: " + str(distanceInCM) + " and target angle: " + str(target_angle), level=2)
     initialDeg = abs(motorC.get_degrees_counted())
@@ -535,7 +535,7 @@ def _driveTillLine(speed, distanceInCM, target_angle, gain = 1, colorSensorToUse
     logMessage("_driveTillLine: Distance travelled after first part = "  + str(distanceTravelled) + " error=" + str(distanceTravelled-distance60), level=4)
     _driveStraightWithSlowDownTillLine(remainingDistance, FINAL_SLOW_SPEED, target_angle, gain, slowDown=False, reachedStoppingCondition=stoppingCondition)
 
-    motors.stop()
+    wheels.stop()
     finalDeg = abs(motorC.get_degrees_counted())
 
     totalDistanceTravelled = convertDegToCM(finalDeg - initialDeg)
@@ -566,7 +566,7 @@ def _driveStraightWithSlowDownTillLine(distance, speed, target_angle, gain, slow
     distanceInDegTravelled = 0
     
     FINAL_SLOW_SPEED=15
-    motors.start(0, int(currentSpeed))
+    wheels.start(0, int(currentSpeed))
     correction = previousCorrection = 0
     while  distanceInDegTravelled <= distanceInDeg and reachedStoppingCondition() == False:
         if (slowDown == True):
@@ -588,7 +588,7 @@ def _driveStraightWithSlowDownTillLine(distance, speed, target_angle, gain, slow
             + " distanceInDegTravelled = " + str(distanceInDegTravelled) + " distanceToTravelInDeg=" + str(distanceInDeg) 
             + " target_angle= " + str(target_angle) + " current_yaw_angle = " + str(current_yaw_angle) +" correction= " + str(correction), level=5)
         if (abs(correction) > 1):
-            motors.start(turn_rate, int(currentSpeed))
+            wheels.start(turn_rate, int(currentSpeed))
 
         distanceInDegTravelled = abs(motorC.get_degrees_counted()) - startDistanceInDeg
     logMessage("DrivestraightWiuthSlowDownTillLine completed", level=5)
@@ -609,19 +609,19 @@ def lineSquare():
     logMessage("Found Black Line on : " + sensor, level=4)
     if (sensor == "Left"):
         # Turn left till the right color sensor also hits black.
-        motors.start(100, -15)
+        wheels.start(100, -15)
         while (abs(colorB.get_reflected_light() - colorA.get_reflected_light()) >= 1):
             logMessage("left color: " + str(colorA.get_reflected_light()) + " Right color: " + str(colorB.get_reflected_light()), level=4)
 
             continue
-        motors.stop()
+        wheels.stop()
     else:
         # Turn right till the Left color sensor also hits black.
-        motors.start(100, 15)
+        wheels.start(100, 15)
         while (colorA.get_reflected_light() >= BLACK_COLOR):
             logMessage("left color: " + str(colorA.get_reflected_light()) + " Right color: " + str(colorB.get_reflected_light()), level=4)
             continue
-        motors.stop()
+        wheels.stop()
         
     
 def isGyroGood():
@@ -703,7 +703,131 @@ def _testTurnToAngle():
     time.sleep(1)
     turnToAngle(targetAngle = 20, speed = 25)
     """
+def wait_until_either_color(sensor1, sensor2, color, message):
+    while True:
+        if((color == "black" and (sensor1.get_reflected_light() <= BLACK_COLOR or sensor2.get_reflected_light() <= BLACK_COLOR)) or (color == "white" and (sensor1.get_reflected_light() >= WHITE_COLOR or sensor2.get_reflected_light() >= WHITE_COLOR))):
+            logMessage(message, level=1)
+            return
 
+def wait_until_both_color(sensor1, sensor2, color, message):    
+    while True:
+        if((color == "black" and (sensor1.get_reflected_light() <= BLACK_COLOR and sensor2.get_reflected_light() <= BLACK_COLOR)) or (color == "white" and (sensor1.get_reflected_light() >= WHITE_COLOR and sensor2.get_reflected_light() >= WHITE_COLOR))):
+                logMessage(message, level=1)
+                return
+
+def wait_until_color(sensor, color, message):
+    while(True):
+        if ((color == "black" and sensor.get_reflected_light() <= BLACK_COLOR) or (color == "white" and  sensor.get_reflected_light() >= WHITE_COLOR)):
+            logMessage(message, level=1)
+            wheels.stop()
+            return
+
+# This code assumes that ahead of Marvin there is a black line that it has
+# to stand square to
+def lineSquaring(speed):
+    lowspeed = 10
+    numTimes = 1
+    # move straight until one of the left sensor or right sensor lands on black line
+    wheels.start(0, speed)
+    wait_until_either_color(rightColorSensor, leftColorSensor, "black", "First hit")
+    wheels.stop()
+ 
+    if(rightColorSensor.get_reflected_light() <= BLACK_COLOR):
+        logMessage("right sensor found black", level=3)
+        logMessage("move left wheel forward", level=3)
+        wheels.start_tank(lowspeed, -1)
+        wait_until_color(leftColorSensor, "black", "left sensor found black")
+        # at this point we are as close t straight as we could get with that speed
+        # pull back both wheels off the black line
+        for x in range(numTimes):
+            wheels.start_tank(-lowspeed, -lowspeed)
+            wait_until_both_color(rightColorSensor, leftColorSensor, "white", "back off from black line")
+            wheels.stop()
+    
+            logMessage(str(leftColorSensor.get_reflected_light()), level=3)
+            logMessage(str(rightColorSensor.get_reflected_light()), level=3)
+
+            #start again
+            wheels.start(0, lowspeed)
+            wait_until_either_color(rightColorSensor, leftColorSensor, "black", "second time black hit")
+            wheels.stop()
+            logMessage(str(leftColorSensor.get_reflected_light()), level=3)
+            logMessage(str(rightColorSensor.get_reflected_light()), level=3)
+
+            if(rightColorSensor.get_reflected_light() <= BLACK_COLOR):
+                logMessage("right sensor found black", level=3)
+                logMessage("move left wheel forward", level=3)
+                wheels.start_tank(lowspeed, 0)
+                wait_until_color(leftColorSensor, "black", "left sensor found black")
+                
+                logMessage("move right wheel backward", level=3)
+                wheels.start_tank(0, -lowspeed)
+                wait_until_color(rightColorSensor, "white", "right sensor found white")
+
+                logMessage("move left wheel backward", level=3)
+                wheels.start_tank(-lowspeed, 0)
+                wait_until_color(leftColorSensor, "white", "left sensor found white")
+                
+                logMessage("move right wheel forward", level=3)
+                wheels.start_tank(0, lowspeed)
+                wait_until_color(rightColorSensor, "black", "right sensor found black")
+                
+                logMessage("move left wheel forward", level=3)
+                wheels.start_tank(lowspeed, 0)
+                wait_until_color(leftColorSensor, "black", "left sensor found black")
+
+                logMessage("***********ENOUGH**********", level=3)
+ 
+
+    elif (leftColorSensor.get_reflected_light() <= BLACK_COLOR):
+        logMessage("left sensor found black", level=3)
+        logMessage("move right wheel forward", level=3)
+        wheels.start_tank(-1, lowspeed)
+        wait_until_color(rightColorSensor, "black", "right sensor found black")
+
+        logMessage(str(leftColorSensor.get_reflected_light()), level=3)
+        logMessage(str(rightColorSensor.get_reflected_light()), level=3)   
+        
+        # at this point we are as close t straight as we could get with that speed
+        # pull back both wheels off the black line
+        for x in range(numTimes):
+            wheels.start_tank(-lowspeed, -lowspeed)
+            wait_until_both_color(rightColorSensor, leftColorSensor, "white", "back off from black line")
+            wheels.stop()
+            
+            #start again
+            wheels.start(0, lowspeed)
+            wait_until_either_color(rightColorSensor, leftColorSensor, "black", "second time black hit")
+            wheels.stop()
+
+            if(leftColorSensor.get_reflected_light() <= BLACK_COLOR):
+                logMessage("left sensor found black", level=3)
+                logMessage("move right wheel forward", level=3)
+                wheels.start_tank(0, lowspeed)
+                wait_until_color(rightColorSensor, "black", "right sensor found black")
+                
+                logMessage("move left wheel backward", level=3)
+                wheels.start_tank(-lowspeed, 0)
+                wait_until_color(leftColorSensor, "white", "left sensor found white")
+
+                logMessage("move right wheel backward", level=3)
+                wheels.start_tank(0, -lowspeed)
+                wait_until_color(rightColorSensor, "white", "right sensor found white")
+                
+                logMessage("move left wheel forward", level=3)
+                wheels.start_tank(lowspeed, 0)
+                wait_until_color(leftColorSensor, "black", "left sensor found black")
+                
+                logMessage("move right wheel forward", level=3)
+                wheels.start_tank(0, lowspeed)
+                wait_until_color(rightColorSensor, "black", "right sensor found black")
+
+                logMessage("***********ENOUGH**********", level=3)
+
+   
+
+def testLineSquaring():
+    lineSquaring(30)
 
  # ------------------------------------------------------------------- End Utilities --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
  #endregion
@@ -802,10 +926,10 @@ def turnUntilColor(colorsensor, isColorBlack, isTurnLeft):
     while( (isColorBlack and colorsensor.get_reflected_light() > BLACK_COLOR) or
             ( not isColorBlack and colorsensor.get_reflected_light() < WHITE_COLOR)):
         print(colorsensor.get_reflected_light())
-        motors.start(steering = turnDirection, speed = 5)
+        wheels.start(steering = turnDirection, speed = 5)
 
     print("TurnUntilColor done for sensor " + str(colorsensor))
-    motors.stop()
+    wheels.stop()
 
 def activeOilPlatform():
     gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*2, speed=40)
@@ -828,21 +952,21 @@ def activeOilPlatform():
         if (i<=1):
             motorF.run_for_degrees(degrees=1000, speed=100)
     # motorD.stop()
-    motors.move(amount = 10, unit = "in", steering = 0, speed = -40)
+    wheels.move(amount = 10, unit = "in", steering = 0, speed = -40)
 
 
 def goBackHomeFromOilPlatform():
     _turnToAngle(60)
-    motors.move(amount = 20, unit = "in", steering = 0, speed = -40) # Back home doesnt require accuracy
+    wheels.move(amount = 20, unit = "in", steering = 0, speed = -40) # Back home doesnt require accuracy
    #turnToAngle(30)
-   #motors.move(amount = 11, unit = "in", steering = 0, speed = -30) # Back home doesnt require accuracy
+   #wheels.move(amount = 11, unit = "in", steering = 0, speed = -30) # Back home doesnt require accuracy
 
 
 def pullTruckGoStraight():
     # motorF.run_for_degrees(degrees=1000, speed=100)
     gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH * 10, speed=40)
     motorF.run_for_degrees(degrees=-1000, speed=100)
-    motors.move(amount = 10, unit = "in", steering = 0, speed = -30)
+    wheels.move(amount = 10, unit = "in", steering = 0, speed = -30)
 
 def scale(amt):
     in_min  =  BLACK_COLOR
@@ -890,13 +1014,13 @@ def line_follow(distance, speed = 20):
         # print(str(time.time()) + ": error=" + str(error) + ", history=" + str(history) + ", sensor=" + str(leftColorSensor.get_reflected_light()))
         # # correction = min(error * correctionMultiplier, speed)
         # correction = cumError*correctionMultiplier
-        # motors.start_tank(int(speed+truncCorrection), int(speed-truncCorrection))
-        motors.start(speed=speed, steering=int(correction))
+        # wheels.start_tank(int(speed+truncCorrection), int(speed-truncCorrection))
+        wheels.start(speed=speed, steering=int(correction))
         time.sleep(0.01)
         if ((motorE.get_degrees_counted() - position_start)  >= degreesToCover):
             break
        
-    motors.stop()
+    wheels.stop()
     finalDeg = abs(motorE.get_degrees_counted())
 
     totalDistanceTravelled = convertDegToCM(finalDeg - position_start)
@@ -948,11 +1072,11 @@ def goToHome1():
 
 
 def goToHome1_MissingUnit():
-    motors.move(amount = 5, unit = "in", steering = 0, speed = -40)
+    wheels.move(amount = 5, unit = "in", steering = 0, speed = -40)
     # _turnToAngle(ANYA_RUN_START_OFFSET_TO_MAT_NORTH - 135)#original value -90
     # gyroStraight(targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_NORTH - 135,  distance = _CM_PER_INCH*8, speed=90)
     _turnToAngle(ANYA_RUN_START_OFFSET_TO_MAT_NORTH - 110)
-    # motors.move(amount = 35, unit = "in", steering = 0, speed = 90)#original speed 40
+    # wheels.move(amount = 35, unit = "in", steering = 0, speed = 90)#original speed 40
     gyroStraight(targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_NORTH - 110,  distance = _CM_PER_INCH*35, speed=90)
 
 def getToPowerPlantFromHome2():
@@ -1054,7 +1178,7 @@ def ReleaseEnergyUnitsRaiseFirst():
 def _run4():
     # Drive till the hydro plant to pick up the first water
     # unit
-    #motors.set_stop_action("break")
+    #wheels.set_stop_action("break")
     drive(speed=25, distanceInCM=15, target_angle=0)
     _turnToAngle(targetAngle=-35,speed=20)
     drive(speed=25, distanceInCM=15, target_angle=-37)
@@ -1185,26 +1309,26 @@ def _dropRechargeableBatteryAndOilTruck():
 def run1Old(moveArmDegrees, armSpeed):
     def full():
         drive(speed = 30, distanceInCM = 50, target_angle = 0) #Drive to Watch Tele
-        motors.move(amount = 15, unit = "cm", steering = 0, speed = -30) #Backup from Watch Television
+        wheels.move(amount = 15, unit = "cm", steering = 0, speed = -30) #Backup from Watch Television
         _turnToAngle(targetAngle = -45, speed = 25) #Turn towards Hybrid Car
         drive(speed = 30, distanceInCM = 45, target_angle = -45) #Drive towards Hybrid Car
         _turnToAngle(targetAngle = 45, speed = 25) #Turn towards Wind Turbine
         drive(speed = 30, distanceInCM = 29, target_angle = 45) #Drive towards Wind Turbine and push the lever once
 
         for i in range(2): #Push the lever the remaining two times
-            motors.move(amount = 7, unit = "cm", steering = 0, speed = -20)
+            wheels.move(amount = 7, unit = "cm", steering = 0, speed = -20)
             drive(speed = 20, distanceInCM = 7, target_angle = 35)
             time.sleep(0.5)
-        motors.move(amount = 11, unit = "cm", steering = 0, speed = -30) #Backup from Wind Turbine
+        wheels.move(amount = 11, unit = "cm", steering = 0, speed = -30) #Backup from Wind Turbine
         _turnToAngle(targetAngle = -50, speed = 25) #Turn towards Hybrid Car
         moveArm(degrees = moveArmDegrees, speed = armSpeed, motor = motorF) #Lower the Hybrid Car arm
         drive(speed = 30, distanceInCM = 20, target_angle = -50) # Drive towards the Hybrid Car
         moveArm(degrees = -1 * moveArmDegrees, speed = ceil(-0.75 * armSpeed), motor = motorF) #Raise the Hybrid Car arm and complete the mission
-        motors.move(amount = 30, unit = "cm", steering = 0, speed = -30) #Backup from the Hybrid Car
+        wheels.move(amount = 30, unit = "cm", steering = 0, speed = -30) #Backup from the Hybrid Car
         _turnToAngle(targetAngle = -70, speed = 20) #Turn towards Rechargable Battery
         moveArm(degrees = moveArmDegrees, speed = armSpeed, motor = motorF)
         time.sleep(1)
-        motors.move(amount = 70, unit = "cm", steering = 0, speed = -50)
+        wheels.move(amount = 70, unit = "cm", steering = 0, speed = -50)
         _turnToAngle(targetAngle = -90, speed = 100)
 
     def watchTV():
@@ -1237,17 +1361,17 @@ def run1Old(moveArmDegrees, armSpeed):
         time.sleep(1)
         gyroStraight(distance=10, speed = 20, backward = True, targetAngle = 42)
         # for i in range(2): #Push the lever the remaining two times
-        #     motors.move(amount = 10, unit = "cm", steering = 0, speed = -20) #Backup so the robot can push the Wind Turbine again
+        #     wheels.move(amount = 10, unit = "cm", steering = 0, speed = -20) #Backup so the robot can push the Wind Turbine again
         #     drive(speed = 20, distanceInCM = 7, target_angle = 35) #Drive forward to push the Wind Turbine
         #     time.sleep(0.5) #Wait slightly
-        # motors.move(amount = 11, unit = "cm", steering = 0, speed = -30) #Backup from Wind Turbine
+        # wheels.move(amount = 11, unit = "cm", steering = 0, speed = -30) #Backup from Wind Turbine
 
     def hybridCar(moveArmDegrees, armSpeed):
         _turnToAngle(targetAngle = -50, speed = 25) #Turn towards Hybrid Car
         moveArm(degrees = moveArmDegrees, speed = armSpeed, motor = motorF) #Lower the Hybrid Car arm
         drive(speed = 30, distanceInCM = 20, target_angle = -50) # Drive towards the Hybrid Car
         moveArm(degrees = -1 * moveArmDegrees, speed = ceil(-0.75 * armSpeed), motor = motorF) #Raise the Hybrid Car arm and complete the mission
-        motors.move(amount = 30, unit = "cm", steering = 0, speed = -30) #Backup from the Hybrid Car
+        wheels.move(amount = 30, unit = "cm", steering = 0, speed = -30) #Backup from the Hybrid Car
 
     def rechargableBattery(moveArmDegrees, armSpeed):
         _turnToAngle(targetAngle = -70, speed = 20) #Turn towards Rechargable Battery
@@ -1255,7 +1379,7 @@ def run1Old(moveArmDegrees, armSpeed):
         time.sleep(1)
 
     def goHome():
-        motors.move(amount = 70, unit = "cm", steering = 0, speed = -50)
+        wheels.move(amount = 70, unit = "cm", steering = 0, speed = -50)
         _turnToAngle(targetAngle = -90, speed = 100)
     
 def run1(moveArmDegrees, armSpeed):
@@ -1294,10 +1418,10 @@ def run1(moveArmDegrees, armSpeed):
         time.sleep(1)
         #gyroStraight(distance=10, speed = 20, backward = True, targetAngle = 42)
         for i in range(2): #Push the lever the remaining two times
-            motors.move(amount = 10, unit = "cm", steering = 0, speed = -20) #Backup so the robot can push the Wind Turbine again
+            wheels.move(amount = 10, unit = "cm", steering = 0, speed = -20) #Backup so the robot can push the Wind Turbine again
             drive(speed = 20, distanceInCM = 20, target_angle = 40) #Drive forward to push the Wind Turbine
             time.sleep(0.5) #Wait slightly
-        motors.move(amount = 16, unit = "cm", steering = 0, speed = -30) #Backup from Wind Turbine
+        wheels.move(amount = 16, unit = "cm", steering = 0, speed = -30) #Backup from Wind Turbine
 
     def hybridCar(moveArmDegrees, armSpeed):
         _turnToAngle(targetAngle = 120, speed = 25) #Turn towards Hybrid Car
@@ -1324,7 +1448,7 @@ def run1(moveArmDegrees, armSpeed):
         #time.sleep(1)
 
     def goHome():
-        #motors.move(amount = 70, unit = "cm", steering = 0, speed = -50)
+        #wheels.move(amount = 70, unit = "cm", steering = 0, speed = -50)
         drive(speed = 30, distanceInCM = 25, target_angle = 100)
         #_turnToAngle(targetAngle = -90, speed = 100)
     
@@ -1341,6 +1465,7 @@ def run1(moveArmDegrees, armSpeed):
 
 #region Function Calls
 initialize()
+testLineSquaring()
 
 # If we are comfortable with this code, then move it into the run1 code.
 def doHybridCar():
