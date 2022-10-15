@@ -1065,7 +1065,7 @@ def raiseEnergyUnitCollectingArm(deg = 90, raiseArm = True):
     motorF.run_for_degrees(degrees=deg * 24 * multiplier, speed=40)
 
 def goToHome1():
-    motors.move(amount = 5, unit = "in", steering = 0, speed = -40)
+    wheels.move(amount = 5, unit = "in", steering = 0, speed = -40)
     _turnToAngle(ANYA_RUN_START_OFFSET_TO_MAT_NORTH - 105, slowTurnRatio=0.8)#original value -90
     # motors.move(amount = 35, unit = "in", steering = 0, speed = 90)#original speed 40
     gyroStraight(targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_NORTH - 105,  distance = _CM_PER_INCH*35, speed=90)
