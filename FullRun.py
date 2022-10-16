@@ -1262,6 +1262,59 @@ def ReleaseEnergyUnitsRaiseFirst():
 #region Nami
 
 def _run4():
+    wheels.set_stop_action("coast")
+    # Drive till the hydro plant to pick up the first water unit
+    drive(speed = 35, distanceInCM = 19, target_angle = 0)
+
+    # Turn towards the hydro unit to drop the water unit from the hydro plant.
+    _turnToAngle(targetAngle= 40, speed = 20, slowTurnRatio=0.9)
+    
+    # Turns towards the n-s black line in front of the power station.
+    # drive to catch the line. Note the -5d run.
+    _driveTillLine(speed=45, distanceInCM=55, target_angle = 40, colorSensorToUse="Right", blackOrWhite="Black", slowSpeedRatio=0.9)
+    drive(speed=30, distanceInCM=20, target_angle= 40)
+
+    # Turn towards the smart grid and drive forward to catch the e-w line in front of the smart grid.
+    _turnToAngle(targetAngle= -40,speed = 30, slowTurnRatio=0.9)
+    _driveTillLine(speed=45, distanceInCM=100, target_angle= -40, colorSensorToUse="Right", blackOrWhite="White", slowSpeedRatio=0.9)
+
+    # Backoff before turning.
+    gyroStraight(distance=2, speed = 20, backward = True, targetAngle = -40)
+    
+    # Turn to pick up the last two water units
+    # First catch n-s black line infront of the smart grid.
+    _turnToAngle(targetAngle = -142, speed = 20, slowTurnRatio=0.9)
+    _driveTillLine(speed=35, distanceInCM=10, target_angle=-142, colorSensorToUse="Left", blackOrWhite="Black", slowSpeedRatio=0.9)
+    
+    # Now try to pick up the final two water units.
+    drive(speed = 35, distanceInCM = 12, target_angle = -142)
+    
+    # Going to solar farm now. First find the e-w line in front of the smart grid.
+    # We do this at an angle so we clear the smart grid and dont have a risk of hitting that.
+    # Then we drive forward to align with the wall.
+    _turnToAngle(targetAngle=-70, speed = 25, slowTurnRatio=0.9)
+    _driveTillLine(speed=35, distanceInCM=10, target_angle=-70, colorSensorToUse="Left", blackOrWhite="Black")
+    _turnToAngle(targetAngle=-50, speed = 25, slowTurnRatio=0.9)
+    drive(speed=30, distanceInCM=20, target_angle=-50)
+    
+    # Reset the yaw angle we should be aligned with the wall.
+    #primeHub.motion_sensor.reset_yaw_angle()    
+    
+    # Backup before picking up the solar units
+    gyroStraight(distance=2, speed = 20, backward = True, targetAngle = -50)
+    _turnToAngle(targetAngle=-105, speed=20, slowTurnRatio=0.9)
+    drive(speed=25, distanceInCM = 20, target_angle=-105)
+    
+    # Now backup from solar units to go back home
+    gyroStraight(distance=2, speed = 20, backward = True, targetAngle = -105)    
+
+      # Turn towards home and go home.    
+    _turnToAngle(targetAngle=-174, speed=20)
+    drive(speed=100, distanceInCM=95, target_angle=-174, dontSlowDown=True)
+    
+    wheels.set_stop_action("brake")
+
+def _run4ArmThatDrags():
     # Drive till the hydro plant to pick up the first water
     # unit
     #wheels.set_stop_action("break")
