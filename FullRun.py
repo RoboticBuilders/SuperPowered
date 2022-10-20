@@ -919,62 +919,12 @@ def testLineSquaring():
 #region Arisha
 def runArisha():
     primeHub.motion_sensor.reset_yaw_angle()
-    #active
-    #getToOilPlatform_v2()
-    # print("Left sensor: " + str(leftColorSensor.get_reflected_light()))
-    # print("Right sensor: " + str(rightColorSensor.get_reflected_light()))
-    # turnUntilColor(colorsensor=leftColorSensor, isColorBlack=False, isTurnLeft=True)
-    # turnUntilColor(colorsensor=rightColorSensor, isColorBlack=False, isTurnLeft=True)
-    # line_follow(distance=25)
-    # _turnToAngle(-26)
-    # line_follow(distance=20)
-    #getToOilPlatform_v2Point1()
+
     getToOilPlatform_v2Point2()
     activeOilPlatform()
     goBackHomeFromOilPlatform()
 
-    #static
-    #getToOilPlatform()
-    #unloadEnergyUnits()
-    #goBackHomeFromOilPlatform()
-
     #pullTruckGoStraight()
-
-
-def getToOilPlatform_v2():
-    print("Running now")
-   
-    #gyroStraight(distance=_CM_PER_INCH*11.5, speed=20, targetAngle=0)
-    gyroStraight(distance=_CM_PER_INCH*9.5, speed=40, targetAngle=0)
-    _turnToAngle(45)
-    gyroStraight(distance=_CM_PER_INCH*10, speed=40, targetAngle=45)
-    #_driveTillLine(speed = 20, distanceInCM = _CM_PER_INCH*10, target_angle = 45)
-    _turnToAngle(0)
-    #will do this manually before the run starts
-    #motorD.run_for_degrees(degrees=900, speed=100)   
-    #time.sleep(10) 
-    gyroStraight(distance=_CM_PER_INCH*10, speed=30, targetAngle=0)
-    # time.sleep(5)
-
-
-def getToOilPlatform_v2Point1():
-    print("Running now")
-    #working version1
-    gyroStraight(distance=_CM_PER_INCH*9.5, speed=40, targetAngle=0)
-    _turnToAngle(45)
-    # time.sleep(5)
-    _driveTillLine(speed = 30, distanceInCM = _CM_PER_INCH*12, target_angle = 45)
-    # time.sleep(10)
-    # gyroStraight(distance=_CM_PER_INCH*4, speed=20, targetAngle=45)
-    # time.sleep(15)
-    _turnToAngle(targetAngle=0, oneWheelTurn="Right")
-    # time.sleep(5)
-    #turnUntilColor(colorsensor=leftColorSensor, isColorBlack=False, isTurnLeft=True)
-    # time.sleep(5)
-    #turnUntilColor(colorsensor=rightColorSensor, isColorBlack=False, isTurnLeft=True)
-    gyroStraight(distance=_CM_PER_INCH*10.5, speed=30, targetAngle=0)
-
-
 
 def getToOilPlatform_v2Point2():
     print("Running now")
@@ -985,74 +935,41 @@ def getToOilPlatform_v2Point2():
     # time.sleep(5)
     _driveTillLine(speed = 30, distanceInCM = _CM_PER_INCH*6, target_angle = 45, blackOrWhite="White") # was 12 inches ####
     # time.sleep(10)
-    # gyroStraight(distance=_CM_PER_INCH*4, speed=20, targetAngle=45)
-    # time.sleep(15)
-    _turnToAngle(targetAngle=0, oneWheelTurn="Right", speed=40)
+    _turnToAngle(targetAngle=-1, oneWheelTurn="Right", speed=40)
     # time.sleep(20)
-    #turnUntilColor(colorsensor=leftColorSensor, isColorBlack=False, isTurnLeft=True)
-    # time.sleep(5)
-    #turnUntilColor(colorsensor=rightColorSensor, isColorBlack=False, isTurnLeft=True)
-    gyroStraight(distance=_CM_PER_INCH*8, speed=40, targetAngle=0) # was 10.5 ####
-
-
-def turnUntilColor(colorsensor, isColorBlack, isTurnLeft):
-    """
-    Turns until color is found. Only two colors supported: WHITE and BLACK. 
-    Specify color by settng boolean isColorBlack to True for BLACK and False for WHITE
-    Specify direction for turn by setting boolean isTurnLeft to True for Left and False for Right
-    """
-    if (isTurnLeft):
-        turnDirection = -100
-    else:
-        turnDirection = 100
-    
-    while( (isColorBlack and colorsensor.get_reflected_light() > BLACK_COLOR) or
-            ( not isColorBlack and colorsensor.get_reflected_light() < WHITE_COLOR)):
-        print(colorsensor.get_reflected_light())
-        wheels.start(steering = turnDirection, speed = 5)
-
-    print("TurnUntilColor done for sensor " + str(colorsensor))
-    wheels.stop()
+    gyroStraight(distance=_CM_PER_INCH*2, speed=50, targetAngle=0) # was 10.5 ####
+    motorD.start(speed=-30)
+    gyroStraight(distance=_CM_PER_INCH*8.5, speed=30, targetAngle=0) # was 10.5 ####
 
 def activeOilPlatform():
-    gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*2.5, speed=40)
-    # left_large_motor.run_for_degrees(degrees=90, speed=-40)
-    # right_large_motor.run_for_degrees(degrees=90, speed=40)
-    #time.sleep(1)
-    #motorD.run_for_degrees(degrees=-2500, speed=100)
-    # motorD.start(-100) # it was 1200 degrees before.Then it was 2400.
-    # time.sleep(1)
-    #gyroStraight(distance=1, speed=20, targetAngle=0, backward=True) # if this does not work then change it to 0.5
-    # motorD.run_for_degrees(degrees=-2500, speed=100) # it was 1200 degrees before.Then it was 2400.
-    # gyroStraight(distance=0.5, speed=20, targetAngle=0, backward=True) # if this does not work then change it to back to 1
-    motorD.run_for_degrees(degrees=-1000, speed=100)# it was 1400 before (4 wheel rotations) now it is 2 wheel rotations
-    # time.sleep(1)
-    gyroStraight(distance=1, speed=20, targetAngle=0, backward=True)
-    # motorD.stop()
-    
+    # gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*2.5, speed=40)
+
+    # time.sleep(10)
     for i in range(3):
-        motorF.run_for_degrees(degrees=-1000, speed=100)
+        motorF.run_for_degrees(degrees=700, speed=100)
         if (i<=1):
-            motorF.run_for_degrees(degrees=1000, speed=100)
-    # motorD.stop()
+            motorF.run_for_degrees(degrees=-700, speed=100)
+        # time.sleep(5)
+    gyroStraight(distance=1, speed=20, targetAngle=0, backward=True)
+
+    
     wheels.move(amount = 10, unit = "in", steering = 0, speed = -40)
 
 
 def goBackHomeFromOilPlatform():
-    _turnToAngle(45)
-    gyroStraight(distance=20*_CM_PER_INCH, speed=100, targetAngle=45, backward=True) # Back home doesnt require accuracy
+    _turnToAngle(20)
+    gyroStraight(distance=20*_CM_PER_INCH, speed=100, targetAngle=20, backward=True) # Back home doesnt require accuracy
     # wheels.move(amount = 20, unit = "in", steering = 0, speed = -100) # Back home doesnt require accuracy
    #turnToAngle(30)
    #wheels.move(amount = 11, unit = "in", steering = 0, speed = -30) # Back home doesnt require accuracy
 
 
 def pullTruckGoStraight():
-    # motorF.run_for_degrees(degrees=1000, speed=100)
     gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH * 10, speed=40)
-    # motorF.run_for_degrees(degrees=-1000, speed=100)
-    motorF.start(speed=-100)
-    time.sleep(2)
-    wheels.move(amount = 10, unit = "in", steering = 0, speed = -30)
+    motorF.run_for_degrees(degrees=-1000, speed=100)
+    # motorF.start(speed=-100)
+    # time.sleep(2)
+    wheels.move(amount = 14, unit = "in", steering = 0, speed = -30)
 
 def scale(amt):
     in_min  =  BLACK_COLOR
@@ -1724,7 +1641,7 @@ initialize()
 
 #doRunWithTiming(pullTruckGoStraight)
 #moveArm(degrees = 2600, speed = 100, motor = motorD)
-doRunWithTiming(_run4)
+doRunWithTiming(runArisha)
 #doRunWithTiming(_run5)
 #runArisha()
 
