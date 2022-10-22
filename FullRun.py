@@ -927,7 +927,7 @@ def runArisha():
     #pullTruckGoStraight()
 
 def getToOilPlatform_v2Point2():
-    print("Running now")
+    print("Running now getToOilPlatform")
     #working version1
     gyroStraight(distance=_CM_PER_INCH*18, speed=90, targetAngle=0)
     # time.sleep(5)
@@ -935,14 +935,16 @@ def getToOilPlatform_v2Point2():
     # time.sleep(5)
     _driveTillLine(speed = 30, distanceInCM = _CM_PER_INCH*6, target_angle = 45, blackOrWhite="White") # was 12 inches ####
     # time.sleep(10)
-    _turnToAngle(targetAngle=-1, oneWheelTurn="Right", speed=40)
+    _turnToAngle(targetAngle=-2, oneWheelTurn="Right", speed=40)
     # time.sleep(20)
-    gyroStraight(distance=_CM_PER_INCH*2, speed=50, targetAngle=0) # was 10.5 ####
-    motorD.start(speed=-30)
-    gyroStraight(distance=_CM_PER_INCH*8.5, speed=30, targetAngle=0) # was 10.5 ####
+    gyroStraight(distance=_CM_PER_INCH*2, speed=30, targetAngle=-2) # was 10.5 ####
+    #time.sleep(10)
+    #motorD.start(speed=-30)
+    gyroStraight(distance=_CM_PER_INCH*9.5, speed=30, targetAngle=0) # was 10.5 ####
 
 def activeOilPlatform():
     # gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*2.5, speed=40)
+    motorD.start(speed=-30)
 
     # time.sleep(10)
     for i in range(3):
@@ -958,7 +960,7 @@ def activeOilPlatform():
 
 def goBackHomeFromOilPlatform():
     _turnToAngle(20)
-    gyroStraight(distance=20*_CM_PER_INCH, speed=100, targetAngle=20, backward=True) # Back home doesnt require accuracy
+    gyroStraight(distance=18*_CM_PER_INCH, speed=100, targetAngle=20, backward=True) # Back home doesnt require accuracy
     # wheels.move(amount = 20, unit = "in", steering = 0, speed = -100) # Back home doesnt require accuracy
    #turnToAngle(30)
    #wheels.move(amount = 11, unit = "in", steering = 0, speed = -30) # Back home doesnt require accuracy
@@ -1069,9 +1071,9 @@ def raiseEnergyUnitCollectingArm(deg = 90, raiseArm = True):
 
 def goToHome1():
     wheels.move(amount = 5, unit = "in", steering = 0, speed = -40)
-    _turnToAngle(ANYA_RUN_START_OFFSET_TO_MAT_NORTH - 105, slowTurnRatio=0.8)#original value -90
+    _turnToAngle(ANYA_RUN_START_OFFSET_TO_MAT_NORTH - 108, slowTurnRatio=0.8)#used to be -105
     # motors.move(amount = 35, unit = "in", steering = 0, speed = 90)#original speed 40
-    gyroStraight(targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_NORTH - 105,  distance = _CM_PER_INCH*35, speed=90)
+    gyroStraight(targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_NORTH - 108,  distance = _CM_PER_INCH*35, speed=90) #used to be -105
 
 
 def goToHome1_MissingUnit():
@@ -1090,7 +1092,7 @@ def getToPowerPlantFromHome2():
     # print('Turning to angle: -90. Current yaw angle ' +  str(primeHub.motion_sensor.get_yaw_angle()))
     # _turnToAngle(ANYA_RUN_START_OFFSET_TO_MAT_NORTH - 90)
     # print('Going forward 36 in. Current yaw angle ' +  str(primeHub.motion_sensor.get_yaw_angle()))
-    gyroStraight(targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_NORTH - 90,  distance = _CM_PER_INCH*32, speed=60) # was 29 and then 2 more at 40 speed below
+    gyroStraight(targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_NORTH - 90,  distance = _CM_PER_INCH*32, speed=70) # was 29 and then 2 more at 40 speed below
     _driveTillLine(speed = 20, distanceInCM = _CM_PER_INCH*6, target_angle = ANYA_RUN_START_OFFSET_TO_MAT_NORTH - 90, blackOrWhite="White")
     # drive(speed= 60,distanceInCM= _CM_PER_INCH*29, target_angle= ANYA_RUN_START_OFFSET_TO_MAT_NORTH - 90)
     #time.sleep(5)
@@ -1128,7 +1130,9 @@ def ToyFactory2():
     # time.sleep(5)
     # Do the Toy Factory
     gyroStraight(targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_NORTH - 135,  distance = 19 , backward = True) # was 8
-    #time.sleep(5)
+    # gyroStraight(speed= 15, targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_NORTH - 135,  distance = 5 , backward = True) # was 8
+
+    # time.sleep(5)
     gyroStraight(targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_NORTH - 135,  distance = 8)
     _turnToAngle(ANYA_RUN_START_OFFSET_TO_MAT_NORTH - 90, slowTurnRatio=0.9)
     # time.sleep(5)
@@ -1641,7 +1645,7 @@ initialize()
 
 #doRunWithTiming(pullTruckGoStraight)
 #moveArm(degrees = 2600, speed = 100, motor = motorD)
-doRunWithTiming(runArisha)
+doRunWithTiming(_runAnya)
 #doRunWithTiming(_run5)
 #runArisha()
 
