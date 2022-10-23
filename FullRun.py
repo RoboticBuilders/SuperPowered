@@ -1349,7 +1349,7 @@ def _run4Short():
     gyroStraight(distance=30, speed = 100, backward = False, targetAngle = -165)
 
     # Final part of go home.
-    gyroStraight(distance=70, speed = 100, backward = False, targetAngle = -172)
+    gyroStraight(distance=70, speed = 100, backward = False, targetAngle = -175)
 
 # Drop water units
 # Drop off energy units and innovation project
@@ -1674,7 +1674,7 @@ doRunWithTiming(_run4Short)
 
 #doRunWithTiming(pullTruckGoStraight)
 #moveArm(degrees = 2600, speed = 100, motor = motorD)
-doRunWithTiming(_runAnya)
+#doRunWithTiming(_runAnya)
 #doRunWithTiming(_run5)
 #runArisha()
 
