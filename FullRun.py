@@ -1306,7 +1306,7 @@ def _run4():
     wheels.set_stop_action("brake")
     '''
 
-def _run4Short():
+def _run4ShortStraightArm():
     wheels.set_stop_action("coast")
     # Drive till the hydro plant to pick up the first water unit
     drive(speed = 35, distanceInCM = 19, target_angle = 0)
@@ -1350,6 +1350,42 @@ def _run4Short():
 
     # Final part of go home.
     gyroStraight(distance=70, speed = 100, backward = False, targetAngle = -175)
+
+# This is Run4 Working as of 10/23/2022
+def _run4UsingLArm():
+    wheels.set_stop_action("coast")
+    # Drive till the hydro plant to pick up the first water unit
+    drive(speed = 40, distanceInCM = 19, target_angle = 0)
+    
+    # Turn towards the hydro unit to drop the water unit from the hydro plant.
+    angle = 40
+    _turnToAngle(targetAngle= angle, speed = 20, slowTurnRatio=0.9)
+    
+    # Turns towards the n-s black line in front of the power station.
+    gyroStraight(distance=25, speed = 50, backward = False, targetAngle = angle)
+    gyroStraight(distance=10, speed = 20, backward = False, targetAngle = angle)
+    _turnToAngle(targetAngle= angle, speed = 20, slowTurnRatio=0.9)
+    _driveTillLine(speed=40, distanceInCM=25, target_angle = angle, colorSensorToUse="Right", blackOrWhite="White", slowSpeedRatio=0.9)
+    gyroStraight(distance=3, speed = 20, backward = True, targetAngle = angle)
+
+    angle = -48
+    # Turn towards the smart grid and drive forward to catch the e-w line in front of the smart grid.
+    _turnToAngle(targetAngle= angle,speed = 20, slowTurnRatio=0.9)
+    gyroStraight(distance=25, speed = 50, backward = False, targetAngle = angle)
+    _driveTillLine(speed=35, distanceInCM=100, target_angle = angle-15, colorSensorToUse="Left", blackOrWhite="White", slowSpeedRatio=0.9)
+
+    # Now drive to pick up the energy unit
+    gyroStraight(distance=15, speed = 35, backward = False, targetAngle = angle-15)
+    
+    # Back off a little bit before turning to go home.
+    #gyroStraight(distance=3, speed = 35, backward = True, targetAngle = angle-15)
+
+    # Go home    
+    _turnToAngle(targetAngle=-140, speed = 20, slowTurnRatio=0.9)
+    gyroStraight(distance=25, speed = 75, backward = False, targetAngle = -140)
+    gyroStraight(distance=90, speed = 75, backward = False, targetAngle = -170)
+    
+    
 
 # Drop water units
 # Drop off energy units and innovation project
@@ -1669,7 +1705,7 @@ def _run1():
 #region Function Calls
 initialize()
 #moveArm(degrees = 1800, speed = -100, motor = motorF)
-doRunWithTiming(_run4Short)
+doRunWithTiming(_run4UsingLArm)
 #testLineSquaring()
 
 #doRunWithTiming(pullTruckGoStraight)
