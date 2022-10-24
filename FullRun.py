@@ -1384,8 +1384,37 @@ def _run4UsingLArm():
     _turnToAngle(targetAngle=-140, speed = 20, slowTurnRatio=0.9)
     gyroStraight(distance=25, speed = 75, backward = False, targetAngle = -140)
     gyroStraight(distance=90, speed = 75, backward = False, targetAngle = -170)
+   
+# Use this instead of _run5, this uses a start position that is further out from the wall
+# which allows us to not turn in the first part.
+def _run5WithCloserStart():
+    #global GLOBAL_LEVEL
+    #GLOBAL_LEVEL = 5
+    # Drive forward first. Drive at a slight angle to avoid hitting the power plant.
+    drive(speed = 55, distanceInCM = 50, target_angle = -5)
     
+    # Turn slightly to catch the n-s line in front of the power plant
+    #_turnToAngle(targetAngle = -20, speed = 20, slowTurnRatio = 0.9)
+    # used to be 35 speed.
+    _driveTillLine(speed=35, distanceInCM=70, target_angle=-5, colorSensorToUse="Left", blackOrWhite="Black")
     
+    # Turn towards the power plant and then try to catch the black line running e-w line in front of the smart grid.
+    angle = -87
+    _turnToAngle(targetAngle = angle, speed = 20, slowTurnRatio = 0.7)
+    # Used to be 35 speed
+    _driveTillLine(speed=35, distanceInCM=70, target_angle = angle, colorSensorToUse="Left", blackOrWhite="Black")
+
+    # Turn towards the hydro-electric plant and then drop the water units. 
+    # This also drops the energy units and the innovation project.
+    _turnToAngle(targetAngle = 150, speed = 20, slowTurnRatio = 0.9)
+    drive(speed = 25, distanceInCM = 26, target_angle = 150)
+
+    # Drop the water units    
+    # Used to be 3000, made it 1800 if we keep it mostly horizontal
+    moveArm(degrees = 1800, speed = -100, motor = motorF)
+        
+    # Now drive to the rechargeable battery and drop the oil factory
+    _dropRechargeableBatteryAndOilTruckWithGyroReset()
 
 # Drop water units
 # Drop off energy units and innovation project
@@ -1426,17 +1455,19 @@ def _dropRechargeableBatteryAndOilTruckWithGyroReset():
     # the hydroplant as zero.
     primeHub.motion_sensor.reset_yaw_angle()
 
-    # Backoff to leave the water reservoir
-    gyroStraight(distance=10, speed = 20, backward = True, targetAngle = 0)
-
-    # Bring upthe arm to backoff. 
-    motorF.start_at_power(60)
-    #moveArm(degrees = 3000, speed = 100, motor = motorF)
-    
     # Since the zero is now set to the toy factory we add zero_adjustment to all angles
     # to adjust to the new reference frame.
     zero_adjustment = -140
 
+    # Start bringing up the arm
+    motorF.start_at_power(60)
+    
+    # Backoff to leave the water reservoir
+    gyroStraight(distance=10, speed = 20, backward = True, targetAngle = 0)
+
+    # Uncomment this for a serial run.
+    #moveArm(degrees = 3000, speed = 100, motor = motorF)
+    
     # Turn towards the toy factory
     _turnToAngle(targetAngle = 0 + zero_adjustment, speed = 20, slowTurnRatio=0.9)
 
@@ -1448,31 +1479,32 @@ def _dropRechargeableBatteryAndOilTruckWithGyroReset():
     
     # Turn to catch e-w line in front of smartgrid
     _turnToAngle(targetAngle = -25 + zero_adjustment, speed = 20, slowTurnRatio=0.9)
-    _driveTillLine(speed=25, distanceInCM=20, target_angle=-25 + zero_adjustment, colorSensorToUse="Left", blackOrWhite="Black")
+    _driveTillLine(speed=35, distanceInCM=10, target_angle=-25 + zero_adjustment, colorSensorToUse="Left", blackOrWhite="Black")
 
     # Turn to catch n-s line near toy factory
-    _turnToAngle(targetAngle = 5 + zero_adjustment, speed = 20, slowTurnRatio=0.9)
-    _driveTillLine(speed=25, distanceInCM=13, target_angle=5 + zero_adjustment, colorSensorToUse="Right", blackOrWhite="Black")
+    # 10/23/2022: was 5+zero_adjustment
+    _turnToAngle(targetAngle = 7 + zero_adjustment, speed = 20, slowTurnRatio=0.9)
+    _driveTillLine(speed=35, distanceInCM=13, target_angle=7 + zero_adjustment, colorSensorToUse="Right", blackOrWhite="Black")
 
     # Move and turn towards rechargeable battery
-    gyroStraight(distance=21, speed = 35, backward = False, targetAngle = 5 + zero_adjustment)
+    gyroStraight(distance=21, speed = 35, backward = False, targetAngle = 7 + zero_adjustment)
     _turnToAngle(targetAngle = 35 + zero_adjustment, speed = 20, slowTurnRatio=0.9)
     gyroStraight(distance=12, speed = 25, backward = False, targetAngle = 35 + zero_adjustment)
 
     # Drop energy units in rechargeable battery
     # Used to be 3000 made it 1800, by lowering the arm a litte.
     moveArm(degrees = 1800, speed = 100, motor = motorD)
-
+    
     # Start picking up the arm. Uncomment this for the competition. Instead of the waiting for bringing up the arm.
-    #motorD.start_at_power(100)
-    moveArm(degrees = 3000, speed = -100, motor = motorD)
+    motorD.start_at_power(-100)
+    #moveArm(degrees = 3000, speed = -100, motor = motorD)
     
     # Backup to the fuel station with the oil truck to finish
     _turnToAngle(targetAngle = 80 + zero_adjustment, speed = 20)
-    gyroStraight(distance=30, speed = 25, backward = True, targetAngle = 80 + zero_adjustment)
+    gyroStraight(distance=30, speed = 35, backward = True, targetAngle = 80 + zero_adjustment)
     
     # Uncomment this for the competition.
-    #motorD.stop()
+    motorD.stop()
     
 # DO NOT USE, this is slow, instead use the gyro correct that uses the hydro plant.    
 # Attempt at flushing with the backwall. This works, not completed code, but will add time.
@@ -1705,13 +1737,13 @@ def _run1():
 #region Function Calls
 initialize()
 #moveArm(degrees = 1800, speed = -100, motor = motorF)
-doRunWithTiming(_run4UsingLArm)
+#doRunWithTiming(_run4UsingLArm)
 #testLineSquaring()
 
 #doRunWithTiming(pullTruckGoStraight)
 #moveArm(degrees = 2600, speed = 100, motor = motorD)
 #doRunWithTiming(_runAnya)
-#doRunWithTiming(_run5)
+doRunWithTiming(_run5WithCloserStart)
 #runArisha()
 
 #drive(speed=40,distanceInCM= 10, target_angle= 0)
