@@ -684,9 +684,9 @@ def _driveStraightWithSlowDownTillLine(distance, speed, target_angle, gain, slow
         distanceInDegTravelled = abs(motorC.get_degrees_counted()) - startDistanceInDeg
         stopCondition = reachedStoppingCondition()
 
-    logMessage("Left color= " + str(colorA.get_reflected_light()) + " Right color= " + str(colorB.get_reflected_light()) +  " currentSpeed = " + str(int(currentSpeed)) + " distanceInDegTravelledInCM = " + str(convertDegToCM(distanceInDegTravelled)) + " distanceInCM=" + str(distance) 
-            + " distanceInDegTravelled = " + str(distanceInDegTravelled) + " distanceToTravelInDeg=" + str(distanceInDeg) 
-            + " target_angle= " + str(target_angle) + " current_yaw_angle = " + str(current_yaw_angle) +" correction= " + str(correction), level=5)
+    # logMessage("Left color= " + str(colorA.get_reflected_light()) + " Right color= " + str(colorB.get_reflected_light()) +  " currentSpeed = " + str(int(currentSpeed)) + " distanceInDegTravelledInCM = " + str(convertDegToCM(distanceInDegTravelled)) + " distanceInCM=" + str(distance) 
+    #         + " distanceInDegTravelled = " + str(distanceInDegTravelled) + " distanceToTravelInDeg=" + str(distanceInDeg) 
+    #         + " target_angle= " + str(target_angle) + " current_yaw_angle = " + str(current_yaw_angle) +" correction= " + str(correction), level=5)
     logMessage("DrivestraightWiuthSlowDownTillLine completed", level=5)
     return stopCondition
     
@@ -934,11 +934,11 @@ def testLineSquaring():
 def runArisha():
     primeHub.motion_sensor.reset_yaw_angle()
 
-    # getToOilPlatform_v2Point2()
-    # activeOilPlatform()
-    # goBackHomeFromOilPlatform()
+    getToOilPlatform_v2Point2()
+    activeOilPlatform()
+    goBackHomeFromOilPlatform()
 
-    pullTruckGoStraight()
+    # pullTruckGoStraight()
 
 def getToOilPlatform_v2Point2():
     print("Running now getToOilPlatform")
