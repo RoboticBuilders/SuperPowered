@@ -1693,16 +1693,17 @@ def _run1():
 
     def getToWindTurbine():
         # Turn towards the hybrid car.
-        _turnToAngle(targetAngle = -25, speed = 45, slowTurnRatio=0.1) 
+        _turnToAngle(targetAngle = -30, speed = 45, slowTurnRatio=0.1) 
 
         # We should have turned such that we are able to find the black line in front of the wind turbine.
         #Changed 10/16_driveTillLine(speed=35, distanceInCM=40, target_angle=-30, colorSensorToUse="Right", blackOrWhite="Black", slowSpeedRatio=0.9)
-        _driveTillLine(speed=30, distanceInCM=55, target_angle=-25, colorSensorToUse="Right", blackOrWhite="Black", slowSpeedRatio=0.9)
+        drive(speed = 30, distanceInCM = 10, target_angle = -30)
+        _driveTillLine(speed=30, distanceInCM=55, target_angle=-30, colorSensorToUse="Right", blackOrWhite="White", slowSpeedRatio=0.9)
 
         # The Forward below used to be 10, we made it 12.
         # Changed 10/16 drive(speed = 25, distanceInCM = 12, target_angle = -30) 
-        # drive(speed = 40, distanceInCM = 10, target_angle = -30) 
-        # _turnToAngle(targetAngle = 50, speed = 45, slowTurnRatio = 0.1)
+        drive(speed = 40, distanceInCM = 9, target_angle = -30) 
+        _turnToAngle(targetAngle = 50, speed = 45, slowTurnRatio = 0.1)
         """
         #Changed 10/16 _turnToAngle(targetAngle = 20, speed = 20)
         _turnToAngle(targetAngle = 20, speed = 35, slowTurnRatio=0.1) 
@@ -1713,11 +1714,11 @@ def _run1():
         """
 
     def windTurbine():
-        drive(speed = 20, distanceInCM = 20, target_angle = 40) #Drive towards Wind Turbine and push the lever once
+        drive(speed = 20, distanceInCM = 23, target_angle = 40) #Drive towards Wind Turbine and push the lever once
         # Push the lever the remaining two times
         for i in range(2): 
             wheels.move(amount = 5, unit = "cm", steering = 0, speed = -20) #Backup so the robot can push the Wind Turbine again
-            drive(speed = 20, distanceInCM = 10, target_angle = 40) #Drive forward to push the Wind Turbine
+            drive(speed = 20, distanceInCM = 15, target_angle = 40) #Drive forward to push the Wind Turbine
         #Changed 10/16 wheels.move(amount = 14, unit = "cm", steering = 0, speed = -30)
         wheels.move(amount = 14, unit = "cm", steering = 0, speed = -40) #Backup from Wind Turbine
 
@@ -1730,7 +1731,7 @@ def _run1():
                 
         # # Back into the hybrid car.
         #Changed 10/16 gyroStraight(distance=15, speed = 25, backward = True, targetAngle = 120)               
-        gyroStraight(distance=19, speed = 30, backward = True, targetAngle = 140)
+        gyroStraight(distance=19, speed = 20, backward = True, targetAngle = 140)
         
         # Lower the Hybrid Car arm. We started moving the arm above, we now need to finish that
         # we do so at a higher speed.
@@ -1752,14 +1753,15 @@ def _run1():
         motorD.set_stop_action("hold")
         moveArm(degrees = -1100, speed = -100, motor = motorD)
         #Changed 10/16 gyroStraight(distance=90, speed = 50, backward = False, targetAngle = 135)
-        gyroStraight(distance=90, speed = 80, backward = False, targetAngle = 135)
+        gyroStraight(distance = 90, speed = 80, backward = False, targetAngle = 135)
         motorD.set_stop_action("brake")
         
     watchTV()
     getToWindTurbine()
-    #windTurbine()
-    #hybridCarRechargeableBatteryAndGoHome()
-    
+    windTurbine()
+    hybridCarRechargeableBatteryAndGoHome()
+    moveArm(degrees = 2000, speed = 100, motor = motorD)
+
 #endregion
 
 #region Function Calls
@@ -1767,14 +1769,14 @@ def _run1():
 
 
 initialize()
-_driveTillLine(speed = 50, distanceInCM = 100, target_angle = 0, colorSensorToUse = "Left", blackOrWhite = "Black")
+#_driveTillLine(speed = 50, distanceInCM = 100, target_angle = 0, colorSensorToUse = "Left", blackOrWhite = "Black")
 #moveArm(degrees = 1800, speed = -100, motor = motorF)
 #doRunWithTiming(_runAnya)
 
 
 
 
-# doRunWithTiming(_run1)
+doRunWithTiming(_run1)
 #moveArm(degrees = -1500, speed = -100, motor = motorD)
 #moveArm(degrees = 1500, speed = 100, motor = motorD)
 #doRunWithTiming(_run3)
