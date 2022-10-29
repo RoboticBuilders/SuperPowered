@@ -1739,6 +1739,8 @@ def _run1():
 
 #region Function Calls
 initialize()
+drive(speed=20,distanceInCM=15, target_angle= 0)
+
 #moveArm(degrees = 1800, speed = -100, motor = motorF)
 #doRunWithTiming(_run4UsingLArm)
 #testLineSquaring()
@@ -1746,7 +1748,7 @@ initialize()
 #doRunWithTiming(pullTruckGoStraight)
 #moveArm(degrees = 2600, speed = 100, motor = motorD)
 #doRunWithTiming(_runAnya)
-doRunWithTiming(_run5WithCloserStart)
+#doRunWithTiming(_run5WithCloserStart)
 #runArisha()
 
 #drive(speed=40,distanceInCM= 10, target_angle= 0)
