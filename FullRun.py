@@ -594,9 +594,19 @@ def _driveTillLine(speed, distanceInCM, target_angle, gain = 1, colorSensorToUse
     # Now establish the termination condition to use.
     stoppingCondition = None
     if (blackOrWhite == "Black"):
-        stoppingCondition = lambda: colorSensor.get_reflected_light() <= BLACK_COLOR
+        #stoppingCondition = lambda: colorSensor.get_reflected_light() <= BLACK_COLOR
+        def blackStoppingCondition():
+            light = colorSensor.get_reflected_light()
+            logMessage(" color= " + str(light), level=5)
+            return light <= BLACK_COLOR
+        stoppingCondition = blackStoppingCondition
     elif (blackOrWhite == "White"):
-        stoppingCondition = lambda: colorSensor.get_reflected_light() >= WHITE_COLOR
+        #stoppingCondition = lambda: colorSensor.get_reflected_light() >= WHITE_COLOR
+        def whiteStoppingCondition():
+            light = colorSensor.get_reflected_light()
+            logMessage(" color= " + str(light), level=5)
+            return light >= WHITE_COLOR
+        stoppingCondition = whiteStoppingCondition
     elif (blackOrWhite == "Green"):
         stoppingCondition = lambda: colorSensor.get_color() == 'green'
 
@@ -604,16 +614,15 @@ def _driveTillLine(speed, distanceInCM, target_angle, gain = 1, colorSensorToUse
     # If the distance is small, then just drive over that distance at FINAL_SLOW_SPEED.
     if (distanceInCM < 5):
         _driveStraightWithSlowDownTillLine(distanceInCM, FINAL_SLOW_SPEED, target_angle, gain, slowDown=False, reachedStoppingCondition=stoppingCondition)    
-
-    # First drive 60% of the distance at speed
-    distance60 = distanceInCM * slowSpeedRatio
-    _driveStraightWithSlowDownTillLine(distance60, speed, target_angle, gain, slowDown=False, reachedStoppingCondition=stoppingCondition)
-
-    # Drive the remaining distance at slow speed
-    distanceTravelled = convertDegToCM(abs(motorC.get_degrees_counted()) - initialDeg)
-    remainingDistance = distanceInCM - distanceTravelled
-    logMessage("_driveTillLine: Distance travelled after first part = "  + str(distanceTravelled) + " error=" + str(distanceTravelled-distance60), level=4)
-    _driveStraightWithSlowDownTillLine(remainingDistance, FINAL_SLOW_SPEED, target_angle, gain, slowDown=False, reachedStoppingCondition=stoppingCondition)
+    else:
+        # First drive 60% of the distance at speed
+        distance60 = distanceInCM * slowSpeedRatio
+        if _driveStraightWithSlowDownTillLine(distance60, speed, target_angle, gain, slowDown=False, reachedStoppingCondition=stoppingCondition) == False:
+            # Drive the remaining distance at slow speed
+            distanceTravelled = convertDegToCM(abs(motorC.get_degrees_counted()) - initialDeg)
+            remainingDistance = distanceInCM - distanceTravelled
+            logMessage("_driveTillLine: Distance travelled after first part = "  + str(distanceTravelled) + " error=" + str(distanceTravelled-distance60), level=4)
+            _driveStraightWithSlowDownTillLine(remainingDistance, FINAL_SLOW_SPEED, target_angle, gain, slowDown=False, reachedStoppingCondition=stoppingCondition)
 
     wheels.stop()
     finalDeg = abs(motorC.get_degrees_counted())
@@ -633,6 +642,7 @@ def _driveStraightWithSlowDownTillLine(distance, speed, target_angle, gain, slow
     checks to stop.
 
     reachedStoppingCondition: This is a function that does not take any parameter and is expected to retur true when the loop should be terminated.
+    return the output of the stoppingCondition.
     """
     startDistanceInDeg = abs(motorC.get_degrees_counted())
     logMessage("startDistanceInDeg = " + str(int(startDistanceInDeg)), level=5)
@@ -648,7 +658,8 @@ def _driveStraightWithSlowDownTillLine(distance, speed, target_angle, gain, slow
     FINAL_SLOW_SPEED=15
     wheels.start(0, int(currentSpeed))
     correction = previousCorrection = 0
-    while  distanceInDegTravelled <= distanceInDeg and reachedStoppingCondition() == False:
+    stopCondition = False
+    while  distanceInDegTravelled <= distanceInDeg and stopCondition == False:
         if (slowDown == True):
             currentSpeed = currentSpeed-1
             if(currentSpeed < 15):
@@ -664,14 +675,20 @@ def _driveStraightWithSlowDownTillLine(distance, speed, target_angle, gain, slow
         correction = target_angle - current_yaw_angle
         
         turn_rate = correction * gain
-        logMessage("currentSpeed = " + str(int(currentSpeed)) + " distanceInDegTravelledInCM = " + str(convertDegToCM(distanceInDegTravelled)) + " distanceInCM=" + str(distance) 
+        logMessage("Left color= " + str(colorA.get_reflected_light()) + " Right color= " + str(colorB.get_reflected_light()) +  " currentSpeed = " + str(int(currentSpeed)) + " distanceInDegTravelledInCM = " + str(convertDegToCM(distanceInDegTravelled)) + " distanceInCM=" + str(distance) 
             + " distanceInDegTravelled = " + str(distanceInDegTravelled) + " distanceToTravelInDeg=" + str(distanceInDeg) 
             + " target_angle= " + str(target_angle) + " current_yaw_angle = " + str(current_yaw_angle) +" correction= " + str(correction), level=5)
         if (abs(correction) > 1):
             wheels.start(turn_rate, int(currentSpeed))
 
         distanceInDegTravelled = abs(motorC.get_degrees_counted()) - startDistanceInDeg
+        stopCondition = reachedStoppingCondition()
+
+    logMessage("Left color= " + str(colorA.get_reflected_light()) + " Right color= " + str(colorB.get_reflected_light()) +  " currentSpeed = " + str(int(currentSpeed)) + " distanceInDegTravelledInCM = " + str(convertDegToCM(distanceInDegTravelled)) + " distanceInCM=" + str(distance) 
+            + " distanceInDegTravelled = " + str(distanceInDegTravelled) + " distanceToTravelInDeg=" + str(distanceInDeg) 
+            + " target_angle= " + str(target_angle) + " current_yaw_angle = " + str(current_yaw_angle) +" correction= " + str(correction), level=5)
     logMessage("DrivestraightWiuthSlowDownTillLine completed", level=5)
+    return stopCondition
     
 # Line squares on the black line. Call this function once one of the color sensors hits the line.    
 def lineSquare():
@@ -1664,35 +1681,38 @@ def _run1():
         # Drive to Watch Television
         #gyroStraight(speed = 40, distance= 43, backward= False, targetAngle = 0)
         #Changed 10/16 driveWithSlowStart(speed = 40, distanceInCM = 43, target_angle= 0)
-        driveWithSlowStart(speed = 45, distanceInCM = 43, target_angle= 0)
+        driveWithSlowStart(speed = 35, distanceInCM = 30, target_angle= 0)
         
         #Backup from Watch Television
-        gyroStraight(distance = 10, speed = 40, backward = True, targetAngle = 0)
+        gyroStraight(distance = 9, speed = 40, backward = True, targetAngle = 0)
 
     def getToWindTurbine():
         # Turn towards the hybrid car.
-        _turnToAngle(targetAngle = -30, speed = 35, slowTurnRatio=0.1) 
+        _turnToAngle(targetAngle = -25, speed = 45, slowTurnRatio=0.1) 
 
         # We should have turned such that we are able to find the black line in front of the wind turbine.
         #Changed 10/16_driveTillLine(speed=35, distanceInCM=40, target_angle=-30, colorSensorToUse="Right", blackOrWhite="Black", slowSpeedRatio=0.9)
-        _driveTillLine(speed=50, distanceInCM=40, target_angle=-30, colorSensorToUse="Right", blackOrWhite="Black", slowSpeedRatio=0.9)
+        _driveTillLine(speed=30, distanceInCM=55, target_angle=-25, colorSensorToUse="Right", blackOrWhite="Black", slowSpeedRatio=0.9)
 
         # The Forward below used to be 10, we made it 12.
         # Changed 10/16 drive(speed = 25, distanceInCM = 12, target_angle = -30) 
-        drive(speed = 40, distanceInCM = 12, target_angle = -30) 
+        # drive(speed = 40, distanceInCM = 10, target_angle = -30) 
+        # _turnToAngle(targetAngle = 50, speed = 45, slowTurnRatio = 0.1)
+        """
         #Changed 10/16 _turnToAngle(targetAngle = 20, speed = 20)
         _turnToAngle(targetAngle = 20, speed = 35, slowTurnRatio=0.1) 
         #Changed 10/16 gyroStraight(distance=5, speed = 25, backward = True, targetAngle = 20)
         gyroStraight(distance=5, speed = 30, backward = True, targetAngle = 20)
         #Changed 10/16 _turnToAngle(targetAngle = 45, speed = 20)
         _turnToAngle(targetAngle = 45, speed = 35, slowTurnRatio=0.1)
+        """
 
     def windTurbine():
         drive(speed = 20, distanceInCM = 20, target_angle = 40) #Drive towards Wind Turbine and push the lever once
         # Push the lever the remaining two times
         for i in range(2): 
             wheels.move(amount = 5, unit = "cm", steering = 0, speed = -20) #Backup so the robot can push the Wind Turbine again
-            drive(speed = 20, distanceInCM = 15, target_angle = 40) #Drive forward to push the Wind Turbine
+            drive(speed = 20, distanceInCM = 10, target_angle = 40) #Drive forward to push the Wind Turbine
         #Changed 10/16 wheels.move(amount = 14, unit = "cm", steering = 0, speed = -30)
         wheels.move(amount = 14, unit = "cm", steering = 0, speed = -40) #Backup from Wind Turbine
 
@@ -1700,12 +1720,12 @@ def _run1():
         motorD.start(speed = -50)
 
     def hybridCarRechargeableBatteryAndGoHome():
-        #Changed 10/16 _turnToAngle(targetAngle = 120, speed = 25)
-        _turnToAngle(targetAngle = 120, speed = 25) #Turn towards Hybrid Car
+        #Changed 10/29 _turnToAngle(targetAngle = 120, speed = 25)
+        _turnToAngle(targetAngle = 140, speed = 25) #Turn towards Hybrid Car
                 
         # # Back into the hybrid car.
         #Changed 10/16 gyroStraight(distance=15, speed = 25, backward = True, targetAngle = 120)               
-        gyroStraight(distance=15, speed = 30, backward = True, targetAngle = 120)
+        gyroStraight(distance=19, speed = 30, backward = True, targetAngle = 140)
         
         # Lower the Hybrid Car arm. We started moving the arm above, we now need to finish that
         # we do so at a higher speed.
@@ -1717,7 +1737,7 @@ def _run1():
         #moveArm(degrees = 1800, speed = 100, motor = motorD)
         
         # # Lower the Hybrid Car arm 
-        moveArm(degrees = -800, speed = -100, motor = motorD)
+        moveArm(degrees = 2000, speed = 100, motor = motorD)
 
         # Drive forward
         #Changed 10/16  drive(speed = 30, distanceInCM = 10, target_angle = 120)
@@ -1732,23 +1752,24 @@ def _run1():
         
     watchTV()
     getToWindTurbine()
-    windTurbine()
-    hybridCarRechargeableBatteryAndGoHome()
+    #windTurbine()
+    #hybridCarRechargeableBatteryAndGoHome()
     
 #endregion
 
 #region Function Calls
 initialize()
-#drive(speed=20,distanceInCM=15, target_angle= 0)
-#drive(speed=50,distanceInCM=5, target_angle= 0)
-
+_driveTillLine(speed = 50, distanceInCM = 100, target_angle = 0, colorSensorToUse = "Left", blackOrWhite = "Black")
 #moveArm(degrees = 1800, speed = -100, motor = motorF)
+#doRunWithTiming(_run1)
+#moveArm(degrees = -1500, speed = -100, motor = motorD)
+#moveArm(degrees = 1500, speed = 100, motor = motorD)
 #doRunWithTiming(_run3)
-doRunWithTiming(_run6)
+#doRunWithTiming(_run6)
 #testLineSquaring()
 
 #doRunWithTiming(pullTruckGoStraight)
-#moveArm(degrees = 2600, speed = 100, motor = motorD)
+#moveArm(degrees = 2100, speed = 100, motor = motorD)
 #doRunWithTiming(_runAnya)
 
 #runArisha()
