@@ -1230,7 +1230,7 @@ def _sliderArm(targetAngle):
 
     moveArm(degrees = -1 * moveArmDistance, speed = -100, motor=motorD)
 
-def _run4():
+def _run4Old():
     wheels.set_stop_action("coast")
     # Drive till the hydro plant to pick up the first water unit
     drive(speed = 35, distanceInCM = 19, target_angle = 0)
@@ -1352,7 +1352,7 @@ def _run4ShortStraightArm():
     gyroStraight(distance=70, speed = 100, backward = False, targetAngle = -175)
 
 # This is Run4 Working as of 10/28/2022
-def _run4UsingLArm():
+def _run4():
     wheels.set_stop_action("coast")
     # Drive till the hydro plant to pick up the first water unit
     drive(speed = 40, distanceInCM = 19, target_angle = 0)
@@ -1389,7 +1389,7 @@ def _run4UsingLArm():
 # Use this instead of _run5, this uses a start position that is further out from the wall
 # which allows us to not turn in the first part.
 # 10/28/2022: Use this instead of _run5
-def _run5WithCloserStart():
+def _run5():
     #global GLOBAL_LEVEL
     #GLOBAL_LEVEL = 5
     # Drive forward first. Drive at a slight angle to avoid hitting the power plant.
@@ -1422,7 +1422,7 @@ def _run5WithCloserStart():
 # Drop off energy units and innovation project
 # Drop off energy units at rechargeable battery
 # Take Oil truck to its final place.
-def _run5():
+def _run5Old():
     #global GLOBAL_LEVEL
     #GLOBAL_LEVEL = 5
     # Drive forward first. Drive at a slight angle to avoid hitting the power plant.
@@ -1739,16 +1739,18 @@ def _run1():
 
 #region Function Calls
 initialize()
-drive(speed=20,distanceInCM=15, target_angle= 0)
+#drive(speed=20,distanceInCM=15, target_angle= 0)
+#drive(speed=50,distanceInCM=5, target_angle= 0)
 
 #moveArm(degrees = 1800, speed = -100, motor = motorF)
-#doRunWithTiming(_run4UsingLArm)
+#doRunWithTiming(_run4)
+doRunWithTiming(_run5)
 #testLineSquaring()
 
 #doRunWithTiming(pullTruckGoStraight)
 #moveArm(degrees = 2600, speed = 100, motor = motorD)
 #doRunWithTiming(_runAnya)
-#doRunWithTiming(_run5WithCloserStart)
+
 #runArisha()
 
 #drive(speed=40,distanceInCM= 10, target_angle= 0)
