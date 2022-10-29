@@ -1351,7 +1351,7 @@ def _run4ShortStraightArm():
     # Final part of go home.
     gyroStraight(distance=70, speed = 100, backward = False, targetAngle = -175)
 
-# This is Run4 Working as of 10/23/2022
+# This is Run4 Working as of 10/28/2022
 def _run4UsingLArm():
     wheels.set_stop_action("coast")
     # Drive till the hydro plant to pick up the first water unit
@@ -1363,30 +1363,32 @@ def _run4UsingLArm():
     
     # Turns towards the n-s black line in front of the power station.
     gyroStraight(distance=25, speed = 50, backward = False, targetAngle = angle)
-    gyroStraight(distance=10, speed = 20, backward = False, targetAngle = angle)
-    _turnToAngle(targetAngle= angle, speed = 20, slowTurnRatio=0.9)
-    _driveTillLine(speed=40, distanceInCM=25, target_angle = angle, colorSensorToUse="Right", blackOrWhite="White", slowSpeedRatio=0.9)
-    gyroStraight(distance=3, speed = 20, backward = True, targetAngle = angle)
+    gyroStraight(distance=10, speed = 25, backward = False, targetAngle = angle)
+    _turnToAngle(targetAngle= angle, speed = 25, slowTurnRatio=0.9)
+    _driveTillLine(speed=45, distanceInCM=25, target_angle = angle, colorSensorToUse="Right", blackOrWhite="White", slowSpeedRatio=0.9)
+    gyroStraight(distance=5, speed = 25, backward = True, targetAngle = angle)
 
     angle = -48
     # Turn towards the smart grid and drive forward to catch the e-w line in front of the smart grid.
-    _turnToAngle(targetAngle= angle,speed = 20, slowTurnRatio=0.9)
+    _turnToAngle(targetAngle= angle, speed = 25, slowTurnRatio=0.9)
     gyroStraight(distance=25, speed = 50, backward = False, targetAngle = angle)
-    _driveTillLine(speed=35, distanceInCM=100, target_angle = angle-15, colorSensorToUse="Left", blackOrWhite="White", slowSpeedRatio=0.9)
-
+    _driveTillLine(speed=35, distanceInCM=100, target_angle = angle-15, colorSensorToUse="Left", blackOrWhite="Black", slowSpeedRatio=0.9)
+    
     # Now drive to pick up the energy unit
-    gyroStraight(distance=15, speed = 35, backward = False, targetAngle = angle-15)
+    gyroStraight(distance=9, speed = 35, backward = False, targetAngle = angle)
     
     # Back off a little bit before turning to go home.
-    #gyroStraight(distance=3, speed = 35, backward = True, targetAngle = angle-15)
+    #gyroStraight(distance=2, speed = 35, backward = True, targetAngle = angle-15)
 
     # Go home    
-    _turnToAngle(targetAngle=-140, speed = 20, slowTurnRatio=0.9)
+    _turnToAngle(targetAngle=-140, speed = 15, slowTurnRatio=0.9)
     gyroStraight(distance=25, speed = 75, backward = False, targetAngle = -140)
-    gyroStraight(distance=90, speed = 75, backward = False, targetAngle = -170)
+    _turnToAngle(targetAngle=-170, speed = 15, slowTurnRatio=0.9)
+    gyroStraight(distance=90, speed = 95, backward = False, targetAngle = -170)
    
 # Use this instead of _run5, this uses a start position that is further out from the wall
 # which allows us to not turn in the first part.
+# 10/28/2022: Use this instead of _run5
 def _run5WithCloserStart():
     #global GLOBAL_LEVEL
     #GLOBAL_LEVEL = 5
@@ -1420,7 +1422,6 @@ def _run5WithCloserStart():
 # Drop off energy units and innovation project
 # Drop off energy units at rechargeable battery
 # Take Oil truck to its final place.
-# Consider keeping the arms lower so we can run the motors for a smaller amount of time.
 def _run5():
     #global GLOBAL_LEVEL
     #GLOBAL_LEVEL = 5
@@ -1478,18 +1479,20 @@ def _dropRechargeableBatteryAndOilTruckWithGyroReset():
     motorF.stop()
     
     # Turn to catch e-w line in front of smartgrid
-    _turnToAngle(targetAngle = -25 + zero_adjustment, speed = 20, slowTurnRatio=0.9)
-    _driveTillLine(speed=35, distanceInCM=10, target_angle=-25 + zero_adjustment, colorSensorToUse="Left", blackOrWhite="Black")
+    _turnToAngle(targetAngle = 170, speed = 20, slowTurnRatio=0.9)
+
+    # Its possible that this line is missed occasionally. 
+    _driveTillLine(speed=35, distanceInCM=10, target_angle= 170, colorSensorToUse="Left", blackOrWhite="Black")
 
     # Turn to catch n-s line near toy factory
     # 10/23/2022: was 5+zero_adjustment
-    _turnToAngle(targetAngle = 7 + zero_adjustment, speed = 20, slowTurnRatio=0.9)
-    _driveTillLine(speed=35, distanceInCM=13, target_angle=7 + zero_adjustment, colorSensorToUse="Right", blackOrWhite="Black")
+    _turnToAngle(targetAngle = 5 + zero_adjustment, speed = 20, slowTurnRatio=0.9)
+    _driveTillLine(speed=35, distanceInCM=13, target_angle=5 + zero_adjustment, colorSensorToUse="Right", blackOrWhite="Black")
 
     # Move and turn towards rechargeable battery
-    gyroStraight(distance=21, speed = 35, backward = False, targetAngle = 7 + zero_adjustment)
-    _turnToAngle(targetAngle = 35 + zero_adjustment, speed = 20, slowTurnRatio=0.9)
-    gyroStraight(distance=12, speed = 25, backward = False, targetAngle = 35 + zero_adjustment)
+    gyroStraight(distance=21, speed = 35, backward = False, targetAngle = 5 + zero_adjustment)
+    _turnToAngle(targetAngle = 33 + zero_adjustment, speed = 20, slowTurnRatio=0.9)
+    gyroStraight(distance=12, speed = 25, backward = False, targetAngle = 33 + zero_adjustment)
 
     # Drop energy units in rechargeable battery
     # Used to be 3000 made it 1800, by lowering the arm a litte.
