@@ -1662,6 +1662,7 @@ def _run1Old():
         moveArm(degrees = -1 * 500, speed = -100, motor = motorD)
         drive(speed = 30, distanceInCM = 36, target_angle = 0)
     
+    
     def rechargableBattery(moveArmDegrees, armSpeed):
         _turnToAngle(targetAngle = 90, speed = 20) #Turn towards Rechargable Battery
         moveArm(degrees = ceil(-0.75 * moveArmDegrees), speed = -1 * armSpeed, motor = motorD) #Lower arm for Rechargable Battery
@@ -1680,6 +1681,24 @@ def _run1Old():
     # goHome()
     #testHybridCarArm()
 
+def hybridCarOnlyTest():
+    # Back into the hybrid car.
+    gyroStraight(distance=19, speed = 20, backward = True, targetAngle = 0)
+        
+    # Lower the Hybrid Car arm. We started moving the arm above, we now need to finish that
+    # we do so at a higher speed.
+    motorD.stop()
+    moveArm(degrees = -1200, speed = -100, motor = motorD)
+
+    # Raise the arm to drop the hybrid unit into the car.
+    moveArm(degrees = 1000, speed = 100, motor = motorD)
+
+    # Drive forward
+    drive(speed = 45, distanceInCM = 10, target_angle = 0)
+
+    # Lower the Hybrid Car arm 
+    moveArm(degrees = -1000, speed = -100, motor = motorD)
+    #gyroStraight(distance = 90, speed = 80, backward = False, targetAngle = 0)
 
 def _run1():
     def watchTV():
@@ -1724,6 +1743,22 @@ def _run1():
 
         # Start moving the ARM
         motorD.start(speed = -50)
+    
+    def hybridCarNew():
+        _turnToAngle(targetAngle = 140, speed = 25)
+        gyroStraight(distance=19, speed = 20, backward = True, targetAngle = 0)
+            
+        motorD.stop()
+        moveArm(degrees = -2500, speed = -100, motor = motorD)
+
+        moveArm(degrees = 2000, speed = 100, motor = motorD)
+
+        drive(speed = 45, distanceInCM = 10, target_angle = 0)
+
+        motorD.set_stop_action("hold")
+        moveArm(degrees = -1800, speed = -100, motor = motorD)
+        gyroStraight(distance = 90, speed = 80, backward = False, targetAngle = 0)
+        motorD.set_stop_action("brake")    
 
     def hybridCarRechargeableBatteryAndGoHome():
         #Changed 10/29 _turnToAngle(targetAngle = 120, speed = 25)
@@ -1759,24 +1794,21 @@ def _run1():
     watchTV()
     getToWindTurbine()
     windTurbine()
-    hybridCarRechargeableBatteryAndGoHome()
+    hybridCarNew()
+    #hybridCarRechargeableBatteryAndGoHome()
     moveArm(degrees = 2000, speed = 100, motor = motorD)
 
 #endregion
 
 #region Function Calls
 
-
-
 initialize()
 #_driveTillLine(speed = 50, distanceInCM = 100, target_angle = 0, colorSensorToUse = "Left", blackOrWhite = "Black")
 #moveArm(degrees = 1800, speed = -100, motor = motorF)
 #doRunWithTiming(_runAnya)
+#hybridCarOnlyTest()
 
-
-
-
-doRunWithTiming(_run1)
+doRunWithTiming(_run3)
 #moveArm(degrees = -1500, speed = -100, motor = motorD)
 #moveArm(degrees = 1500, speed = 100, motor = motorD)
 #doRunWithTiming(_run3)
@@ -1785,7 +1817,6 @@ doRunWithTiming(_run1)
 #doRunWithTiming(pullTruckGoStraight)
 #moveArm(degrees = 2100, speed = 100, motor = motorD)
 ##doRunWithTiming(runArisha)
-
 
 #runArisha()
 
