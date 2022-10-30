@@ -1392,9 +1392,9 @@ def _run3():
 
     angle = -48
     # Turn towards the smart grid and drive forward to catch the e-w line in front of the smart grid.
-    _turnToAngle(targetAngle=-80,speed=15)
-    drive(speed=35, distanceInCM=20, target_angle=-80)
-    _driveTillLine(speed=35, distanceInCM=100, target_angle=-80, colorSensorToUse="Right", blackOrWhite="White")
+    _turnToAngle(targetAngle=angle,speed=15)
+    drive(speed=35, distanceInCM=20, target_angle=angle)
+    _driveTillLine(speed=35, distanceInCM=100, target_angle=angle, colorSensorToUse="Right", blackOrWhite="White")
 
     # Backoff before turning.
     gyroStraight(distance=5, speed = 20, backward = True, targetAngle = -80)
