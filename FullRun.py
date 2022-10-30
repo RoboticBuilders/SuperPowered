@@ -1393,7 +1393,7 @@ def _run3():
     angle = -48
     # Turn towards the smart grid and drive forward to catch the e-w line in front of the smart grid.
     _turnToAngle(targetAngle=angle,speed=15)
-    drive(speed=35, distanceInCM=20, target_angle=angle)
+    drive(speed=35, distanceInCM=20, target_angle=angle) #testing checking
     _driveTillLine(speed=35, distanceInCM=100, target_angle=angle, colorSensorToUse="Right", blackOrWhite="White")
 
     # Backoff before turning.
