@@ -10,10 +10,16 @@ from spike.operator import *
 import gc
 from math import *
 
+# This is a marvin constant. It can we set to the following vaulues
+# "Rishabh", "Anya", "Amogh"
+MARVIN = "Amogh"
 AXLE_DIAMETER_CM = 12.7
 WHEEL_RADIUS_CM = 4.4
 GLOBAL_LEVEL = 0
 ANYA_RUN_START_OFFSET_TO_MAT_WEST = 0
+
+# Add this to the angles that we are using for Rishabh-MARVIN
+AMOGH_MARVIN_TURN_ANGLE_ADJUSTMENT = 3 
 
 primeHub = PrimeHub()
 
@@ -49,14 +55,25 @@ BLACK_COLOR = 20
 WHITE_COLOR = 90
 
 #region Utilities
-def initialize():
+def _initialize():
     
     print("___________________________________________________")
     primeHub.motion_sensor.reset_yaw_angle()
     wheels.set_stop_action("brake")
     wheels.set_motor_rotation(2*3.14*WHEEL_RADIUS_CM, 'cm')
     isBatteryGood()
-    
+
+    # Code below is used to adjusting runs based on the MARVIN we are using
+    # In order to influence the code, use the global variable to adjust the runs
+    if MARVIN == "Rishabh":
+        AMOGH_MARVIN_TURN_ANGLE_ADJUSTMENT = 0
+    elif MARVIN == "Amogh":
+        AMOGH_MARVIN_TURN_ANGLE_ADJUSTMENT = 3
+    elif MARVIN == "Anya":
+        AMOGH_MARVIN_TURN_ANGLE_ADJUSTMENT = 0
+    else:
+        raise SystemExit
+        
   
 def doRunWithTiming(run):
     logMessage("Starting run " + str(run), level=0)
@@ -1360,22 +1377,23 @@ def _run3():
     drive(speed = 40, distanceInCM = 19, target_angle = 0)
     
     # Turn towards the hydro unit to drop the water unit from the hydro plant.
-    angle = 40
+    angle = 40 - AMOGH_MARVIN_TURN_ANGLE_ADJUSTMENT
     _turnToAngle(targetAngle= angle, speed = 20, slowTurnRatio=0.9)
     
     # Turns towards the n-s black line in front of the power station.
     gyroStraight(distance=25, speed = 50, backward = False, targetAngle = angle)
     gyroStraight(distance=10, speed = 25, backward = False, targetAngle = angle)
     _turnToAngle(targetAngle= angle, speed = 25, slowTurnRatio=0.9)
-    _driveTillLine(speed=45, distanceInCM=25, target_angle = angle, colorSensorToUse="Right", blackOrWhite="White", slowSpeedRatio=0.9)
+    _driveTillLine(speed=45, distanceInCM=25, target_angle = angle, colorSensorToUse="Right", blackOrWhite="Black", slowSpeedRatio=0.9)
     gyroStraight(distance=5, speed = 25, backward = True, targetAngle = angle)
 
-    angle = -48
+    angle = -48 + AMOGH_MARVIN_TURN_ANGLE_ADJUSTMENT
     # Turn towards the smart grid and drive forward to catch the e-w line in front of the smart grid.
     _turnToAngle(targetAngle=angle,speed=15)
-    drive(speed=35, distanceInCM=20, target_angle=angle) #testing checking
-    _driveTillLine(speed=35, distanceInCM=100, target_angle=angle, colorSensorToUse="Right", blackOrWhite="White")
+    drive(speed=35, distanceInCM=20, target_angle=angle)
+    #_driveTillLine(speed=35, distanceInCM=100, target_angle=angle - 5, colorSensorToUse="Right", blackOrWhite="Black")
 
+    '''
     # Backoff before turning.
     gyroStraight(distance=5, speed = 20, backward = True, targetAngle = angle)
     
@@ -1387,10 +1405,9 @@ def _run3():
     gyroStraight(distance=25, speed = 75, backward = False, targetAngle = -140)
     _turnToAngle(targetAngle=-170, speed = 15, slowTurnRatio=0.9)
     gyroStraight(distance=90, speed = 95, backward = False, targetAngle = -170)
+    '''
    
-# Use this instead of _run5, this uses a start position that is further out from the wall
-# which allows us to not turn in the first part.
-# 10/28/2022: Use this instead of _run5
+# This is the running _run6
 def _run6():
     #global GLOBAL_LEVEL
     #GLOBAL_LEVEL = 5
@@ -1642,6 +1659,7 @@ def _run1Old():
         moveArm(degrees = -1 * 500, speed = -100, motor = motorD)
         drive(speed = 30, distanceInCM = 36, target_angle = 0)
     
+    
     def rechargableBattery(moveArmDegrees, armSpeed):
         _turnToAngle(targetAngle = 90, speed = 20) #Turn towards Rechargable Battery
         moveArm(degrees = ceil(-0.75 * moveArmDegrees), speed = -1 * armSpeed, motor = motorD) #Lower arm for Rechargable Battery
@@ -1660,6 +1678,24 @@ def _run1Old():
     # goHome()
     #testHybridCarArm()
 
+def hybridCarOnlyTest():
+    # Back into the hybrid car.
+    gyroStraight(distance=19, speed = 20, backward = True, targetAngle = 0)
+        
+    # Lower the Hybrid Car arm. We started moving the arm above, we now need to finish that
+    # we do so at a higher speed.
+    motorD.stop()
+    moveArm(degrees = -1200, speed = -100, motor = motorD)
+
+    # Raise the arm to drop the hybrid unit into the car.
+    moveArm(degrees = 1000, speed = 100, motor = motorD)
+
+    # Drive forward
+    drive(speed = 45, distanceInCM = 10, target_angle = 0)
+
+    # Lower the Hybrid Car arm 
+    moveArm(degrees = -1000, speed = -100, motor = motorD)
+    #gyroStraight(distance = 90, speed = 80, backward = False, targetAngle = 0)
 
 def _run1():
     def watchTV():
@@ -1704,6 +1740,22 @@ def _run1():
 
         # Start moving the ARM
         motorD.start(speed = -50)
+    
+    def hybridCarNew():
+        _turnToAngle(targetAngle = 140, speed = 25)
+        gyroStraight(distance=19, speed = 20, backward = True, targetAngle = 0)
+            
+        motorD.stop()
+        moveArm(degrees = -2500, speed = -100, motor = motorD)
+
+        moveArm(degrees = 2000, speed = 100, motor = motorD)
+
+        drive(speed = 45, distanceInCM = 10, target_angle = 0)
+
+        motorD.set_stop_action("hold")
+        moveArm(degrees = -1800, speed = -100, motor = motorD)
+        gyroStraight(distance = 90, speed = 80, backward = False, targetAngle = 0)
+        motorD.set_stop_action("brake")    
 
     def hybridCarRechargeableBatteryAndGoHome():
         #Changed 10/29 _turnToAngle(targetAngle = 120, speed = 25)
@@ -1739,24 +1791,23 @@ def _run1():
     watchTV()
     getToWindTurbine()
     windTurbine()
-    hybridCarRechargeableBatteryAndGoHome()
+    hybridCarNew()
+    #hybridCarRechargeableBatteryAndGoHome()
     moveArm(degrees = 2000, speed = 100, motor = motorD)
 
 #endregion
 
 #region Function Calls
 
-
-
-initialize()
+_initialize()
 #_driveTillLine(speed = 50, distanceInCM = 100, target_angle = 0, colorSensorToUse = "Left", blackOrWhite = "Black")
 #moveArm(degrees = 1800, speed = -100, motor = motorF)
-# doRunWithTiming(_runAnya)
+#doRunWithTiming(_runAnya)
 
 
 
 
-# doRunWithTiming(_run1)
+doRunWithTiming(_run1)
 #moveArm(degrees = -1500, speed = -100, motor = motorD)
 #moveArm(degrees = 1500, speed = 100, motor = motorD)
 #doRunWithTiming(_run3)
@@ -1765,7 +1816,6 @@ initialize()
 #doRunWithTiming(pullTruckGoStraight)
 #moveArm(degrees = 2100, speed = 100, motor = motorD)
 doRunWithTiming(runArisha)
-
 
 #runArisha()
 
