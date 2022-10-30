@@ -1397,7 +1397,7 @@ def _run3():
     _driveTillLine(speed=35, distanceInCM=100, target_angle=angle, colorSensorToUse="Right", blackOrWhite="White")
 
     # Backoff before turning.
-    gyroStraight(distance=5, speed = 20, backward = True, targetAngle = -80)
+    gyroStraight(distance=5, speed = 20, backward = True, targetAngle = angle)
     
     # Back off a little bit before turning to go home.
     #gyroStraight(distance=2, speed = 35, backward = True, targetAngle = angle-15)
