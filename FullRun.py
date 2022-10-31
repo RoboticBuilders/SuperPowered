@@ -1397,7 +1397,7 @@ def _run3():
     drive(speed = 40, distanceInCM = 19, target_angle = 0)
     
     # Turn towards the hydro unit to drop the water unit from the hydro plant.
-    angle = 40 - AMOGH_MARVIN_TURN_ANGLE_ADJUSTMENT
+    angle = 40
     _turnToAngle(targetAngle= angle, speed = 20, slowTurnRatio=0.9)
     
     # Turns towards the n-s black line in front of the power station.
@@ -1407,25 +1407,37 @@ def _run3():
     _driveTillLine(speed=45, distanceInCM=25, target_angle = angle, colorSensorToUse="Right", blackOrWhite="Black", slowSpeedRatio=0.9)
     gyroStraight(distance=5, speed = 25, backward = True, targetAngle = angle)
 
-    angle = -48 + AMOGH_MARVIN_TURN_ANGLE_ADJUSTMENT
-    # Turn towards the smart grid and drive forward to catch the e-w line in front of the smart grid.
+    angle = -48
+    # Turn towards the smart grid and drive forward we do fast run till the hydro unit, and then a slow drive forward
+    # in order to catch the units.
     _turnToAngle(targetAngle=angle,speed=15)
     drive(speed=35, distanceInCM=20, target_angle=angle)
-    #_driveTillLine(speed=35, distanceInCM=100, target_angle=angle - 5, colorSensorToUse="Right", blackOrWhite="Black")
+    time.sleep(10)
+    _turnToAngle(targetAngle=angle - 15,speed=25)
+    time.sleep(10)
+    gyroStraight(distance=15, speed = 25, backward = False, targetAngle = angle - 15)
+    time.sleep(10)
 
-    '''
-    # Backoff before turning.
-    gyroStraight(distance=5, speed = 20, backward = True, targetAngle = angle)
+    # Drive to catch the e-w line in front of the smart grid.
+    _turnToAngle(targetAngle=angle,speed=25)
+    _driveTillLine(speed=35, distanceInCM=100, target_angle=angle, colorSensorToUse="Left", blackOrWhite="Black")
+
+    # Drive forward till the wall
+    gyroStraight(distance=12, speed = 35, backward = False, targetAngle = angle)
     
     # Back off a little bit before turning to go home.
-    #gyroStraight(distance=2, speed = 35, backward = True, targetAngle = angle-15)
+    gyroStraight(distance=3, speed = 35, backward = True, targetAngle = angle)
 
-    # Go home    
+    # Go home first do a two part turn.
+    _turnToAngle(targetAngle=-90, speed = 15, slowTurnRatio=0.9)
+    gyroStraight(distance=5, speed = 25, backward = False, targetAngle = -90)
     _turnToAngle(targetAngle=-140, speed = 15, slowTurnRatio=0.9)
-    gyroStraight(distance=25, speed = 75, backward = False, targetAngle = -140)
-    _turnToAngle(targetAngle=-170, speed = 15, slowTurnRatio=0.9)
-    gyroStraight(distance=90, speed = 95, backward = False, targetAngle = -170)
-    '''
+    
+    # Go Home
+    gyroStraight(distance=25, speed = 60, backward = False, targetAngle = -140)
+    _turnToAngle(targetAngle=174, speed = 15, slowTurnRatio=0.9)
+    gyroStraight(distance=90, speed = 95, backward = False, targetAngle = 174)
+    
    
 # This is the running _run6
 def _run6():
