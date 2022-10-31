@@ -1412,11 +1412,11 @@ def _run3():
     # in order to catch the units.
     _turnToAngle(targetAngle=angle,speed=15)
     drive(speed=35, distanceInCM=20, target_angle=angle)
-    time.sleep(10)
+    #time.sleep(10)
     _turnToAngle(targetAngle=angle - 15,speed=25)
-    time.sleep(10)
+    #time.sleep(10)
     gyroStraight(distance=15, speed = 25, backward = False, targetAngle = angle - 15)
-    time.sleep(10)
+    #time.sleep(10)
 
     # Drive to catch the e-w line in front of the smart grid.
     _turnToAngle(targetAngle=angle,speed=25)
