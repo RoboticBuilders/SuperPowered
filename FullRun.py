@@ -1,7 +1,8 @@
-# LEGO type:standard slot:1 autostart
+# LEGO type:standard slot:3
 #from spike import PrimeHub, LightMatrix, Button, StatusLight, ForceSensor, MotionSensor, Speaker, ColorSensor, App, DistanceSensor, Motor, MotorPair
 from spike import PrimeHub, ColorSensor,  Motor, MotorPair
-#from spike.control import timer
+#from spike.control import timer 
+# autostart
 from math import *
 import collections
 # Note that the "hub" import is needed, this is different from the PrimeHub import above, this is the way to access the battery.
@@ -946,7 +947,6 @@ def testLineSquaring():
  # ------------------------------------------------------------------- End Utilities --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
  #endregion
 
-
 #region Arisha
 def runArisha():
     primeHub.motion_sensor.reset_yaw_angle()
@@ -1377,47 +1377,46 @@ def _run3():
     drive(speed = 40, distanceInCM = 19, target_angle = 0)
     
     # Turn towards the hydro unit to drop the water unit from the hydro plant.
-    angle = 40
-    _turnToAngle(targetAngle= angle, speed = 20, slowTurnRatio=0.9)
+    angle = 38
+    _turnToAngle(targetAngle= angle, speed = 15, slowTurnRatio=0.9)
     
     # Turns towards the n-s black line in front of the power station.
     gyroStraight(distance=25, speed = 50, backward = False, targetAngle = angle)
     gyroStraight(distance=10, speed = 25, backward = False, targetAngle = angle)
     _turnToAngle(targetAngle= angle, speed = 25, slowTurnRatio=0.9)
     _driveTillLine(speed=45, distanceInCM=25, target_angle = angle, colorSensorToUse="Right", blackOrWhite="Black", slowSpeedRatio=0.9)
-    gyroStraight(distance=5, speed = 25, backward = True, targetAngle = angle)
+    
+    angle = -46
+    # Turn towards the smart grid and align with the power plant.
+    _turnToAngle(targetAngle=angle, speed=20, slowTurnRatio=0.9)
+    gyroStraight(distance=16, speed = 25, backward = True, targetAngle = angle)
 
-    angle = -48
     # Turn towards the smart grid and drive forward we do fast run till the hydro unit, and then a slow drive forward
     # in order to catch the units.
-    _turnToAngle(targetAngle=angle,speed=15)
-    drive(speed=35, distanceInCM=20, target_angle=angle)
-    #time.sleep(10)
-    _turnToAngle(targetAngle=angle - 15,speed=25)
-    #time.sleep(10)
-    gyroStraight(distance=15, speed = 25, backward = False, targetAngle = angle - 15)
-    #time.sleep(10)
+    _turnToAngle(targetAngle=angle, speed=20, slowTurnRatio=0.9)
+    gyroStraight(distance=32, speed = 55, backward = False, targetAngle = angle)
 
     # Drive to catch the e-w line in front of the smart grid.
-    _turnToAngle(targetAngle=angle,speed=25)
-    _driveTillLine(speed=35, distanceInCM=100, target_angle=angle, colorSensorToUse="Left", blackOrWhite="Black")
+    _turnToAngle(targetAngle=angle - 20, speed=20, slowTurnRatio=0.9)
+    gyroStraight(distance=15, speed = 35, backward = False, targetAngle = angle - 20)
+    _driveTillLine(speed=25, distanceInCM=25, target_angle=angle - 20, colorSensorToUse="Left", blackOrWhite="White")
 
     # Drive forward till the wall
-    gyroStraight(distance=12, speed = 35, backward = False, targetAngle = angle)
+    _turnToAngle(targetAngle=angle, speed=20, slowTurnRatio=0.9)
+    gyroStraight(distance=10, speed = 35, backward = False, targetAngle = angle)
     
     # Back off a little bit before turning to go home.
-    gyroStraight(distance=3, speed = 35, backward = True, targetAngle = angle)
+    gyroStraight(distance=2, speed = 35, backward = True, targetAngle = angle)
 
     # Go home first do a two part turn.
     _turnToAngle(targetAngle=-90, speed = 15, slowTurnRatio=0.9)
     gyroStraight(distance=5, speed = 25, backward = False, targetAngle = -90)
-    _turnToAngle(targetAngle=-140, speed = 15, slowTurnRatio=0.9)
     
     # Go Home
+    _turnToAngle(targetAngle=-140, speed = 15, slowTurnRatio=0.9)
     gyroStraight(distance=25, speed = 60, backward = False, targetAngle = -140)
-    _turnToAngle(targetAngle=174, speed = 15, slowTurnRatio=0.9)
-    gyroStraight(distance=90, speed = 95, backward = False, targetAngle = 174)
-    
+    _turnToAngle(targetAngle=170, speed = 15, slowTurnRatio=0.9)
+    gyroStraight(distance=90, speed = 95, backward = False, targetAngle =170)
    
 # This is the running _run6
 def _run6():
@@ -1753,21 +1752,21 @@ def _run1():
         # Start moving the ARM
         motorD.start(speed = -50)
     
-    def hybridCarNew():
+    def hybridCarAndGoHomeNew():
         _turnToAngle(targetAngle = 140, speed = 25)
-        gyroStraight(distance=19, speed = 20, backward = True, targetAngle = 0)
+        gyroStraight(distance=19, speed = 20, backward = True, targetAngle = 140)
             
         motorD.stop()
-        moveArm(degrees = -2500, speed = -100, motor = motorD)
+        moveArm(degrees = -1200, speed = -100, motor = motorD)
 
-        moveArm(degrees = 2000, speed = 100, motor = motorD)
+        moveArm(degrees = 1000, speed = 100, motor = motorD)
 
-        drive(speed = 45, distanceInCM = 10, target_angle = 0)
+        drive(speed = 45, distanceInCM = 10, target_angle = 140)
 
         motorD.set_stop_action("hold")
-        moveArm(degrees = -1800, speed = -100, motor = motorD)
-        gyroStraight(distance = 90, speed = 80, backward = False, targetAngle = 0)
+        moveArm(degrees = -1000, speed = -100, motor = motorD)
         motorD.set_stop_action("brake")    
+        gyroStraight(distance = 90, speed = 80, backward = False, targetAngle = 140)
 
     def hybridCarRechargeableBatteryAndGoHome():
         #Changed 10/29 _turnToAngle(targetAngle = 120, speed = 25)
@@ -1803,7 +1802,7 @@ def _run1():
     watchTV()
     getToWindTurbine()
     windTurbine()
-    hybridCarNew()
+    hybridCarAndGoHomeNew()
     #hybridCarRechargeableBatteryAndGoHome()
     moveArm(degrees = 2000, speed = 100, motor = motorD)
 
@@ -1816,18 +1815,15 @@ _initialize()
 #moveArm(degrees = 1800, speed = -100, motor = motorF)
 #doRunWithTiming(_runAnya)
 
-
-
-
-doRunWithTiming(_run1)
+#doRunWithTiming(_run1)
 #moveArm(degrees = -1500, speed = -100, motor = motorD)
 #moveArm(degrees = 1500, speed = 100, motor = motorD)
-#doRunWithTiming(_run3)
+doRunWithTiming(_run3)
 #doRunWithTiming(_run6)
 
 #doRunWithTiming(pullTruckGoStraight)
 #moveArm(degrees = 2100, speed = 100, motor = motorD)
-doRunWithTiming(runArisha)
+#doRunWithTiming(runArisha)
 
 #runArisha()
 
