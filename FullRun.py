@@ -1457,11 +1457,11 @@ def _run1():
 
         moveArm(degrees = -1000, speed = -100, motor = motorF)
     
-    #_watchTV()
-    #_getToWindTurbine()
-    #_windTurbine()
-    #_hybridCarAndGoHome()
-    _oneWayDoorAndHybridCar()
+    _watchTV()
+    _getToWindTurbine()
+    _windTurbine()
+    _hybridCarAndGoHome()
+    #_oneWayDoorAndHybridCar()
     
     #moveArm(degrees = 1500, speed = 100, motor = motorD)
 
