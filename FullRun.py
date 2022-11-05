@@ -1024,7 +1024,7 @@ def testLineSquaring():
  #endregion
 
 #region Arisha
-def runArisha():
+def _run4():
     primeHub.motion_sensor.reset_yaw_angle()
 
     getToOilPlatform_v2Point2()
@@ -1079,7 +1079,7 @@ def goBackHomeFromOilPlatform():
    #wheels.move(amount = 11, unit = "in", steering = 0, speed = -30) # Back home doesnt require accuracy
 
 
-def pullTruckGoStraight():
+def _run5():
     gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH * 10, speed=40)
     motorF.run_for_degrees(degrees=-1000, speed=100)
     # motorF.start(speed=-100)
@@ -1164,7 +1164,7 @@ def testingGyroStraight():
 
 #region Anya 
 #powerPlant
-def _runAnya():
+def _run2():
     primeHub.motion_sensor.reset_yaw_angle()
     print("Battery voltage: " + str(hub.battery.voltage()))
 
