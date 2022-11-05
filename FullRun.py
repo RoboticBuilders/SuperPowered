@@ -1,4 +1,4 @@
-# LEGO type:standard slot:3
+# LEGO type:standard slot:1
 #from spike import PrimeHub, LightMatrix, Button, StatusLight, ForceSensor, MotionSensor, Speaker, ColorSensor, App, DistanceSensor, Motor, MotorPair
 from spike import PrimeHub, ColorSensor,  Motor, MotorPair
 #from spike.control import timer 
@@ -77,13 +77,11 @@ def _initialize():
         
   
 def doRunWithTiming(run):
-    logMessage("Starting run " + str(run), level=0)
+    logMessage("Starting run {}".format(str(run)), level=0)
     start_time = time.ticks_ms()  
     run()
     end_time = time.ticks_ms()
-    #logMessage("Time for run " + str(run) + " time(ms): " + str(time.ticks_diff(end_time, start_time)), level=0)
     logMessage("Time for run {} time(ms): {}".format(str(run), str(time.ticks_diff(end_time, start_time))), level=0)
-   
 
 def logMessage(message = "", level=1):
     """
@@ -1249,132 +1247,10 @@ def _sliderArm(targetAngle):
 
     moveArm(degrees = -1 * moveArmDistance, speed = -100, motor=motorD)
 
-def _run4Old():
-    wheels.set_stop_action("coast")
-    # Drive till the hydro plant to pick up the first water unit
-    drive(speed = 35, distanceInCM = 19, target_angle = 0)
-    
-    # Turn towards the hydro unit to drop the water unit from the hydro plant.
-    angle = 40
-    _turnToAngle(targetAngle= angle, speed = 20, slowTurnRatio=0.9)
-    
-    # Turns towards the n-s black line in front of the power station.
-    gyroStraight(distance=25, speed = 50, backward = False, targetAngle = angle)
-    gyroStraight(distance=10, speed = 15, backward = False, targetAngle = angle)
-    _turnToAngle(targetAngle= angle, speed = 20, slowTurnRatio=0.9)
-    _driveTillLine(speed=50, distanceInCM=25, target_angle = angle, colorSensorToUse="Right", blackOrWhite="Black", slowSpeedRatio=0.9)
-    gyroStraight(distance=10, speed = 20, backward = False, targetAngle = angle)
-
-    angle = -45
-    # Turn towards the smart grid and drive forward to catch the e-w line in front of the smart grid.
-    _turnToAngle(targetAngle= angle,speed = 20, slowTurnRatio=0.9)
-    gyroStraight(distance=25, speed = 50, backward = False, targetAngle = angle)
-    _driveTillLine(speed=30, distanceInCM=100, target_angle= angle, colorSensorToUse="Right", blackOrWhite="White", slowSpeedRatio=0.9)
-
-    # Backoff before turning.
-    gyroStraight(distance=4, speed = 20, backward = True, targetAngle = angle)
-    
-    # Turn to pick up the last two water units
-    # First catch n-s black line infront of the smart grid.
-    _turnToAngle(targetAngle = -145, speed = 20, slowTurnRatio=0.9)
-    _driveTillLine(speed=35, distanceInCM=10, target_angle=-145, colorSensorToUse="Left", blackOrWhite="Black", slowSpeedRatio=0.9)
-    
-    # Now try to pick up the final two water units.
-    drive(speed = 35, distanceInCM = 10, target_angle = -145)
-    
-    # Going to solar farm now. First find the e-w line in front of the smart grid.
-    # We do this at an angle so we clear the smart grid and dont have a risk of hitting that.
-    # Then we drive forward to align with the wall.
-    _turnToAngle(targetAngle=-100, speed = 25, slowTurnRatio=0.9)
-    _driveTillLine(speed=35, distanceInCM=10, target_angle=-100, colorSensorToUse="Left", blackOrWhite="Black")
-    _turnToAngle(targetAngle=-90, speed = 25, slowTurnRatio=0.9)
-    gyroStraight(distance=7, speed = 25, backward = False, targetAngle = -90)
-
-    # Turn to align to parallel to the solar panel so we can pick up the energy units
-    _turnToAngle(targetAngle=-133, speed = 25, slowTurnRatio=0.9)
-    # Run the code to pick up all the energyu units.
-    _sliderArm(targetAngle=-133)
-
-    # Go home
-    _turnToAngle(targetAngle=165, speed=20)
-    
-    drive(speed=100, distanceInCM=95, target_angle=165, dontSlowDown=True)
-    
-    wheels.set_stop_action("brake")
-    
-    '''
-    drive(speed=30, distanceInCM=20, target_angle=-50)
-    
-    # Reset the yaw angle we should be aligned with the wall.
-    primeHub.motion_sensor.reset_yaw_angle()    
-    
-    # Backup before picking up the solar units
-    gyroStraight(distance=2, speed = 20, backward = True, targetAngle = 0)
-    _turnToAngle(targetAngle=-70, speed=20, slowTurnRatio=0.9)
-    drive(speed=25, distanceInCM = 22, target_angle=-70)
-    
-    # Now backup from solar units to go back home
-    gyroStraight(distance=3, speed = 20, backward = True, targetAngle = -70)    
-
-      # Turn towards home and go home. 
-     
-    _turnToAngle(targetAngle=-160, speed=20)
-    
-    drive(speed=100, distanceInCM=95, target_angle=-160, dontSlowDown=True)
-    
-    wheels.set_stop_action("brake")
-    '''
-
-def _run4ShortStraightArm():
-    wheels.set_stop_action("coast")
-    # Drive till the hydro plant to pick up the first water unit
-    drive(speed = 35, distanceInCM = 19, target_angle = 0)
-    
-    # Turn towards the hydro unit to drop the water unit from the hydro plant.
-    angle = 40
-    _turnToAngle(targetAngle= angle, speed = 20, slowTurnRatio=0.9)
-    
-    # Turns towards the n-s black line in front of the power station.
-    gyroStraight(distance=25, speed = 50, backward = False, targetAngle = angle)
-    gyroStraight(distance=10, speed = 20, backward = False, targetAngle = angle)
-    _turnToAngle(targetAngle= angle, speed = 20, slowTurnRatio=0.9)
-    _driveTillLine(speed=50, distanceInCM=25, target_angle = angle, colorSensorToUse="Right", blackOrWhite="Black", slowSpeedRatio=0.9)
-    gyroStraight(distance=10, speed = 20, backward = False, targetAngle = angle)
-
-    angle = -45
-    # Turn towards the smart grid and drive forward to catch the e-w line in front of the smart grid.
-    _turnToAngle(targetAngle= angle,speed = 20, slowTurnRatio=0.9)
-    gyroStraight(distance=25, speed = 50, backward = False, targetAngle = angle)
-    _driveTillLine(speed=35, distanceInCM=100, target_angle= angle, colorSensorToUse="Right", blackOrWhite="White", slowSpeedRatio=0.9)
-
-    # Backoff before turning.
-    gyroStraight(distance=4, speed = 20, backward = True, targetAngle = angle)
-    
-    # Turn to pick up the last two water units
-    # First catch n-s black line infront of the smart grid.
-    _turnToAngle(targetAngle = -143, speed = 20, slowTurnRatio=0.9)
-    _driveTillLine(speed=35, distanceInCM=10, target_angle=-143, colorSensorToUse="Left", blackOrWhite="Black", slowSpeedRatio=0.9)
-    
-    # Now try to pick up the final two water units.
-    drive(speed = 35, distanceInCM = 10, target_angle = -143)
-    
-    # Now turn to get the energy unit.
-    _turnToAngle(targetAngle=-60, speed = 25, slowTurnRatio=0.9)
-    gyroStraight(distance=30, speed = 35, backward = False, targetAngle = -60)
-
-    # Back off a little bit before turning to go home.
-    gyroStraight(distance=3, speed = 35, backward = True, targetAngle = -60)
-    _turnToAngle(targetAngle=-165, speed = 20, slowTurnRatio=0.9)
-    gyroStraight(distance=30, speed = 100, backward = False, targetAngle = -165)
-
-    # Final part of go home.
-    gyroStraight(distance=70, speed = 100, backward = False, targetAngle = -175)
-
-# This is Run4 Working as of 10/28/2022
 def _run3():
     wheels.set_stop_action("coast")
     # Drive till the hydro plant to pick up the first water unit
-    drive(speed = 40, distanceInCM = 19, target_angle = 0)
+    gyroStraight(distance=19, speed = 40, backward = False, targetAngle = 0)
     
     # Turn towards the hydro unit to drop the water unit from the hydro plant.
     angle = 38
@@ -1417,8 +1293,8 @@ def _run3():
     gyroStraight(distance=25, speed = 60, backward = False, targetAngle = -140)
     _turnToAngle(targetAngle=170, speed = 15, slowTurnRatio=0.9)
     gyroStraight(distance=90, speed = 95, backward = False, targetAngle =170)
-   
-# This is the running _run6
+
+
 def _run6():
     #global GLOBAL_LEVEL
     #GLOBAL_LEVEL = 5
@@ -1435,38 +1311,6 @@ def _run6():
     _turnToAngle(targetAngle = angle, speed = 20, slowTurnRatio = 0.7)
     # Used to be 35 speed
     _driveTillLine(speed=35, distanceInCM=70, target_angle = angle, colorSensorToUse="Left", blackOrWhite="Black")
-
-    # Turn towards the hydro-electric plant and then drop the water units. 
-    # This also drops the energy units and the innovation project.
-    _turnToAngle(targetAngle = 150, speed = 20, slowTurnRatio = 0.9)
-    drive(speed = 25, distanceInCM = 26, target_angle = 150)
-
-    # Drop the water units    
-    # Used to be 3000, made it 1800 if we keep it mostly horizontal
-    moveArm(degrees = 1800, speed = -100, motor = motorF)
-        
-    # Now drive to the rechargeable battery and drop the oil factory
-    _dropRechargeableBatteryAndOilTruckWithGyroReset()
-
-# Drop water units
-# Drop off energy units and innovation project
-# Drop off energy units at rechargeable battery
-# Take Oil truck to its final place.
-def _run5Old():
-    #global GLOBAL_LEVEL
-    #GLOBAL_LEVEL = 5
-    # Drive forward first. Drive at a slight angle to avoid hitting the power plant.
-    drive(speed = 55, distanceInCM = 50, target_angle = -5)
-    
-    # Turn slightly to catch the n-s line in front of the power plant
-    _turnToAngle(targetAngle = -20, speed = 20, slowTurnRatio = 0.9)
-    # used to be 35 speed.
-    _driveTillLine(speed=45, distanceInCM=70, target_angle=-20, colorSensorToUse="Right", blackOrWhite="Black")
-    
-    # Turn towards the power plant and then try to catch the black line running e-w line in front of the smart grid.
-    _turnToAngle(targetAngle = -90, speed = 20, slowTurnRatio = 0.9)
-    # Used to be 35 speed
-    _driveTillLine(speed=45, distanceInCM=70, target_angle=-90, colorSensorToUse="Left", blackOrWhite="Black")
 
     # Turn towards the hydro-electric plant and then drop the water units. 
     # This also drops the energy units and the innovation project.
@@ -1539,272 +1383,87 @@ def _dropRechargeableBatteryAndOilTruckWithGyroReset():
     # Uncomment this for the competition.
     motorD.stop()
     
-# DO NOT USE, this is slow, instead use the gyro correct that uses the hydro plant.    
-# Attempt at flushing with the backwall. This works, not completed code, but will add time.
-# decided to reset the gyro when we flush against the hydro plant.
-def DONTUSE_dropRechargeableBatteryAndOilTruckWithFlush():
-    targetAngleAdjustment = 0
-
-    # Backoff to leave the water reservoir
-    gyroStraight(distance=5, speed = 20, backward = True, targetAngle = 150)
-
-    # Bring upthe arm
-    motorF.start_at_power(90)
-    #moveArm(degrees = 3000, speed = 100, motor = motorF)
-    
-    # turn to flush
-    _turnToAngle(targetAngle = 90, speed = 20)
-    gyroStraight(distance=40, speed = 40, backward = True, targetAngle = 90)
-
-    # We expect the arm to have come up by now.
-    motorF.stop()
-
-    # reset the gyro angle to zero.
-    primeHub.motion_sensor.reset_yaw_angle()
-
-    # Drive forward a little and then turn back.
-    gyroStraight(distance=3, speed = 25, backward = False, targetAngle = 37 + zero_adjustment)
-    
-    # Turn to catch e-w line in front of smartgrid
-    targetAngleToGetBetweenHybridCarAndToyFactory = -85
-    wheels.set_stop_action("coast")    
-    _turnToAngle(targetAngle = targetAngleToGetBetweenHybridCarAndToyFactory, speed = 20)
-    _driveTillLine(speed=25, distanceInCM=25, target_angle=targetAngleToGetBetweenHybridCarAndToyFactory, colorSensorToUse="Right", blackOrWhite="Black")
-    driveWithSlowStart(speed = 25, distanceInCM = 5, target_angle = targetAngleToGetBetweenHybridCarAndToyFactory)
-    _driveTillLine(speed=25, distanceInCM=25, target_angle= targetAngleToGetBetweenHybridCarAndToyFactory, colorSensorToUse="Right", blackOrWhite="Black")
-    wheels.set_stop_action("brake")
-
-    # Turn towards the toy factory
-    # This should be actually zero, however the robot seems to be off in its measure
-    # consistently by 10d, so adjusting for that.
-    #_turnToAngle(targetAngle = 0 + targetAngleAdjustment, speed = 20)
-
-    # Drive past the n-s line in front of the toy factory
-    #drive(speed = 35, distanceInCM = 20, target_angle = 0 + targetAngleAdjustment)
-
-    
-    # Turn to catch e-w line in front of smartgrid
-    #_turnToAngle(targetAngle = -25, speed = 20)
-    #_driveTillLine(speed=25, distanceInCM=20, target_angle=-25, colorSensorToUse="Left", blackOrWhite="Black")
-
-    # Turn to catch n-s line near toy factory
-    #_turnToAngle(targetAngle = 0 + targetAngleAdjustment, speed = 20)
-    #_driveTillLine(speed=25, distanceInCM=13, target_angle=0 + targetAngleAdjustment, colorSensorToUse="Right", blackOrWhite="Black")
-
-    # Move and turn towards rechargeable battery
-    #drive(speed = 25, distanceInCM = 13, target_angle = 0 + targetAngleAdjustment)
-    #_turnToAngle(targetAngle = 55, speed = 20)
-    #drive(speed = 25, distanceInCM = 15, target_angle = 55)
-
-    # Drive forward a little and then turn back.
-    gyroStraight(distance=3, speed = 25, backward = False, targetAngle = 37 + zero_adjustment)
-    
-    #moveArm(degrees = 3000, speed = -100, motor = motorD)
-    
-    # Backup to the fuel station with the oil truck to finish
-    _turnToAngle(targetAngle = 80 + zero_adjustment, speed = 20, slowTurnRatio=0.9)
-    gyroStraight(distance=25, speed = 35, backward = True, targetAngle = 80 + zero_adjustment)
-    
-    # Uncomment this for the competition.
-    motorD.stop()
 
 #endregion Nami
 
 #region Rishabh
-def _run1Old():
-    def watchTV():
-        # Drive to Watch Television
-        drive(speed = 45, distanceInCM = 43, target_angle = 0) 
-        
-        #Backup from Watch Television
-        gyroStraight(distance=19, speed = 30, backward = True, targetAngle = 0)
-
-    def testHybridCarArm():
-        # Bring arm down
-        moveArm(degrees = 2800, speed = -100, motor = motorD)
-
-        # Bring arm up
-        moveArm(degrees = 2800, speed = 100, motor = motorD)
-
-    def getToWindTurbine():
-        # Turn towards the hybrid car.
-        # URGENT: THE ROBOT SOMETIMES TURNS INFINITY ON THIS TURN
-        _turnToAngle(targetAngle = -30, speed = 25) 
-
-        # We should have turned such that we are able to find the black line in front of the wind turbine.
-        _driveTillLine(speed=25, distanceInCM=45, target_angle=-30, colorSensorToUse="Right", blackOrWhite="Black")
-
-        # Drive to align the arm with the wind turbine.
-
-        # The Forward below used to be 10, we made it 8.
-        drive(speed = 25, distanceInCM = 12, target_angle = -20) 
-        _turnToAngle(targetAngle = 20, speed = 20) 
-        gyroStraight(distance=3, speed = 20, backward = True, targetAngle = 20)
-        _turnToAngle(targetAngle = 40, speed = 20)
-
-    def windTurbine():
-        drive(speed = 20, distanceInCM = 20, target_angle = 40) #Drive towards Wind Turbine and push the lever once
-        time.sleep(1)
-        #gyroStraight(distance=10, speed = 20, backward = True, targetAngle = 42)
-        for i in range(2): #Push the lever the remaining two times
-            wheels.move(amount = 10, unit = "cm", steering = 0, speed = -20) #Backup so the robot can push the Wind Turbine again
-            drive(speed = 20, distanceInCM = 20, target_angle = 40) #Drive forward to push the Wind Turbine
-            time.sleep(0.5) #Wait slightly
-        wheels.move(amount = 16, unit = "cm", steering = 0, speed = -30) #Backup from Wind Turbine
-
-    def hybridCar():
-        _turnToAngle(targetAngle = 120, speed = 25) #Turn towards Hybrid Car
-        # drive(speed = 30, distanceInCM = 20, target_angle = 140) # Drive towards the Hybrid Car
-        gyroStraight(distance=15, speed = 20, backward = True, targetAngle = 120)
-        
-        # Raise the Hybrid Car arm and complete the mission
-        moveArm(degrees = -1700, speed = -100, motor = motorD)
-
-        # Lower the Hybrid Car arm 
-        moveArm(degrees = 1000, speed = 100, motor = motorD)
-
-        # Drive forward
-        drive(speed = 30, distanceInCM = 30, target_angle = 120)
-
-        # Lower the Hybrid Car arm 
-        moveArm(degrees = -1 * 500, speed = -100, motor = motorD)
-        drive(speed = 30, distanceInCM = 36, target_angle = 0)
-    
-    
-    def rechargableBattery(moveArmDegrees, armSpeed):
-        _turnToAngle(targetAngle = 90, speed = 20) #Turn towards Rechargable Battery
-        moveArm(degrees = ceil(-0.75 * moveArmDegrees), speed = -1 * armSpeed, motor = motorD) #Lower arm for Rechargable Battery
-        _turnToAngle(targetAngle = 120, speed = 20)
-        #time.sleep(1)
-
-    def goHome():
-        #wheels.move(amount = 70, unit = "cm", steering = 0, speed = -50)
-        drive(speed = 30, distanceInCM = 25, target_angle = 100)
-        #_turnToAngle(targetAngle = -90, speed = 100)
-    
-    watchTV()
-    windTurbine()
-    #hybridCar()
-    # rechargableBattery(moveArmDegrees, armSpeed)
-    # goHome()
-    #testHybridCarArm()
-
-def hybridCarOnlyTest():
-    # Back into the hybrid car.
-    gyroStraight(distance=19, speed = 20, backward = True, targetAngle = 0)
-        
-    # Lower the Hybrid Car arm. We started moving the arm above, we now need to finish that
-    # we do so at a higher speed.
-    motorD.stop()
-    moveArm(degrees = -1200, speed = -100, motor = motorD)
-
-    # Raise the arm to drop the hybrid unit into the car.
-    moveArm(degrees = 1000, speed = 100, motor = motorD)
-
-    # Drive forward
-    drive(speed = 45, distanceInCM = 10, target_angle = 0)
-
-    # Lower the Hybrid Car arm 
-    moveArm(degrees = -1000, speed = -100, motor = motorD)
-    #gyroStraight(distance = 90, speed = 80, backward = False, targetAngle = 0)
-
 def _run1():
-    def watchTV():
+    def _watchTV():
         # Drive to Watch Television
-        #gyroStraight(speed = 40, distance= 43, backward= False, targetAngle = 0)
-        #Changed 10/16 driveWithSlowStart(speed = 40, distanceInCM = 43, target_angle= 0)
         driveWithSlowStart(speed = 35, distanceInCM = 30, target_angle= 0)
         
         #Backup from Watch Television
-        gyroStraight(distance = 9, speed = 40, backward = True, targetAngle = 0)
+        gyroStraight(distance = 5, speed = 40, backward = True, targetAngle = 0)
 
-    def getToWindTurbine():
+    def _getToWindTurbine():
+        angle = -35
         # Turn towards the hybrid car.
-        _turnToAngle(targetAngle = -30, speed = 45, slowTurnRatio=0.1) 
+        _turnToAngle(targetAngle = angle, speed = 25) 
 
         # We should have turned such that we are able to find the black line in front of the wind turbine.
-        #Changed 10/16_driveTillLine(speed=35, distanceInCM=40, target_angle=-30, colorSensorToUse="Right", blackOrWhite="Black", slowSpeedRatio=0.9)
-        drive(speed = 30, distanceInCM = 10, target_angle = -30)
-        _driveTillLine(speed=30, distanceInCM=55, target_angle=-30, colorSensorToUse="Right", blackOrWhite="White", slowSpeedRatio=0.9)
+        _driveTillLine(speed=50, distanceInCM=35, target_angle=angle, colorSensorToUse="Right", blackOrWhite="Black", slowSpeedRatio=0.9)
 
-        # The Forward below used to be 10, we made it 12.
-        # Changed 10/16 drive(speed = 25, distanceInCM = 12, target_angle = -30) 
-        drive(speed = 40, distanceInCM = 9, target_angle = -30) 
-        _turnToAngle(targetAngle = 50, speed = 45, slowTurnRatio = 0.1)
-        """
-        #Changed 10/16 _turnToAngle(targetAngle = 20, speed = 20)
-        _turnToAngle(targetAngle = 20, speed = 35, slowTurnRatio=0.1) 
-        #Changed 10/16 gyroStraight(distance=5, speed = 25, backward = True, targetAngle = 20)
-        gyroStraight(distance=5, speed = 30, backward = True, targetAngle = 20)
-        #Changed 10/16 _turnToAngle(targetAngle = 45, speed = 20)
-        _turnToAngle(targetAngle = 45, speed = 35, slowTurnRatio=0.1)
-        """
+        # After catching the black line, drive forward and turn to face the windmill
+        _turnToAngle(targetAngle = 40, speed = 25, slowTurnRatio = 0.9)
 
-    def windTurbine():
-        drive(speed = 20, distanceInCM = 23, target_angle = 40) #Drive towards Wind Turbine and push the lever once
+    def _windTurbine():
+        # Drive towards Wind Turbine and push the lever once
+        drive(speed = 20, distanceInCM = 25, target_angle = 40)
+        
         # Push the lever the remaining two times
         for i in range(2): 
-            wheels.move(amount = 5, unit = "cm", steering = 0, speed = -20) #Backup so the robot can push the Wind Turbine again
-            drive(speed = 20, distanceInCM = 15, target_angle = 40) #Drive forward to push the Wind Turbine
-        #Changed 10/16 wheels.move(amount = 14, unit = "cm", steering = 0, speed = -30)
-        wheels.move(amount = 14, unit = "cm", steering = 0, speed = -40) #Backup from Wind Turbine
+            # Backup so the robot can push the Wind Turbine again
+            wheels.move(amount = 7, unit = "cm", steering = 0, speed = -20) 
 
-        # Start moving the ARM
-        motorD.start(speed = -50)
+            # Drive forward to push the Wind Turbine
+            drive(speed = 20, distanceInCM = 20, target_angle = 40)
+
+        # Backup from Wind Turbine
+        wheels.move(amount = 16, unit = "cm", steering = 0, speed = -40) 
     
-    def hybridCarAndGoHomeNew():
-        _turnToAngle(targetAngle = 140, speed = 25)
-        gyroStraight(distance=19, speed = 20, backward = True, targetAngle = 140)
-            
-        motorD.stop()
+    def _hybridCarAndGoHome():
+        # Turn with back to the hybrid car. Back into the hybrid car.
+        angle = 135
+        _turnToAngle(targetAngle = angle, speed = 25)
+        gyroStraight(distance=20, speed = 30, backward = True, targetAngle = angle)
+
+        # Bring the hybrid car arm down
         moveArm(degrees = -1200, speed = -100, motor = motorD)
 
-        moveArm(degrees = 1000, speed = 100, motor = motorD)
-
-        drive(speed = 45, distanceInCM = 10, target_angle = 140)
-
-        motorD.set_stop_action("hold")
-        moveArm(degrees = -1000, speed = -100, motor = motorD)
-        motorD.set_stop_action("brake")    
-        gyroStraight(distance = 90, speed = 80, backward = False, targetAngle = 140)
-
-    def hybridCarRechargeableBatteryAndGoHome():
-        #Changed 10/29 _turnToAngle(targetAngle = 120, speed = 25)
-        _turnToAngle(targetAngle = 140, speed = 25) #Turn towards Hybrid Car
-                
-        # # Back into the hybrid car.
-        #Changed 10/16 gyroStraight(distance=15, speed = 25, backward = True, targetAngle = 120)               
-        gyroStraight(distance=19, speed = 20, backward = True, targetAngle = 140)
-        
-        # Lower the Hybrid Car arm. We started moving the arm above, we now need to finish that
-        # we do so at a higher speed.
-        # Changed 10/16 moveArm(degrees = -2750, speed = -100, motor = motorD)
-        motorD.stop()
-        moveArm(degrees = -1500, speed = -100, motor = motorD)
-
-        # Raise the Hybrid Car arm and complete the mission
-        #moveArm(degrees = 1800, speed = 100, motor = motorD)
-        
-        # # Lower the Hybrid Car arm 
-        moveArm(degrees = 2000, speed = 100, motor = motorD)
+        # Move the hybrid unit into the car, and drop the car.
+        # The car should now be resting against the robot.
+        moveArm(degrees = 1200, speed = 100, motor = motorD)
 
         # Drive forward
-        #Changed 10/16  drive(speed = 30, distanceInCM = 10, target_angle = 120)
-        drive(speed = 45, distanceInCM = 10, target_angle = 120)
+        drive(speed = 45, distanceInCM = 10, target_angle = 140)
 
-        # # Lower the Hybrid Car arm 
-        motorD.set_stop_action("hold")
-        moveArm(degrees = -1100, speed = -100, motor = motorD)
-        #Changed 10/16 gyroStraight(distance=90, speed = 50, backward = False, targetAngle = 135)
-        gyroStraight(distance = 90, speed = 80, backward = False, targetAngle = 135)
-        motorD.set_stop_action("brake")
-        
-    watchTV()
-    getToWindTurbine()
-    windTurbine()
-    hybridCarAndGoHomeNew()
-    #hybridCarRechargeableBatteryAndGoHome()
-    moveArm(degrees = 2000, speed = 100, motor = motorD)
+        moveArm(degrees = -1200, speed = -100, motor = motorD)
+        gyroStraight(distance = 90, speed = 50, backward = False, targetAngle = 140)
+
+
+    def _oneWayDoorAndHybridCar():
+        angle = 0
+        gyroStraight(distance=17, speed = 20, backward = True, targetAngle = angle)
+        gyroStraight(distance=4, speed = 20, backward = False, targetAngle = angle)
+
+        # Reset the gyro
+        primeHub.motion_sensor.reset_yaw_angle()
+
+        # Now drive towards the hybrid car
+        angle = 90
+        _turnToAngle(targetAngle = 70, speed = 20)
+        gyroStraight(distance=40, speed = 25, backward = True, targetAngle = 70)
+        _turnToAngle(targetAngle = 110, speed = 20)
+
+        moveArm(degrees = -1000, speed = -100, motor = motorF)
+    
+    #_watchTV()
+    #_getToWindTurbine()
+    #_windTurbine()
+    #_hybridCarAndGoHome()
+    _oneWayDoorAndHybridCar()
+    
+    #moveArm(degrees = 1500, speed = 100, motor = motorD)
 
 #endregion
 
@@ -1815,10 +1474,10 @@ _initialize()
 #moveArm(degrees = 1800, speed = -100, motor = motorF)
 #doRunWithTiming(_runAnya)
 
-#doRunWithTiming(_run1)
+doRunWithTiming(_run1)
 #moveArm(degrees = -1500, speed = -100, motor = motorD)
 #moveArm(degrees = 1500, speed = 100, motor = motorD)
-doRunWithTiming(_run3)
+#doRunWithTiming(_run3)
 #doRunWithTiming(_run6)
 
 #doRunWithTiming(pullTruckGoStraight)
