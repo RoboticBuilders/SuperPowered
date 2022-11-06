@@ -1462,33 +1462,49 @@ def _run1WithActiveWindMillArm():
             # Drive forward to push the Wind Turbine
             drive(speed = 20, distanceInCM = 20, target_angle = angle)
 
-        # Backup from Wind Turbine
-        wheels.move(amount = 16, unit = "cm", steering = 0, speed = -40) 
-    
-    def _hybridCarAndGoHome():
-        # Turn with back to the hybrid car. Back into the hybrid car.
-        angle = 135
+    def _pickUpRechargeableBattery():
+        # Backoff from the windwill and flush against the rechargeable battery.
+        gyroStraight(distance=10, speed = 20, backward = True, targetAngle = 40)
+        _turnToAngle(targetAngle = 40, speed = 25)
+        gyroStraight(distance=26, speed = 20, backward = True, targetAngle = 40)
+
+        # Reset the gyro since we aligned.
+        primeHub.motion_sensor.reset_yaw_angle()
+        
+    def _hybridCar():
+        # Starting bringing down the hybrid car arm.
+        motorD.start(-50)
+
+        # Drive forward a little to be able to turn
+        gyroStraight(distance=12, speed = 20, backward = False, targetAngle = 0)
+
+        angle = -90
         _turnToAngle(targetAngle = angle, speed = 25)
+        gyroStraight(distance=15, speed = 20, backward = False, targetAngle = angle)
+
+        # Stop the arm
+        motorD.stop()
+
+        # Bring up the arm.
+        moveArm(degrees = 1600, speed = 100, motor = motorD)
+
+        # Backup from the hybrid car.
         gyroStraight(distance=20, speed = 30, backward = True, targetAngle = angle)
 
-        # Bring the hybrid car arm down
-        moveArm(degrees = -1200, speed = -100, motor = motorD)
+    def _dropOffEnergyUnits():
+        return
 
-        # Move the hybrid unit into the car, and drop the car.
-        # The car should now be resting against the robot.
-        moveArm(degrees = 1200, speed = 100, motor = motorD)
-
-        # Drive forward
-        drive(speed = 45, distanceInCM = 10, target_angle = 140)
-
-        moveArm(degrees = -1200, speed = -100, motor = motorD)
-        gyroStraight(distance = 90, speed = 50, backward = False, targetAngle = 140)
+    def _goHome():
+        gyroStraight(distance=70, speed = 70, backward = True, targetAngle = -70)
     
     _watchTV()
     _getToWindTurbine()
     _windTurbine()
-    #_hybridCarAndGoHome()
-    
+    _pickUpRechargeableBattery()
+    _hybridCar()
+    _dropOffEnergyUnits()
+    _goHome()
+
 def _run1():
     def _watchTV():
         # Drive to Watch Television
@@ -1547,8 +1563,6 @@ def _run1():
     _getToWindTurbine()
     _windTurbine()
     _hybridCarAndGoHome()
-    #_oneWayDoorAndHybridCar()
-    
     #moveArm(degrees = 1500, speed = 100, motor = motorD)
 
 #endregion
