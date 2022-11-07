@@ -1,4 +1,4 @@
-# LEGO type:standard slot:1 autostart
+# LEGO type:standard slot:1
 #from spike import PrimeHub, LightMatrix, Button, StatusLight, ForceSensor, MotionSensor, Speaker, ColorSensor, App, DistanceSensor, Motor, MotorPair
 from spike import PrimeHub, ColorSensor,  Motor, MotorPair
 #from spike.control import timer 
@@ -57,6 +57,23 @@ _CM_PER_INCH = 2.54
 # at about 18-20mm of the ground.
 BLACK_COLOR = 20
 WHITE_COLOR = 90
+
+def driver():
+    counter = 1
+    while True:
+        primeHub.right_button.wait_until_pressed()
+        
+        if counter == 1:
+            _run1()
+        if counter == 2:
+            _run2()
+        if counter == 3:
+            _run3()
+        if counter == 4:
+            _run4()
+        if counter == 5:
+            _run6()    
+        counter = counter + 1
 
 #region Utilities
 def _initialize():
@@ -1169,7 +1186,7 @@ def _run2():
     print("Battery voltage: " + str(hub.battery.voltage()))
 
     getToPowerPlantFromHome2()
-    ReleaseEnergyUnitsRaiseFirst()
+    ReleaseEnergyUnitsFromPowerPlant()
     goToHome1()
 
 def goToHome1():
@@ -1196,9 +1213,12 @@ def getToPowerPlantFromHome2():
 
     ToyFactory2()
 
-    turnToAngle2(targetAngle=ANYA_RUN_START_OFFSET_TO_MAT_WEST - 93, speed=20, oneWheelTurn="Right", slowTurnRatio=0.8)
+    turnToAngle2(targetAngle=ANYA_RUN_START_OFFSET_TO_MAT_WEST - 93, speed=20, slowTurnRatio=0.8)
     # _driveTillLine(speed = 20, distanceInCM = _CM_PER_INCH*6, target_angle = ANYA_RUN_START_OFFSET_TO_MAT_WEST - 90, blackOrWhite="Black")
-    gyroStraight(targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_WEST - 93,  distance = _CM_PER_INCH*13, speed=20) #was 60 but rammed into power plant
+    gyroStraight(targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_WEST - 93,  distance = _CM_PER_INCH*12, speed=20) #was 60 but rammed into power plant
+
+    # Sometimes our unit collector is too far from the slide, so this turn should better align it
+    left_large_motor.run_for_degrees(degrees=-45, speed=60)
 
 
 def ToyFactory2():
@@ -1215,9 +1235,11 @@ def ToyFactory2():
 
     # Align for the Power Plant
     _driveTillLine(speed = 20, distanceInCM = _CM_PER_INCH*9, target_angle = ANYA_RUN_START_OFFSET_TO_MAT_WEST - 0, blackOrWhite="White")
+    gyroStraight(targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_WEST - 0,  distance = int(AXLE_DIAMETER_CM/2))
+    # gyroStraight(targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_WEST - 0,  distance = 1, speed=20, backward=True)
 
 
-def ReleaseEnergyUnitsRaiseFirst():
+def ReleaseEnergyUnitsFromPowerPlant():
     # gyroStraight(distance = 4, speed = 35, backward = True, targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_WEST - 90)
     motorD.run_for_degrees(degrees=180, speed=80)
     # _driveTillLine(speed = 20, distanceInCM = _CM_PER_INCH*2, target_angle = ANYA_RUN_START_OFFSET_TO_MAT_WEST - 90, blackOrWhite="White")
@@ -1429,7 +1451,7 @@ def _dropRechargeableBatteryAndOilTruckWithGyroReset():
 #endregion Nami
 
 #region Rishabh
-def _run1WithActiveWindMillArm():
+def _run1():
     def _watchTV():
         # Drive to Watch Television
         driveWithSlowStart(speed = 35, distanceInCM = 33, target_angle= 0)
@@ -1505,7 +1527,7 @@ def _run1WithActiveWindMillArm():
     _dropOffEnergyUnits()
     _goHome()
 
-def _run1():
+def _run1Old():
     def _watchTV():
         # Drive to Watch Television
         driveWithSlowStart(speed = 35, distanceInCM = 30, target_angle= 0)
@@ -1570,8 +1592,8 @@ def _run1():
 #region Function Calls
 
 _initialize()
+doRunWithTiming(driver)
 
-doRunWithTiming(_run2)
 #moveArm(degrees = -1500, speed = -100, motor = motorD)
 #moveArm(degrees = 1500, speed = 100, motor = motorD)
 #doRunWithTiming(_run3)
