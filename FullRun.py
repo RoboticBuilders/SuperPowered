@@ -1097,6 +1097,7 @@ def goBackHomeFromOilPlatform():
 
 
 def _run5():
+    primeHub.motion_sensor.reset_yaw_angle()
     gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH * 10, speed=40)
     motorF.run_for_degrees(degrees=-1000, speed=100)
     # motorF.start(speed=-100)
@@ -1184,6 +1185,8 @@ def testingGyroStraight():
 def _run2():
     primeHub.motion_sensor.reset_yaw_angle()
     print("Battery voltage: " + str(hub.battery.voltage()))
+
+    time.sleep(3)
 
     getToPowerPlantFromHome2()
     ReleaseEnergyUnitsFromPowerPlant()
@@ -1306,6 +1309,7 @@ def _sliderArm(targetAngle):
     moveArm(degrees = -1 * moveArmDistance, speed = -100, motor=motorD)
 
 def _run3():
+    primeHub.motion_sensor.reset_yaw_angle()
     wheels.set_stop_action("coast")
     # Drive till the hydro plant to pick up the first water unit
     gyroStraight(distance=19, speed = 40, backward = False, targetAngle = 0)
@@ -1354,6 +1358,7 @@ def _run3():
 
 
 def _run6():
+    primeHub.motion_sensor.reset_yaw_angle()
     #global GLOBAL_LEVEL
     #GLOBAL_LEVEL = 5
     # Drive forward first. Drive at a slight angle to avoid hitting the power plant.
