@@ -1185,9 +1185,6 @@ def testingGyroStraight():
 def _run2():
     primeHub.motion_sensor.reset_yaw_angle()
     print("Battery voltage: " + str(hub.battery.voltage()))
-
-    time.sleep(3)
-
     getToPowerPlantFromHome2()
     ReleaseEnergyUnitsFromPowerPlant()
     goToHome1()
