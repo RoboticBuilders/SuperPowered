@@ -61,7 +61,9 @@ WHITE_COLOR = 90
 def driver():
     counter = 1
     while True:
+        primeHub.speaker.beep(90, 1)
         primeHub.right_button.wait_until_pressed()
+        primeHub.speaker.beep(105, 1)
         
         if counter == 1:
             _run1()
@@ -1206,13 +1208,13 @@ def goToHome1_MissingUnit():
 
 def getToPowerPlantFromHome2():
     # Lower the power plant arm
-    motorD.run_for_degrees(degrees=-170, speed=50)
+    #motorD.run_for_degrees(degrees=-170, speed=50)
 
     gyroStraight(targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_WEST - 0,  distance = _CM_PER_INCH*32, speed=60) # was 29 and then 2 more at 40 speed below
     _driveTillLine(speed = 20, distanceInCM = _CM_PER_INCH*6, target_angle = ANYA_RUN_START_OFFSET_TO_MAT_WEST - 0, blackOrWhite="White")
 
     ToyFactory2()
-
+    motorD.run_for_degrees(degrees=-170, speed=50)
     turnToAngle2(targetAngle=ANYA_RUN_START_OFFSET_TO_MAT_WEST - 93, speed=20, slowTurnRatio=0.8)
     # _driveTillLine(speed = 20, distanceInCM = _CM_PER_INCH*6, target_angle = ANYA_RUN_START_OFFSET_TO_MAT_WEST - 90, blackOrWhite="Black")
     gyroStraight(targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_WEST - 93,  distance = _CM_PER_INCH*12, speed=20) #was 60 but rammed into power plant
@@ -1309,38 +1311,36 @@ def _run3():
     primeHub.motion_sensor.reset_yaw_angle()
     wheels.set_stop_action("coast")
     # Drive till the hydro plant to pick up the first water unit
-    gyroStraight(distance=26, speed = 40, backward = False, targetAngle = 0)
+    #gyroStraight(distance=26, speed = 40, backward = False, targetAngle = 0)
+    gyroStraight(distance=24, speed = 40, backward = False, targetAngle = 0)
     
     # Turn towards the hydro unit to drop the water unit from the hydro plant.
-    angle = 38
+    angle = 40
     _turnToAngle(targetAngle= angle, speed = 15, slowTurnRatio=0.9)
     
     # Turns towards the n-s black line in front of the power station.
-    '''
-    gyroStraight(distance=25, speed = 50, backward = False, targetAngle = angle)
-    gyroStraight(distance=10, speed = 25, backward = False, targetAngle = angle)
-    _turnToAngle(targetAngle= angle, speed = 25, slowTurnRatio=0.9)
-    _driveTillLine(speed=45, distanceInCM=25, target_angle = angle, colorSensorToUse="Right", blackOrWhite="Black", slowSpeedRatio=0.9)
-    '''
-
     gyroStraight(distance=35, speed = 55, backward = False, targetAngle = angle)
     _turnToAngle(targetAngle= angle, speed = 25, slowTurnRatio=0.9)
-    _driveTillLine(speed=50, distanceInCM=25, target_angle = angle, colorSensorToUse="Right", blackOrWhite="Black", slowSpeedRatio=0.9)
+    _driveTillLine(speed=55, distanceInCM=25, target_angle = angle, colorSensorToUse="Right", blackOrWhite="Black", slowSpeedRatio=0.9)
+    gyroStraight(distance=2, speed = 25, backward = False, targetAngle = angle)
     
     angle = -46
     # Turn towards the smart grid and align with the power plant.
     _turnToAngle(targetAngle=angle, speed=20, slowTurnRatio=0.9)
-    gyroStraight(distance=15, speed = 25, backward = True, targetAngle = angle)
+    gyroStraight(distance=10, speed = 25, backward = True, targetAngle = angle)
+    primeHub.motion_sensor.reset_yaw_angle()
 
     # Turn towards the smart grid and drive forward we do fast run till the hydro unit, and then a slow drive forward
-    # in order to catch the units.
+    # in order to catch the units. 
+    angle = 0
+    gyroStraight(distance=2, speed = 25, backward = False, targetAngle = angle)
     _turnToAngle(targetAngle=angle, speed=20, slowTurnRatio=0.9)
     gyroStraight(distance=32, speed = 55, backward = False, targetAngle = angle)
 
     # Drive to catch the e-w line in front of the smart grid.
-    _turnToAngle(targetAngle=angle - 20, speed=20, slowTurnRatio=0.9)
-    gyroStraight(distance=15, speed = 35, backward = False, targetAngle = angle - 20)
-    _driveTillLine(speed=25, distanceInCM=25, target_angle=angle - 20, colorSensorToUse="Left", blackOrWhite="White")
+    _turnToAngle(targetAngle=angle - 30, speed=20, slowTurnRatio=0.9)
+    gyroStraight(distance=15, speed = 35, backward = False, targetAngle = angle - 30)
+    _driveTillLine(speed=25, distanceInCM=25, target_angle=angle - 30, colorSensorToUse="Left", blackOrWhite="White")
 
     # Drive forward till the wall
     _turnToAngle(targetAngle=angle, speed=20, slowTurnRatio=0.9)
@@ -1496,7 +1496,7 @@ def _run1():
     def _pickUpRechargeableBattery():
         angle = 38
 
-        motorD.start(-60)
+        motorD.start(-50)
         # Backoff from the windwill and flush against the rechargeable battery.
         # Changed 11/11 from 30 to 25 amount
         wheels.move(amount = 5, unit = "cm", steering = 0, speed = -45) 
@@ -1608,18 +1608,7 @@ def _run1Old():
 
 _initialize()
 doRunWithTiming(driver)
-#doRunWithTiming(_run1)
-
-#moveArm(degrees = -1500, speed = -100, motor = motorD)
-#moveArm(degrees = 1500, speed = 100, motor = motorD)
 #doRunWithTiming(_run3)
-#doRunWithTiming(_run6)
-
-#doRunWithTiming(pullTruckGoStraight)
-#moveArm(degrees = 2100, speed = 100, motor = motorD)
-#doRunWithTiming(runArisha)
-
-#runArisha()
 
 raise SystemExit
 #endregion
