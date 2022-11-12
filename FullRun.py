@@ -1411,6 +1411,7 @@ def _dropRechargeableBatteryAndOilTruckWithGyroReset():
     # Uncomment this for a serial run.
     #moveArm(degrees = 3000, speed = 100, motor = motorF)
     
+    '''
     # Turn towards the toy factory
     _turnToAngle(targetAngle = 0 + zero_adjustment, speed = 20, slowTurnRatio=0.9)
 
@@ -1419,6 +1420,7 @@ def _dropRechargeableBatteryAndOilTruckWithGyroReset():
 
     # We expect the arm to have come up by now.
     motorF.stop()
+    '''
     
     # Commented to remove the _run6 past the robot clearing the hydro plant.
     # This is done to remove the oil truck dropoff.
