@@ -1,4 +1,4 @@
-# LEGO type:standard slot:0
+# LEGO type:standard slot:1
 # autostart
 from spike import PrimeHub, ColorSensor,  Motor, MotorPair
 from math import *
@@ -887,15 +887,6 @@ def _testTurnToAngle():
     time.sleep(1)
     _turnToAngle(targetAngle = 0, speed = 25)
    
-
-    """
-    time.sleep(1)
-    turnToAngle(targetAngle = 10, speed = 25)
-    time.sleep(1)
-    turnToAngle(targetAngle = 20, speed = 25)
-    time.sleep(1)
-    turnToAngle(targetAngle = 20, speed = 25)
-    """
 def wait_until_either_color(sensor1, sensor2, color, message):
     while True:
         if((color == "black" and (sensor1.get_reflected_light() <= BLACK_COLOR or sensor2.get_reflected_light() <= BLACK_COLOR)) or (color == "white" and (sensor1.get_reflected_light() >= WHITE_COLOR or sensor2.get_reflected_light() >= WHITE_COLOR))):
@@ -1326,7 +1317,7 @@ def _run3():
 
     # Drive forward till the wall
     _turnToAngle(targetAngle=angle, speed=20, slowTurnRatio=0.9)
-    gyroStraight(distance=10, speed = 35, backward = False, targetAngle = angle)
+    gyroStraight(distance=13, speed = 35, backward = False, targetAngle = angle)
     
     # Back off a little bit before turning to go home.
     gyroStraight(distance=2, speed = 35, backward = True, targetAngle = angle)
@@ -1343,20 +1334,15 @@ def _run3():
 
 def _run6():
     primeHub.motion_sensor.reset_yaw_angle()
-    #global GLOBAL_LEVEL
-    #GLOBAL_LEVEL = 5
     # Drive forward first. Drive at a slight angle to avoid hitting the power plant.
     drive(speed = 55, distanceInCM = 50, target_angle = -5)
     
     # Turn slightly to catch the n-s line in front of the power plant
-    #_turnToAngle(targetAngle = -20, speed = 20, slowTurnRatio = 0.9)
-    # used to be 35 speed.
     _driveTillLine(speed=35, distanceInCM=70, target_angle=-5, colorSensorToUse="Left", blackOrWhite="Black")
     
     # Turn towards the power plant and then try to catch the black line running e-w line in front of the smart grid.
     angle = -87
     _turnToAngle(targetAngle = angle, speed = 20, slowTurnRatio = 0.7)
-    # Used to be 35 speed
     _driveTillLine(speed=35, distanceInCM=70, target_angle = angle, colorSensorToUse="Left", blackOrWhite="Black")
 
     # Turn towards the hydro-electric plant and then drop the water units. 
@@ -1365,7 +1351,6 @@ def _run6():
     drive(speed = 25, distanceInCM = 26, target_angle = 150)
 
     # Drop the water units    
-    # Used to be 3000, made it 1800 if we keep it mostly horizontal
     moveArm(degrees = 1800, speed = -100, motor = motorF)
         
     # Now drive to the rechargeable battery and drop the oil factory
@@ -1534,7 +1519,7 @@ def _run1():
 
 _initialize()
 doRunWithTiming(driver)
-#doRunWithTiming(_run3)
+#doRunWithTiming(_run1)
 
 raise SystemExit
 #endregion
