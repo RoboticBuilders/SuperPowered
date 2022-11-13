@@ -59,7 +59,7 @@ BLACK_COLOR = 20
 WHITE_COLOR = 90
 
 def driver():
-    counter = 1
+    counter = 2
     while True:
         primeHub.speaker.beep(90, 1)
         primeHub.right_button.wait_until_pressed()
@@ -1314,7 +1314,7 @@ def _run3():
     gyroStraight(distance=24, speed = 40, backward = False, targetAngle = 0)
     
     # Turn towards the hydro unit to drop the water unit from the hydro plant.
-    angle = 40
+    angle = 38
     _turnToAngle(targetAngle= angle, speed = 15, slowTurnRatio=0.9)
     
     # Turns towards the n-s black line in front of the power station.
@@ -1337,9 +1337,9 @@ def _run3():
     gyroStraight(distance=32, speed = 55, backward = False, targetAngle = angle)
 
     # Drive to catch the e-w line in front of the smart grid.
-    _turnToAngle(targetAngle=angle - 30, speed=20, slowTurnRatio=0.9)
-    gyroStraight(distance=15, speed = 35, backward = False, targetAngle = angle - 30)
-    _driveTillLine(speed=25, distanceInCM=25, target_angle=angle - 30, colorSensorToUse="Left", blackOrWhite="White")
+    _turnToAngle(targetAngle=angle - 35, speed=20, slowTurnRatio=0.9)
+    gyroStraight(distance=15, speed = 35, backward = False, targetAngle = angle - 35)
+    _driveTillLine(speed=25, distanceInCM=25, target_angle=angle - 35, colorSensorToUse="Right", blackOrWhite="White")
 
     # Drive forward till the wall
     _turnToAngle(targetAngle=angle, speed=20, slowTurnRatio=0.9)
@@ -1349,14 +1349,14 @@ def _run3():
     gyroStraight(distance=2, speed = 35, backward = True, targetAngle = angle)
 
     # Go home first do a two part turn.
-    _turnToAngle(targetAngle=-90, speed = 15, slowTurnRatio=0.9)
-    gyroStraight(distance=5, speed = 25, backward = False, targetAngle = -90)
+    _turnToAngle(targetAngle=-60, speed = 15, slowTurnRatio=0.9)
+    gyroStraight(distance=8, speed = 25, backward = False, targetAngle = -60)
     
     # Go Home
-    _turnToAngle(targetAngle=-140, speed = 15, slowTurnRatio=0.9)
-    gyroStraight(distance=25, speed = 60, backward = False, targetAngle = -140)
-    _turnToAngle(targetAngle=170, speed = 15, slowTurnRatio=0.9)
-    gyroStraight(distance=90, speed = 95, backward = False, targetAngle =170)
+    _turnToAngle(targetAngle=-100, speed = 15, slowTurnRatio=0.9)
+    gyroStraight(distance=25, speed = 60, backward = False, targetAngle = -100)
+    _turnToAngle(targetAngle=-135, speed = 15, slowTurnRatio=0.9)
+    gyroStraight(distance=90, speed = 95, backward = False, targetAngle = -135)
 
 def _run6():
     primeHub.motion_sensor.reset_yaw_angle()
