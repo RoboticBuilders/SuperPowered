@@ -1,7 +1,5 @@
 # LEGO type:standard slot:6
-#from spike import PrimeHub, LightMatrix, Button, StatusLight, ForceSensor, MotionSensor, Speaker, ColorSensor, App, DistanceSensor, Motor, MotorPair
 from spike import PrimeHub, ColorSensor,  Motor, MotorPair
-#from spike.control import timer 
 # autostart
 from math import *
 import collections
@@ -11,17 +9,12 @@ from spike.operator import *
 import gc
 from math import *
 
-# This is a marvin constant. It can we set to the following vaulues
-# "Rishabh", "Anya", "Amogh"
-MARVIN = "Amogh"
+# Various robot constants
 AXLE_DIAMETER_CM = 12.7
 AXLE_DIAMETER_CM_CORRECTED = 12.2
 WHEEL_RADIUS_CM = 4.4
 GLOBAL_LEVEL = 0
 ANYA_RUN_START_OFFSET_TO_MAT_WEST = 0
-
-# Add this to the angles that we are using for Rishabh-MARVIN
-AMOGH_MARVIN_TURN_ANGLE_ADJUSTMENT = 3 
 
 primeHub = PrimeHub()
 
@@ -63,8 +56,7 @@ def driver():
     while True:
         primeHub.speaker.beep(90, 1)
         primeHub.right_button.wait_until_pressed()
-        #primeHub.speaker.beep(105, 1)
-        
+
         if counter == 1:
             _run1()
         if counter == 2:
@@ -78,24 +70,12 @@ def driver():
         counter = counter + 1
 
 #region Utilities
-def _initialize():
-    
+def _initialize(): 
     print("___________________________________________________")
     primeHub.motion_sensor.reset_yaw_angle()
     wheels.set_stop_action("brake")
     wheels.set_motor_rotation(2*3.14*WHEEL_RADIUS_CM, 'cm')
     isBatteryGood()
-
-    # Code below is used to adjusting runs based on the MARVIN we are using
-    # In order to influence the code, use the global variable to adjust the runs
-    if MARVIN == "Rishabh":
-        AMOGH_MARVIN_TURN_ANGLE_ADJUSTMENT = 0
-    elif MARVIN == "Amogh":
-        AMOGH_MARVIN_TURN_ANGLE_ADJUSTMENT = 3
-    elif MARVIN == "Anya":
-        AMOGH_MARVIN_TURN_ANGLE_ADJUSTMENT = 0
-    else:
-        raise SystemExit
 
 def measureColor():
     while(True):
@@ -114,7 +94,6 @@ def measureColor():
         avgRightColor = sumRightColor / counter
         logMessage("Left color={} Right Color={}".format(str(avgLeftColor), str(avgRightColor)), level=0)
             
-
 def doRunWithTiming(run):
     logMessage("Starting run {}".format(str(run)), level=0)
     start_time = time.ticks_ms()  
@@ -149,7 +128,6 @@ def moveArm(degrees = 0, speed = 0, motor = motorD):
         currentDegrees = motor.get_degrees_counted()
         
     motor.stop()
-    
 
 def gyroAngleZeroTo360():
         """
@@ -338,8 +316,8 @@ def gyroStraight(distance, speed = 20, backward = False, targetAngle = 0):
     finalDeg = abs(motorE.get_degrees_counted())
 
     totalDistanceTravelled = convertDegToCM(finalDeg - initialDeg)
-    logMessage("Total distance travelled = " + str(totalDistanceTravelled) + " error=" + str(distance-totalDistanceTravelled), level=4)
-    logMessage("======== gyroStraight done for distance " + str(distance) + "==========", 4)
+    logMessage("Total distance travelled = {} error = {}".format(str(totalDistanceTravelled), str(distance-totalDistanceTravelled)), level=4)
+    logMessage("======== gyroStraight done for distance {}".format(str(distance)), 4)
 
 def _gyroStraightNoSlowDownNoStop(distance, speed = 20, backward = False, targetAngle = 0, correctionMultiplier = 2):
     initialDeg = abs(motorE.get_degrees_counted())
@@ -347,7 +325,7 @@ def _gyroStraightNoSlowDownNoStop(distance, speed = 20, backward = False, target
     underBiasErrorMultiplier = 1 # 1.106
     errorAdjustedDistanceInCm = distance*underBiasErrorMultiplier
 
-    logMessage("GYROSTRAIGHT START: targetAngle  is " + str(targetAngle), level=4)
+    logMessage("GYROSTRAIGHT START: targetAngle  is {}".format(str(targetAngle)), level=4)
     degreesToCover = (errorAdjustedDistanceInCm * 360)/(WHEEL_RADIUS_CM * 2 * 3.1416)
     position_start = motorE.get_degrees_counted()
     if (backward): 
@@ -450,7 +428,7 @@ def getCorrectionForDrive(targetAngle, correctionMultiplier = 2):
     else:
         correction = -1*(360 - abs(currentAngle) - abs(targetAngle))
 
-    logMessage("Correction needed = " + str(correction), 4)
+    logMessage("Correction needed = {}".format(str(correction)), 4)
     return correction * correctionMultiplier
 
 def testGyro():
@@ -501,9 +479,9 @@ def driveWithSlowStart(speed, distanceInCM, target_angle, gain = 1, dontSlowDown
     #return
     
     wheels.stop()
-    logMessage("driveStraight for distance: " + str(distanceInCM) + " and target angle: " + str(target_angle), level=2)
-    #Added to try the fix for negative degreescounted and high error rate
+    logMessage("driveStraight for distance: {} and target angle: {}".format(str(distanceInCM),str(target_angle)), level=2)
     
+    #Added to try the fix for negative degreescounted and high error rate
     FINAL_SLOW_SPEED = 20
     initialDeg = abs(motorC.get_degrees_counted())
     remainingDistance = distanceInCM
@@ -535,8 +513,8 @@ def driveWithSlowStart(speed, distanceInCM, target_angle, gain = 1, dontSlowDown
     # Drive the next 16% of the distance at a speed that reduces from speed to speed=FINAL_SLOW_SPEED
     distanceTravelled = convertDegToCM(abs(motorC.get_degrees_counted()) - initialDeg)
     remainingDistance = distanceInCM - distanceTravelled
-    logMessage("Distance travelled after first part = "  + str(distanceTravelled) + " error=" + str(distance80-distanceTravelled), level=4)
-    logMessage("remainingDistance after 1st travel=" + str(remainingDistance), level=2)
+    logMessage("Distance travelled after first part = {} error={}".format(str(distanceTravelled),str(distance80-distanceTravelled)), level=4)
+    logMessage("remainingDistance after 1st travel={}".format(str(remainingDistance)), level=2)
 
     # Only run this whole thing in case there is any remaining distance.
     # this check is meant to catch the case when for some reason
@@ -548,8 +526,8 @@ def driveWithSlowStart(speed, distanceInCM, target_angle, gain = 1, dontSlowDown
         
         distanceTravelled = convertDegToCM(abs(motorC.get_degrees_counted()) - initialDeg)
         remainingDistance = distanceInCM - distanceTravelled
-        logMessage("Distance travelled after second part= "  + str(distanceTravelled) + " error=" + str((distance80+distance16)- distanceTravelled), level=4)
-        logMessage("remainingDistance after 2nd travel=" + str(remainingDistance), level=2)
+        logMessage("Distance travelled after second part= {} error={}".format(str(distanceTravelled),str((distance80+distance16)- distanceTravelled)), level=4)
+        logMessage("remainingDistance after 2nd travel={}".format(str(remainingDistance)), level=2)
         
         # Drive the final 4% of the distance at speed 5
         # If we have already overshot the target, then dont correct for it.
@@ -562,7 +540,7 @@ def driveWithSlowStart(speed, distanceInCM, target_angle, gain = 1, dontSlowDown
     wheels.set_stop_action("brake")
 
     totalDistanceTravelled = convertDegToCM(finalDeg - initialDeg)
-    logMessage("Drive: Total distance travelled = " + str(totalDistanceTravelled) + " error=" + str(distanceInCM-totalDistanceTravelled), level=2)
+    logMessage("Drive: Total distance travelled = {} error={}".format(str(totalDistanceTravelled),str(distanceInCM-totalDistanceTravelled)), level=2)
 
 
 def drive(speed, distanceInCM, target_angle, gain = 1, dontSlowDown=False):
@@ -585,7 +563,7 @@ def drive(speed, distanceInCM, target_angle, gain = 1, dontSlowDown=False):
     #return
     
     wheels.stop()
-    logMessage("driveStraight for distance: " + str(distanceInCM) + " and target angle: " + str(target_angle), level=2)
+    logMessage("driveStraight for distance:{} and target angle:{}".format(str(distanceInCM),str(target_angle)), level=2)
     #Added to try the fix for negative degreescounted and high error rate
     
     initialDeg = abs(motorC.get_degrees_counted())
@@ -612,8 +590,8 @@ def drive(speed, distanceInCM, target_angle, gain = 1, dontSlowDown=False):
     # Drive the next 16% of the distance at a speed that reduces from speed to speed=FINAL_SLOW_SPEED
     distanceTravelled = convertDegToCM(abs(motorC.get_degrees_counted()) - initialDeg)
     remainingDistance = distanceInCM - distanceTravelled
-    logMessage("Distance travelled after first part = "  + str(distanceTravelled) + " error=" + str(distance80-distanceTravelled), level=4)
-    logMessage("remainingDistance after 1st travel=" + str(remainingDistance), level=2)
+    logMessage("Distance travelled after first part={} error={}".format(str(distanceTravelled), str(distance80-distanceTravelled)), level=4)
+    logMessage("remainingDistance after 1st travel={}".format(str(remainingDistance)), level=2)
 
     # Only run this whole thing in case there is any remaining distance.
     # this check is meant to catch the case when for some reason
@@ -625,8 +603,8 @@ def drive(speed, distanceInCM, target_angle, gain = 1, dontSlowDown=False):
         
         distanceTravelled = convertDegToCM(abs(motorC.get_degrees_counted()) - initialDeg)
         remainingDistance = distanceInCM - distanceTravelled
-        logMessage("Distance travelled after second part= "  + str(distanceTravelled) + " error=" + str((distance80+distance16)- distanceTravelled), level=4)
-        logMessage("remainingDistance after 2nd travel=" + str(remainingDistance), level=2)
+        logMessage("Distance travelled after second part={} error={}".format(str(distanceTravelled), str((distance80+distance16)- distanceTravelled)), level=4)
+        logMessage("remainingDistance after 2nd travel={}".format(str(remainingDistance)), level=2)
         
         # Drive the final 4% of the distance at speed 5
         # If we have already overshot the target, then dont correct for it.
@@ -639,7 +617,7 @@ def drive(speed, distanceInCM, target_angle, gain = 1, dontSlowDown=False):
     finalDeg = abs(motorC.get_degrees_counted())
 
     totalDistanceTravelled = convertDegToCM(finalDeg - initialDeg)
-    logMessage("Drive: Total distance travelled = " + str(totalDistanceTravelled) + " error=" + str(distanceInCM-totalDistanceTravelled), level=2)
+    logMessage("Drive: Total distance travelled = {} error={}".format(str(totalDistanceTravelled),str(distanceInCM-totalDistanceTravelled)), level=2)
 
 def _driveStraightWithSlowDown(distance, speed, target_angle, gain, slowDown):
     """
@@ -683,6 +661,11 @@ def _driveStraightWithSlowDown(distance, speed, target_angle, gain, slowDown):
         logMessage("currentSpeed = " + str(int(currentSpeed)) + " distanceInDegTravelledInCM = " + str(convertDegToCM(distanceInDegTravelled)) + " distanceInCM=" + str(distance) 
           + " distanceInDegTravelled = " + str(distanceInDegTravelled) + " distanceToTravelInDeg=" + str(distanceInDeg) 
          + " target_angle= " + str(target_angle) + " current_yaw_angle = " + str(current_yaw_angle) +" correction= " + str(correction), level=5)
+
+        logMessage("currentSpeed={}  distanceInDegTravelledInCM={} distanceInCM={}  distanceInDegTravelled={} distanceToTravelInDeg={}  target_angle={} current_yaw_angle={} correction={}".format(
+          str(int(currentSpeed)), str(convertDegToCM(distanceInDegTravelled)), str(distance),
+          str(distanceInDegTravelled), str(distanceInDeg), str(target_angle), str(current_yaw_angle), str(correction)), level=5)
+
         if (abs(correction) > 1):
             wheels.start(turn_rate, int(currentSpeed))
 
@@ -710,7 +693,7 @@ def _driveTillLine(speed, distanceInCM, target_angle, gain = 1, colorSensorToUse
 
     wheels.stop()
    
-    logMessage("driveStraight for distance: " + str(distanceInCM) + " and target angle: " + str(target_angle), level=2)
+    logMessage("driveStraight for distance:{} target angle:{}".format(str(distanceInCM), str(target_angle)), level=2)
     initialDeg = abs(motorC.get_degrees_counted())
     remainingDistance = distanceInCM
     
@@ -727,14 +710,14 @@ def _driveTillLine(speed, distanceInCM, target_angle, gain = 1, colorSensorToUse
         #stoppingCondition = lambda: colorSensor.get_reflected_light() <= BLACK_COLOR
         def blackStoppingCondition():
             light = colorSensor.get_reflected_light()
-            logMessage(" color= " + str(light), level=5)
+            logMessage(" color={}".format(str(light)), level=5)
             return light <= BLACK_COLOR
         stoppingCondition = blackStoppingCondition
     elif (blackOrWhite == "White"):
         #stoppingCondition = lambda: colorSensor.get_reflected_light() >= WHITE_COLOR
         def whiteStoppingCondition():
             light = colorSensor.get_reflected_light()
-            logMessage(" color= " + str(light), level=5)
+            logMessage(" color={}".format(str(light)), level=5)
             return light >= WHITE_COLOR
         stoppingCondition = whiteStoppingCondition
     elif (blackOrWhite == "Green"):
@@ -751,14 +734,14 @@ def _driveTillLine(speed, distanceInCM, target_angle, gain = 1, colorSensorToUse
             # Drive the remaining distance at slow speed
             distanceTravelled = convertDegToCM(abs(motorC.get_degrees_counted()) - initialDeg)
             remainingDistance = distanceInCM - distanceTravelled
-            logMessage("_driveTillLine: Distance travelled after first part = "  + str(distanceTravelled) + " error=" + str(distanceTravelled-distance60), level=4)
+            logMessage("_driveTillLine: Distance travelled after first part = {} error={}".format(str(distanceTravelled),str(distanceTravelled-distance60)), level=4)
             _driveStraightWithSlowDownTillLine(remainingDistance, FINAL_SLOW_SPEED, target_angle, gain, slowDown=False, reachedStoppingCondition=stoppingCondition)
 
     wheels.stop()
     finalDeg = abs(motorC.get_degrees_counted())
 
     totalDistanceTravelled = convertDegToCM(finalDeg - initialDeg)
-    logMessage("_driveTillLine: Total distance travelled = " + str(totalDistanceTravelled) + " error=" + str(totalDistanceTravelled-distanceInCM), level=2)
+    logMessage("_driveTillLine: Total distance travelled={} error={}".format(str(totalDistanceTravelled), str(totalDistanceTravelled-distanceInCM)), level=2)
     
 def _driveStraightWithSlowDownTillLine(distance, speed, target_angle, gain, slowDown, reachedStoppingCondition):
     """
@@ -775,7 +758,7 @@ def _driveStraightWithSlowDownTillLine(distance, speed, target_angle, gain, slow
     return the output of the stoppingCondition.
     """
     startDistanceInDeg = abs(motorC.get_degrees_counted())
-    logMessage("startDistanceInDeg = " + str(int(startDistanceInDeg)), level=5)
+    logMessage("startDistanceInDeg={}".format(str(int(startDistanceInDeg))), level=5)
     distanceInDeg = converCMToDeg(distance)
     currentSpeed = speed
 
@@ -805,18 +788,16 @@ def _driveStraightWithSlowDownTillLine(distance, speed, target_angle, gain, slow
         correction = target_angle - current_yaw_angle
         
         turn_rate = correction * gain
-        logMessage("Left color= " + str(colorA.get_reflected_light()) + " Right color= " + str(colorB.get_reflected_light()) +  " currentSpeed = " + str(int(currentSpeed)) + " distanceInDegTravelledInCM = " + str(convertDegToCM(distanceInDegTravelled)) + " distanceInCM=" + str(distance) 
-            + " distanceInDegTravelled = " + str(distanceInDegTravelled) + " distanceToTravelInDeg=" + str(distanceInDeg) 
-            + " target_angle= " + str(target_angle) + " current_yaw_angle = " + str(current_yaw_angle) +" correction= " + str(correction), level=5)
+        logMessage("Left color={} Right color={} currrentSpeed={} distanceInDegTravelledInCM={} distanceInCM={} distanceInDegTravelled={} distanceToTravelInDeg={} target_angle={} current_yaw_angle={} correction={}".format(
+            str(colorA.get_reflected_light()), str(colorB.get_reflected_light()), str(int(currentSpeed)), str(convertDegToCM(distanceInDegTravelled)), str(distance),
+            str(distanceInDegTravelled), str(distanceInDeg), str(target_angle), str(current_yaw_angle), str(correction)), level=5)
+
         if (abs(correction) > 1):
             wheels.start(turn_rate, int(currentSpeed))
 
         distanceInDegTravelled = abs(motorC.get_degrees_counted()) - startDistanceInDeg
         stopCondition = reachedStoppingCondition()
 
-    # logMessage("Left color= " + str(colorA.get_reflected_light()) + " Right color= " + str(colorB.get_reflected_light()) +  " currentSpeed = " + str(int(currentSpeed)) + " distanceInDegTravelledInCM = " + str(convertDegToCM(distanceInDegTravelled)) + " distanceInCM=" + str(distance) 
-    #         + " distanceInDegTravelled = " + str(distanceInDegTravelled) + " distanceToTravelInDeg=" + str(distanceInDeg) 
-    #         + " target_angle= " + str(target_angle) + " current_yaw_angle = " + str(current_yaw_angle) +" correction= " + str(correction), level=5)
     logMessage("DrivestraightWiuthSlowDownTillLine completed", level=5)
     return stopCondition
     
@@ -921,15 +902,6 @@ def _testTurnToAngle():
     time.sleep(1)
     _turnToAngle(targetAngle = 0, speed = 25)
    
-
-    """
-    time.sleep(1)
-    turnToAngle(targetAngle = 10, speed = 25)
-    time.sleep(1)
-    turnToAngle(targetAngle = 20, speed = 25)
-    time.sleep(1)
-    turnToAngle(targetAngle = 20, speed = 25)
-    """
 def wait_until_either_color(sensor1, sensor2, color, message):
     while True:
         if((color == "black" and (sensor1.get_reflected_light() <= BLACK_COLOR or sensor2.get_reflected_light() <= BLACK_COLOR)) or (color == "white" and (sensor1.get_reflected_light() >= WHITE_COLOR or sensor2.get_reflected_light() >= WHITE_COLOR))):
@@ -1333,7 +1305,6 @@ def _run3():
     primeHub.motion_sensor.reset_yaw_angle()
     wheels.set_stop_action("coast")
     # Drive till the hydro plant to pick up the first water unit
-    #gyroStraight(distance=26, speed = 40, backward = False, targetAngle = 0)
     gyroStraight(distance=24, speed = 40, backward = False, targetAngle = 0)
     
     # Turn towards the hydro unit to drop the water unit from the hydro plant.
@@ -1366,7 +1337,7 @@ def _run3():
 
     # Drive forward till the wall
     _turnToAngle(targetAngle=angle, speed=20, slowTurnRatio=0.9)
-    gyroStraight(distance=10, speed = 35, backward = False, targetAngle = angle)
+    gyroStraight(distance=13, speed = 35, backward = False, targetAngle = angle)
     
     # Back off a little bit before turning to go home.
     gyroStraight(distance=2, speed = 35, backward = True, targetAngle = angle)
@@ -1380,23 +1351,18 @@ def _run3():
     gyroStraight(distance=25, speed = 60, backward = False, targetAngle = -100)
     _turnToAngle(targetAngle=-135, speed = 15, slowTurnRatio=0.9)
     gyroStraight(distance=90, speed = 95, backward = False, targetAngle = -135)
-
+    
 def _run6():
     primeHub.motion_sensor.reset_yaw_angle()
-    #global GLOBAL_LEVEL
-    #GLOBAL_LEVEL = 5
     # Drive forward first. Drive at a slight angle to avoid hitting the power plant.
     drive(speed = 55, distanceInCM = 50, target_angle = -5)
     
     # Turn slightly to catch the n-s line in front of the power plant
-    #_turnToAngle(targetAngle = -20, speed = 20, slowTurnRatio = 0.9)
-    # used to be 35 speed.
     _driveTillLine(speed=35, distanceInCM=70, target_angle=-5, colorSensorToUse="Left", blackOrWhite="Black")
     
     # Turn towards the power plant and then try to catch the black line running e-w line in front of the smart grid.
     angle = -87
     _turnToAngle(targetAngle = angle, speed = 20, slowTurnRatio = 0.7)
-    # Used to be 35 speed
     _driveTillLine(speed=55, distanceInCM=70, target_angle = angle, colorSensorToUse="Left", blackOrWhite="Black")
 
     # Turn towards the hydro-electric plant and then drop the water units. 
@@ -1405,7 +1371,6 @@ def _run6():
     drive(speed = 25, distanceInCM = 26, target_angle = 155)
 
     # Drop the water units    
-    # Used to be 3000, made it 1800 if we keep it mostly horizontal
     moveArm(degrees = 2200, speed = -100, motor = motorF)
         
     # Now drive to the rechargeable battery and drop the oil factory
@@ -1484,8 +1449,9 @@ def _dropRechargeableBatteryAndOilTruckWithGyroReset():
 #region Rishabh
 def _run1():
     def _watchTV():
-        # Drive to Watch Television
-        gyroStraight(distance = 27, speed = 50, backward = False, targetAngle = 0)
+        # Drive to Watch Television. We do this in two parts. First fast and
+        # then do it slow so the energy unit does not fall off.
+        gyroStraight(distance = 28, speed = 50, backward = False, targetAngle = 0)
         gyroStraight(distance = 5, speed = 20, backward = False, targetAngle = 0)
         
         # Backup from Watch Television
@@ -1512,18 +1478,21 @@ def _run1():
         for i in range(3): 
             # Backup so the robot can push the Wind Turbine again
             wheels.move(amount = 7, unit = "cm", steering = 0, speed = -30) 
-            #_turnToAngle(targetAngle = 40, speed = 25)
+            
             # Drive forward to push the Wind Turbine
             drive(speed = 20, distanceInCM = 14, target_angle = angle)
 
     def _pickUpRechargeableBattery():
-        angle = 38
+        angle = 40
 
+        # Start bringing down the hybrid car arm. We do this slowly so the 
+        # arm is high enough to clear the hybrid car, when it turns.
         motorD.start(-50)
+
         # Backoff from the windwill and flush against the rechargeable battery.
-        # Changed 11/11 from 30 to 25 amount
+        # We go back fast first, and then slow down to flush.
         wheels.move(amount = 5, unit = "cm", steering = 0, speed = -45) 
-        _turnToAngle(targetAngle = 40, speed = 25)
+        _turnToAngle(targetAngle = angle, speed = 25)
         wheels.move(amount = 20, unit = "cm", steering = 0, speed = -45)
         wheels.move(amount = 7, unit = "cm", steering = 0, speed = -25) 
         motorD.stop()
@@ -1540,7 +1509,7 @@ def _run1():
         _turnToAngle(targetAngle = angle, speed = 25, slowTurnRatio = 0.6)
 
         # Starting bringing down the hybrid car arm.
-        motorD.start(-80)
+        motorD.start(-70)
         
         # Drive forward to align with the hybrid car.
         gyroStraight(distance=25, speed = 25, backward = False, targetAngle = angle)
@@ -1565,66 +1534,6 @@ def _run1():
     _hybridCar()
     _goHome()
 
-def _run1Old():
-    def _watchTV():
-        # Drive to Watch Television
-        driveWithSlowStart(speed = 35, distanceInCM = 30, target_angle= 0)
-        
-        #Backup from Watch Television
-        gyroStraight(distance = 5, speed = 40, backward = True, targetAngle = 0)
-
-    def _getToWindTurbine():
-        angle = -35
-        # Turn towards the hybrid car.
-        _turnToAngle(targetAngle = angle, speed = 25) 
-
-        # We should have turned such that we are able to find the black line in front of the wind turbine.
-        _driveTillLine(speed=50, distanceInCM=35, target_angle=angle, colorSensorToUse="Right", blackOrWhite="Black", slowSpeedRatio=0.9)
-
-        # After catching the black line, drive forward and turn to face the windmill
-        _turnToAngle(targetAngle = 40, speed = 25, slowTurnRatio = 0.9)
-
-    def _windTurbine():
-        # Drive towards Wind Turbine and push the lever once
-        drive(speed = 20, distanceInCM = 25, target_angle = 40)
-        
-        # Push the lever the remaining two times
-        for i in range(2): 
-            # Backup so the robot can push the Wind Turbine again
-            wheels.move(amount = 7, unit = "cm", steering = 0, speed = -20) 
-
-            # Drive forward to push the Wind Turbine
-            drive(speed = 20, distanceInCM = 20, target_angle = 40)
-
-        # Backup from Wind Turbine
-        wheels.move(amount = 16, unit = "cm", steering = 0, speed = -40) 
-    
-    def _hybridCarAndGoHome():
-        # Turn with back to the hybrid car. Back into the hybrid car.
-        angle = 135
-        _turnToAngle(targetAngle = angle, speed = 25)
-        gyroStraight(distance=20, speed = 30, backward = True, targetAngle = angle)
-
-        # Bring the hybrid car arm down
-        moveArm(degrees = -1200, speed = -100, motor = motorD)
-
-        # Move the hybrid unit into the car, and drop the car.
-        # The car should now be resting against the robot.
-        moveArm(degrees = 1200, speed = 100, motor = motorD)
-
-        # Drive forward
-        drive(speed = 45, distanceInCM = 10, target_angle = 140)
-
-        moveArm(degrees = -1200, speed = -100, motor = motorD)
-        gyroStraight(distance = 90, speed = 50, backward = False, targetAngle = 140)
-  
-    
-    _watchTV()
-    _getToWindTurbine()
-    _windTurbine()
-    _hybridCarAndGoHome()
-    #moveArm(degrees = 1500, speed = 100, motor = motorD)
-
 #endregion
 
 #region Function Calls
@@ -1634,6 +1543,8 @@ _initialize()
 #doRunWithTiming(_run3)
 #doRunWithTiming(driver)
 measureColor()
+#doRunWithTiming(driver)
+#doRunWithTiming(_run3)
 
 raise SystemExit
 #endregion
