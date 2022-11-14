@@ -1,4 +1,4 @@
-# LEGO type:standard slot:1
+# LEGO type:standard slot:3
 # autostart
 from spike import PrimeHub, ColorSensor,  Motor, MotorPair
 from math import *
@@ -1331,7 +1331,7 @@ def _run3():
     gyroStraight(distance=25, speed = 60, backward = False, targetAngle = -100)
     _turnToAngle(targetAngle=-135, speed = 15, slowTurnRatio=0.9)
     gyroStraight(distance=90, speed = 95, backward = False, targetAngle = -135)
-
+    
 def _run6():
     primeHub.motion_sensor.reset_yaw_angle()
     # Drive forward first. Drive at a slight angle to avoid hitting the power plant.
@@ -1518,8 +1518,8 @@ def _run1():
 #region Function Calls
 
 _initialize()
-doRunWithTiming(driver)
-#doRunWithTiming(_run1)
+#doRunWithTiming(driver)
+doRunWithTiming(_run3)
 
 raise SystemExit
 #endregion
