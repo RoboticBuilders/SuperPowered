@@ -1,4 +1,4 @@
-# LEGO type:standard slot:0
+# LEGO type:standard slot:6
 #from spike import PrimeHub, LightMatrix, Button, StatusLight, ForceSensor, MotionSensor, Speaker, ColorSensor, App, DistanceSensor, Motor, MotorPair
 from spike import PrimeHub, ColorSensor,  Motor, MotorPair
 #from spike.control import timer 
@@ -59,11 +59,11 @@ BLACK_COLOR = 20
 WHITE_COLOR = 90
 
 def driver():
-    counter = 2
+    counter = 1
     while True:
         primeHub.speaker.beep(90, 1)
         primeHub.right_button.wait_until_pressed()
-        primeHub.speaker.beep(105, 1)
+        #primeHub.speaker.beep(105, 1)
         
         if counter == 1:
             _run1()
@@ -96,8 +96,25 @@ def _initialize():
         AMOGH_MARVIN_TURN_ANGLE_ADJUSTMENT = 0
     else:
         raise SystemExit
+
+def measureColor():
+    while(True):
+        primeHub.right_button.wait_until_pressed()
+        sumLeftColor = 0
+        sumRightColor = 0
+        counter = 1
+        while(counter < 200):
+            left_light = colorA.get_reflected_light()
+            right_light = colorB.get_reflected_light()
+            sumLeftColor += left_light
+            sumRightColor += right_light
+            counter = counter + 1
         
-  
+        avgLeftColor = sumLeftColor / counter
+        avgRightColor = sumRightColor / counter
+        logMessage("Left color={} Right Color={}".format(str(avgLeftColor), str(avgRightColor)), level=0)
+            
+
 def doRunWithTiming(run):
     logMessage("Starting run {}".format(str(run)), level=0)
     start_time = time.ticks_ms()  
@@ -1055,7 +1072,7 @@ def _run4():
 def getToOilPlatform_v2Point2():
     print("Running now getToOilPlatform")
     #working version1
-    gyroStraight(distance=_CM_PER_INCH*16, speed=60, targetAngle=0) #was 90
+    gyroStraight(distance=_CM_PER_INCH*16.8, speed=60, targetAngle=0) #was 90
     # time.sleep(5)
     _turnToAngle(45)
     # time.sleep(5)
@@ -1215,9 +1232,9 @@ def getToPowerPlantFromHome2():
 
     ToyFactory2()
     motorD.run_for_degrees(degrees=-170, speed=50)
-    turnToAngle2(targetAngle=ANYA_RUN_START_OFFSET_TO_MAT_WEST - 93, speed=20, slowTurnRatio=0.8)
+    _turnToAngle(targetAngle=ANYA_RUN_START_OFFSET_TO_MAT_WEST - 93, speed=20, slowTurnRatio=0.8)
     # _driveTillLine(speed = 20, distanceInCM = _CM_PER_INCH*6, target_angle = ANYA_RUN_START_OFFSET_TO_MAT_WEST - 90, blackOrWhite="Black")
-    gyroStraight(targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_WEST - 93,  distance = _CM_PER_INCH*12, speed=20) #was 60 but rammed into power plant
+    gyroStraight(targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_WEST - 93,  distance = _CM_PER_INCH*11, speed=20) #was 60 but rammed into power plant
 
     # Sometimes our unit collector is too far from the slide, so this turn should better align it
     left_large_motor.run_for_degrees(degrees=-45, speed=60)
@@ -1307,6 +1324,11 @@ def _sliderArm(targetAngle):
 
     moveArm(degrees = -1 * moveArmDistance, speed = -100, motor=motorD)
 
+def _run1_5():
+    primeHub.motion_sensor.reset_yaw_angle()
+    gyroStraight(distance=35, speed = 100, backward = False, targetAngle = 0)
+    gyroStraight(distance=50, speed = 100, backward = True, targetAngle = 0)
+
 def _run3():
     primeHub.motion_sensor.reset_yaw_angle()
     wheels.set_stop_action("coast")
@@ -1375,16 +1397,16 @@ def _run6():
     angle = -87
     _turnToAngle(targetAngle = angle, speed = 20, slowTurnRatio = 0.7)
     # Used to be 35 speed
-    _driveTillLine(speed=35, distanceInCM=70, target_angle = angle, colorSensorToUse="Left", blackOrWhite="Black")
+    _driveTillLine(speed=55, distanceInCM=70, target_angle = angle, colorSensorToUse="Left", blackOrWhite="Black")
 
     # Turn towards the hydro-electric plant and then drop the water units. 
     # This also drops the energy units and the innovation project.
-    _turnToAngle(targetAngle = 150, speed = 20, slowTurnRatio = 0.9)
-    drive(speed = 25, distanceInCM = 26, target_angle = 150)
+    _turnToAngle(targetAngle = 155, speed = 20, slowTurnRatio = 0.9)
+    drive(speed = 25, distanceInCM = 26, target_angle = 155)
 
     # Drop the water units    
     # Used to be 3000, made it 1800 if we keep it mostly horizontal
-    moveArm(degrees = 1800, speed = -100, motor = motorF)
+    moveArm(degrees = 2200, speed = -100, motor = motorF)
         
     # Now drive to the rechargeable battery and drop the oil factory
     _dropRechargeableBatteryAndOilTruckWithGyroReset()
@@ -1407,7 +1429,8 @@ def _dropRechargeableBatteryAndOilTruckWithGyroReset():
 
     # Uncomment this for a serial run.
     #moveArm(degrees = 3000, speed = 100, motor = motorF)
-    
+
+    motorF.stop()    
     '''
     # Turn towards the toy factory
     _turnToAngle(targetAngle = 0 + zero_adjustment, speed = 20, slowTurnRatio=0.9)
@@ -1514,7 +1537,7 @@ def _run1():
 
         # Align with the hybrid car.
         angle = -90
-        _turnToAngle(targetAngle = angle, speed = 25, slowTurnRatio = 0.9)
+        _turnToAngle(targetAngle = angle, speed = 25, slowTurnRatio = 0.6)
 
         # Starting bringing down the hybrid car arm.
         motorD.start(-80)
@@ -1607,8 +1630,10 @@ def _run1Old():
 #region Function Calls
 
 _initialize()
-doRunWithTiming(driver)
+#doRunWithTiming(_run1_5)
 #doRunWithTiming(_run3)
+#doRunWithTiming(driver)
+measureColor()
 
 raise SystemExit
 #endregion
