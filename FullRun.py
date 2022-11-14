@@ -1,4 +1,4 @@
-# LEGO type:standard slot:1 autostart
+# LEGO type:standard slot:0
 #from spike import PrimeHub, LightMatrix, Button, StatusLight, ForceSensor, MotionSensor, Speaker, ColorSensor, App, DistanceSensor, Motor, MotorPair
 from spike import PrimeHub, ColorSensor,  Motor, MotorPair
 #from spike.control import timer 
@@ -1242,7 +1242,7 @@ def getToPowerPlantFromHome2():
     # Skipping Toy Factory to measure time saved if moved to run 6
     #ToyFactory2()
     motorD.run_for_degrees(degrees=-170, speed=50)
-    turnToAngle2(targetAngle=ANYA_RUN_START_OFFSET_TO_MAT_WEST - 93, speed=20, slowTurnRatio=0.8)
+    _turnToAngle2(targetAngle=ANYA_RUN_START_OFFSET_TO_MAT_WEST - 93, speed=20, slowTurnRatio=0.8, oneWheelTurn="Right")
     # _driveTillLine(speed = 20, distanceInCM = _CM_PER_INCH*6, target_angle = ANYA_RUN_START_OFFSET_TO_MAT_WEST - 90, blackOrWhite="Black")
     gyroStraight(targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_WEST - 93,  distance = _CM_PER_INCH*10, speed=20) #was 60 but rammed into power plant
 
@@ -1622,7 +1622,8 @@ def _run1point5():
 #region Function Calls
 
 _initialize()
-doRunWithTiming(driver)
+# doRunWithTiming(driver)
+doRunWithTiming(_run2)
 
 raise SystemExit
 #endregion
