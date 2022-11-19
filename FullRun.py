@@ -1,4 +1,4 @@
-# LEGO type:standard slot:2
+# LEGO type:standard slot:1
 from spike import PrimeHub, ColorSensor,  Motor, MotorPair
 # autostart
 from math import *
@@ -63,7 +63,7 @@ def driver():
         if counter == 1:
             _run1()
         if counter == 2:
-            Run15()
+            _run1point5()
         if counter == 3:
             _run2()
         if counter == 4:
@@ -1694,10 +1694,10 @@ def _run1():
 
 #Reachargable Battery dropoff
 #Run 1.5/run in the middle of 1 and 2
-def Run15():
+def _run1point5():
     primeHub.motion_sensor.reset_yaw_angle()
-    gyroStraight(distance=37, speed=60, targetAngle=0)
     gyroStraight(distance=37, speed=60, backward = True, targetAngle=0)
+    gyroStraight(distance=37, speed=60, targetAngle=0)
 #region Function Calls
 
 _initialize()
@@ -1705,7 +1705,8 @@ _initialize()
 #doRunWithTiming(_run3)
 #doRunWithTiming(driver)
 #measureColor()
-doRunWithTiming(driver)
+#doRunWithTiming(driver)
+doRunWithTiming(_run1point5)
 
 #testCoordinateSystem()
 #doRunWithTiming(_run2)
