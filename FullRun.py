@@ -1,4 +1,4 @@
-# LEGO type:standard slot:6
+# LEGO type:standard slot:2
 from spike import PrimeHub, ColorSensor,  Motor, MotorPair
 # autostart
 from math import *
@@ -63,12 +63,14 @@ def driver():
         if counter == 1:
             _run1()
         if counter == 2:
-            _run2()
+            Run15()
         if counter == 3:
-            _run3()
+            _run2()
         if counter == 4:
-            _run4()
+            _run3()
         if counter == 5:
+            _run4()
+        if counter == 6:
             _run6()    
         counter = counter + 1
 
@@ -189,6 +191,11 @@ class robot:
         self.currentLocationX = x2
         self.currentLocationY = y2
         _turnToAngle(targetAngle = endAngle, speed = speed)
+
+def testCoordinateSystem():
+    for index in range(len(testX2)):
+        robotTest = robot(0,0)
+        robotTest.goto(testX2[index], testY2[index], 0, 10)
 
 def measureColor():
     while(True):
@@ -1313,13 +1320,17 @@ def getToPowerPlantFromHome2():
     #motorD.run_for_degrees(degrees=-170, speed=50)
 
     gyroStraight(targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_WEST - 0,  distance = _CM_PER_INCH*32, speed=60) # was 29 and then 2 more at 40 speed below
+    motorD.start(-30)
     _driveTillLine(speed = 20, distanceInCM = _CM_PER_INCH*6, target_angle = ANYA_RUN_START_OFFSET_TO_MAT_WEST - 0, blackOrWhite="White")
 
-    ToyFactory2()
-    motorD.run_for_degrees(degrees=-170, speed=50)
+    #ToyFactory2()
+    gyroStraight(targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_WEST - 0,  distance = int(AXLE_DIAMETER_CM/2))
+
+    #motorD.run_for_degrees(degrees=-170, speed=100)
+    motorD.stop()
     _turnToAngle(targetAngle=ANYA_RUN_START_OFFSET_TO_MAT_WEST - 93, speed=20, slowTurnRatio=0.8)
     # _driveTillLine(speed = 20, distanceInCM = _CM_PER_INCH*6, target_angle = ANYA_RUN_START_OFFSET_TO_MAT_WEST - 90, blackOrWhite="Black")
-    gyroStraight(targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_WEST - 93,  distance = _CM_PER_INCH*11, speed=20) #was 60 but rammed into power plant
+    gyroStraight(targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_WEST - 93,  distance = _CM_PER_INCH*9, speed=20) #was 60 but rammed into power plant
 
     # Sometimes our unit collector is too far from the slide, so this turn should better align it
     left_large_motor.run_for_degrees(degrees=-45, speed=60)
@@ -1339,9 +1350,6 @@ def ToyFactory2():
 
     # Align for the Power Plant
     _driveTillLine(speed = 20, distanceInCM = _CM_PER_INCH*9, target_angle = ANYA_RUN_START_OFFSET_TO_MAT_WEST - 0, blackOrWhite="White")
-    gyroStraight(targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_WEST - 0,  distance = int(AXLE_DIAMETER_CM/2))
-    # gyroStraight(targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_WEST - 0,  distance = 1, speed=20, backward=True)
-
 
 def ReleaseEnergyUnitsFromPowerPlant():
     # gyroStraight(distance = 4, speed = 35, backward = True, targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_WEST - 90)
@@ -1686,7 +1694,7 @@ def _run1():
 
 #Reachargable Battery dropoff
 #Run 1.5/run in the middle of 1 and 2
-def Run1To2():
+def Run15():
     primeHub.motion_sensor.reset_yaw_angle()
     gyroStraight(distance=37, speed=60, targetAngle=0)
     gyroStraight(distance=37, speed=60, backward = True, targetAngle=0)
@@ -1697,17 +1705,11 @@ _initialize()
 #doRunWithTiming(_run3)
 #doRunWithTiming(driver)
 #measureColor()
-#doRunWithTiming(driver)
-def testCoordinateSystem():
-    for index in range(len(testX2)):
-        robotTest = robot(0,0)
-        robotTest.goto(testX2[index], testY2[index], 0, 10)
+doRunWithTiming(driver)
 
 #testCoordinateSystem()
-doRunWithTiming(_run6)
+#doRunWithTiming(_run2)
 #_toyFactoryN()
-
-
 
 raise SystemExit
 #endregion
