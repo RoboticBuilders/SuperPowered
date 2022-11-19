@@ -1,6 +1,6 @@
 Mission_name, bottom_left_X,bottom_left_Y, top_right_X,top_right_Y
 HydroDam,52,45,77,73
-OilPlatform,4,65,27,89,
+OilPlatform,4,65,27,89
 Energystorage,32,98,47,110
 smartgrid,98,95,107,111
 powerplant,86,5,116,17
