@@ -7,7 +7,7 @@ import collections
 import time, hub
 from spike.operator import *
 import gc
-from math import *
+import math
 
 # Various robot constants
 AXLE_DIAMETER_CM = 12.7
@@ -45,6 +45,9 @@ leftColorSensor = colorA #Easier alias to use in code
 
 _CM_PER_INCH = 2.54
 
+testX2 = [10]
+testY2 = [10]
+
 # This is based on emperical tests and by looking at the color sensor.
 # This is also based on the new sensor mount which roughly puts the sensor
 # at about 18-20mm of the ground.
@@ -76,6 +79,116 @@ def _initialize():
     wheels.set_stop_action("brake")
     wheels.set_motor_rotation(2*3.14*WHEEL_RADIUS_CM, 'cm')
     isBatteryGood()
+
+class robot:
+    currentLocationX = 0
+    currentLocationY = 0
+    currentRobotAngle = 0
+
+    def __init__(self,x,y):
+        self.currentLocationX = x
+        self.currentLocationY = y
+
+    def goto(self,x2,y2,endAngle,speed):
+        global angle, slope, quadrant2, distance
+        angle = 0
+        slope = 0
+        quadrant2 = 0
+        distance = 0
+        x1 = self.currentLocationX
+        y1 = self.currentLocationY
+        a1 = self.currentRobotAngle
+
+        def _calculateSlope(x1,y1,x2,y2):
+            global slope
+            lineSlope = (y1 - y2)/(x1-x2)
+            slope = lineSlope
+
+        def _findQuadrant(x1,y1,x2,y2):
+            greatestDistance = 0
+            xDiff = x1 - x2
+            yDiff = y1 - y2
+            maxX = 0
+            maxY = 0
+            minX = 0
+            minY = 0
+            if abs(xDiff) > abs(yDiff):
+                greatestDistance = abs(xDiff)
+            if abs(yDiff) > abs(xDiff):
+                greatestDistance = abs(yDiff)
+            if abs(xDiff) == abs(yDiff):
+                greatestDistance = abs(xDiff)
+            else:
+                print("URGENT: Error in finding quadrants around robot.")
+
+            maxX = x1 + greatestDistance
+            minX = x1 - greatestDistance
+            maxY = y1 + greatestDistance
+            minY = y1 - greatestDistance
+            _findEndQuadrant(x1,y1,x2,y2,maxX,maxY,minX,minY)
+
+        def _findEndQuadrant(x1,y1,x2,y2,maxX,maxY,minX,minY):
+            global quadrant2
+            endQuadrant = 0
+            print(x1,y1,x2,y2,maxX,maxY,minX,minY)
+            if x2 >= x1 and x2 <= maxX and y2 >= y1 and y2 <= maxY:
+                endQuadrant = 1
+            
+            if x2 >= minX and x2 <= x1 and y2 >= y1 and y2 <= maxY:
+                endQuadrant = 2
+            
+            if x2 >= minX and x2 <= x1 and y2 >= minY and y2 <= y1:
+                endQuadrant = 3
+            
+            if x2 >= x1 and x2 <= maxX and y2 >= minY and y2 <= y1:
+                endQuadrant = 4
+
+            if endQuadrant == 0:
+                print("URGENT: Error in finding quadrant of end location")
+
+            quadrant2 = endQuadrant
+            
+        def _calculateAngle(slope):
+            global angle
+            lineSlope = slope
+            if x1 == 0 and x2 == 0:
+                angle = 0
+            angleRadians = math.atan(lineSlope)
+            angleDegrees = math.degrees(angleRadians)
+            angle = round(angleDegrees)
+
+        def _fixAngle(endQuadrant, rAngle):
+            global angle
+            turnAngle = rAngle
+
+            if endQuadrant == 3:
+                turnAngle = -1 * rAngle - 90
+
+            if endQuadrant == 4:
+                turnAngle = -1 * rAngle + 90
+
+            angle = round(turnAngle)
+
+        def _findDistance(x1,y1,x2,y2):
+            global distance
+            distanceToDrive = math.sqrt(math.pow(x2 - x1, 2) + math.pow(y2 - y1, 2))
+            distance = round(distanceToDrive)
+        def _move(speed):
+            global angle, distance
+            _turnToAngle(targetAngle = angle, speed = speed)
+            drive(speed = speed, distanceInCM = distance, target_angle = angle)
+
+        _findQuadrant(x1,y1,x2,y2)
+        _calculateSlope(x1,y1,x2,y2)
+        _calculateAngle(slope)
+        _fixAngle(quadrant2, angle)
+        _findDistance(x1,y1,x2,y2)
+        _move(speed)
+        print(str(angle))
+        print(str(distance))
+        self.currentLocationX = x2
+        self.currentLocationY = y2
+        _turnToAngle(targetAngle = endAngle, speed = speed)
 
 def measureColor():
     while(True):
@@ -1355,47 +1468,61 @@ def _run3():
 def _run6():
     primeHub.motion_sensor.reset_yaw_angle()
     # Drive forward first. Drive at a slight angle to avoid hitting the power plant.
-    drive(speed = 55, distanceInCM = 50, target_angle = -5)
+    drive(speed = 65, distanceInCM = 50, target_angle = -8)
     
     # Turn slightly to catch the n-s line in front of the power plant
-    _driveTillLine(speed=35, distanceInCM=70, target_angle=-5, colorSensorToUse="Left", blackOrWhite="Black")
+    _driveTillLine(speed=30, distanceInCM=35, target_angle=-8, colorSensorToUse="Left", blackOrWhite="Black")
     
     # Turn towards the power plant and then try to catch the black line running e-w line in front of the smart grid.
     angle = -87
     _turnToAngle(targetAngle = angle, speed = 20, slowTurnRatio = 0.7)
-    _driveTillLine(speed=55, distanceInCM=70, target_angle = angle, colorSensorToUse="Left", blackOrWhite="Black")
+    _driveTillLine(speed=45, distanceInCM=70, target_angle = angle, colorSensorToUse="Left", blackOrWhite="Black")
+    gyroStraight(distance=5, speed = 20, backward = True, targetAngle = angle)
 
     # Turn towards the hydro-electric plant and then drop the water units. 
     # This also drops the energy units and the innovation project.
-    _turnToAngle(targetAngle = 155, speed = 20, slowTurnRatio = 0.9)
-    drive(speed = 25, distanceInCM = 26, target_angle = 155)
+    _turnToAngle(targetAngle = 162, speed = 20, slowTurnRatio = 0.9)
+    drive(speed = 25, distanceInCM = 26, target_angle = 162)
 
     # Drop the water units    
     moveArm(degrees = 2200, speed = -100, motor = motorF)
-        
-    # Now drive to the rechargeable battery and drop the oil factory
-    _dropRechargeableBatteryAndOilTruckWithGyroReset()
-
-def _dropRechargeableBatteryAndOilTruckWithGyroReset():
-    # At this point we are aligned against the hydro electric plant. Lets reset the gyro
-    # for additional accuracy. This means all angles past this point are measured with
-    # the hydroplant as zero.
-    primeHub.motion_sensor.reset_yaw_angle()
-
-    # Since the zero is now set to the toy factory we add zero_adjustment to all angles
-    # to adjust to the new reference frame.
-    zero_adjustment = -140
-
+    
     # Start bringing up the arm
     motorF.start_at_power(60)
     
     # Backoff to leave the water reservoir
-    gyroStraight(distance=10, speed = 20, backward = True, targetAngle = 0)
+    gyroStraight(distance=8, speed = 20, backward = True, targetAngle = 162)
+
+    motorF.stop()    
+    _doToyFactory()
+
+def _doToyFactory():
+    # turn to get to the toyfactory.
+    _turnToAngle(targetAngle = -165, speed = 20, slowTurnRatio = 0.9)
+    gyroStraight(distance=24, speed = 35, backward = True, targetAngle = -165)
+    _turnToAngle(targetAngle = -120, speed = 20, slowTurnRatio = 0.9)
+    gyroStraight(distance=15, speed = 35, backward = True, targetAngle = -120)
+
+    # Back into the toy factory and align
+
+    # Drop off the units.
+    moveArm(degrees = -1000, speed = 100, motor = motorD)
+    #moveArm(degrees = 1000, speed = 100, motor = motorD)
+    
+def _dropRechargeableBatteryAndOilTruckWithGyroReset():
+    # Start bringing up the arm
+    motorF.start_at_power(60)
+    
+    # Backoff to leave the water reservoir
+    gyroStraight(distance=15, speed = 20, backward = True, targetAngle = 0)
 
     # Uncomment this for a serial run.
     #moveArm(degrees = 3000, speed = 100, motor = motorF)
 
     motorF.stop()    
+
+    _doToyFactory()
+
     '''
     # Turn towards the toy factory
     _turnToAngle(targetAngle = 0 + zero_adjustment, speed = 20, slowTurnRatio=0.9)
@@ -1411,7 +1538,6 @@ def _dropRechargeableBatteryAndOilTruckWithGyroReset():
     # This is done to remove the oil truck dropoff.
     # This change was done on 11/6/2022 after the team meeting where we decided to remove
     # _run5 and shorten _run6
-    '''
     # Turn to catch e-w line in front of smartgrid
     _turnToAngle(targetAngle = 170, speed = 20, slowTurnRatio=0.9)
 
@@ -1442,8 +1568,30 @@ def _dropRechargeableBatteryAndOilTruckWithGyroReset():
     
     # Uncomment this for the competition.
     motorD.stop()
-    '''
+
+def _toyFactoryN():
+
+     # Since the zero is now set to the toy factory we add zero_adjustment to all angles
+     # to adjust to the new reference frame.
+     zero_adjustment = -140
+
+     # Start bringing up the arm
+     motorF.start_at_power(60)
     
+     # Backoff to leave the water reservoir
+     gyroStraight(distance=13, speed = 20, backward = True, targetAngle = 155)
+
+     # Uncomment this for a serial run.
+     #moveArm(degrees = 3000, speed = 100, motor = motorF)
+
+     motorF.stop()    
+
+     _turnToAngle(targetAngle=30, speed= 30)
+     gyroStraight(distance=30, speed = 20,  targetAngle = 0)
+     moveArm(degrees = -1000, speed = 100, motor = motorD)
+     moveArm(degrees = 1000, speed = 100, motor = motorD)
+
+
 #endregion Nami
 
 #region Rishabh
@@ -1536,15 +1684,30 @@ def _run1():
 
 #endregion
 
+#Reachargable Battery dropoff
+#Run 1.5/run in the middle of 1 and 2
+def Run1To2():
+    primeHub.motion_sensor.reset_yaw_angle()
+    gyroStraight(distance=37, speed=60, targetAngle=0)
+    gyroStraight(distance=37, speed=60, backward = True, targetAngle=0)
 #region Function Calls
 
 _initialize()
 #doRunWithTiming(_run1_5)
 #doRunWithTiming(_run3)
 #doRunWithTiming(driver)
-measureColor()
+#measureColor()
 #doRunWithTiming(driver)
-#doRunWithTiming(_run3)
+def testCoordinateSystem():
+    for index in range(len(testX2)):
+        robotTest = robot(0,0)
+        robotTest.goto(testX2[index], testY2[index], 0, 10)
+
+#testCoordinateSystem()
+doRunWithTiming(_run6)
+#_toyFactoryN()
+
+
 
 raise SystemExit
 #endregion
