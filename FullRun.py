@@ -1,4 +1,4 @@
-# LEGO type:standard slot:1
+ # LEGO type:standard slot:0
 from spike import PrimeHub, ColorSensor,  Motor, MotorPair
 # autostart
 from math import *
@@ -1705,8 +1705,8 @@ _initialize()
 #doRunWithTiming(_run3)
 #doRunWithTiming(driver)
 #measureColor()
-#doRunWithTiming(driver)
-doRunWithTiming(_run1point5)
+doRunWithTiming(driver)
+#doRunWithTiming(_run1point5)
 
 #testCoordinateSystem()
 #doRunWithTiming(_run2)
