@@ -146,7 +146,7 @@ class Mission(object):
         minDistance = 10000000
         nearestIntersection = None
         for line in lines:
-            intersection = line.doesIntersect(robotLine)
+            intersection = line.doesIntersect(robotLine, )
             if (intersection != None):
                 distance = intersection.distance(start)
                 if (distance < minDistance):
@@ -183,21 +183,57 @@ class Line(object):
         return self.end
 
     def isPointOnLine(self, point):
-        '''Returns true if the point is on the line and between start and end points'''
+        '''TODO Returns true if the point is on the line and between start and end points'''
     
-    def doesIntersect(self, anotherLine):
+    def doesIntersect(self, anotherLine, intersectionPoint):
         ''' TODO: Rishabh write this code.
             returns the intersection point else returns None.
         '''
+        # Calculate Slope & Y Intercept of both points
+        
+        robotLineSlope = (end.getY() - start.getY()) / (end.getX() - start.getX())
+        missionLineSlope = (l2y2 - l2y1) / (l2x2 - l2x1)
+        robotLineYIntercept = end.getY() - robotLineSlope * end.getX()
+        missionLineYIntercept = l2y1 - missionLineSlope * l2x1
+        # Solve Both Equations
+        intersectionX = (robotLineYIntercept - missionLineYIntercept) / (missionLineSlope - robotLineSlope)
+        intersectionY = (robotLineSlope * robotLineYIntercept - robotLineSlope * missionLineYIntercept) / (missionLineSlope - robotLineSlope)
+        # Check If Point Is On Lines
+        if end.getX() < start.getX():
+            lowestX = end.getX()
+            highestX = start.getX()
+
+        if end.getX() > start.getX():
+            lowestX = start.getX()
+            highestX = end.getX()
+
+        if end.getY() < start.getY():
+            lowestY = end.getY()
+            highestY = start.getY()
+
+        if end.getY() > start.getY():
+            lowestY = start.getY()
+            highestY = end.getY()
+
+        if intersectionX > lowestX and intersectionX < highestX and intersectionY > lowestY and intersectionY < highestY:
+            return intersectionX, intersectionY
+
+        else:
+            return None
+
         return Point(10, 10)
 
 def findAngleToTurnAfterIntersection(mission, robotLine, intersectionPoint):
+    
+    # TODO Rishabh
     return 90
 
 def findDistanceToTravelAfterIntersection(mission, robotLine, intersectionPoint):
+    # TODO Rishabh
     return 10
 
 def calculateNewStartPointAfterInstersection(intersectionPoint, distance, angle):
+    # TODO Rishabh
     return Point(100, 100)
 
 def intersectLineWithAllMissions(reader, robotLine):
@@ -248,9 +284,9 @@ def findPath(start, end, reader, speed, actions):
     intersectionPoint, mission = intersectLineWithAllMissions(reader, robotLine)
     if (intersectionPoint == None):
         # Call Rishabh's code and return.
-        robotTest = robot(start.getX(), start.getY())
-        robotTest.goto(end.getX(), end.getY(), endAngle=0, speed=speed)
-        robotTest.addActions(speed=speed, robotActions=actions)
+        robot = robot(start.getX(), start.getY())
+        robot.goto(end.getX(), end.getY(), endAngle=0, speed=speed)
+        robot.addActions(speed=speed, robotActions=actions)
         return True
     else:
         angle = findAngleToTurnAfterIntersection(mission, robotLine, intersectionPoint)
