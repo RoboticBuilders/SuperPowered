@@ -1,4 +1,4 @@
-# LEGO type:standard slot:0
+# LEGO type:standard slot:0 autostart
 #from spike import PrimeHub, LightMatrix, Button, StatusLight, ForceSensor, MotionSensor, Speaker, ColorSensor, App, DistanceSensor, Motor, MotorPair
 from spike import PrimeHub, ColorSensor,  Motor, MotorPair
 #from spike.control import timer 
@@ -550,12 +550,13 @@ def getCorrectionForDrive(targetAngle, correctionMultiplier = 2):
     return correction * correctionMultiplier
 
 def testGyro():
-    gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*16)
-    gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*2, backward =True)
-    gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*2)
-    gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*2, backward=True)
-    gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*2)
-    gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*3, backward=True)
+    wheels.move(amount = 29, unit = "in", steering = 0, speed = 60)
+    # gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*16)
+    # gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*2, backward =True)
+    # gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*2)
+    # gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*2, backward=True)
+    # gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*2)
+    # gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*3, backward=True)
   
 
 def convertDegToCM(degrees):
@@ -1235,8 +1236,7 @@ def getToPowerPlantFromHome2():
     # Lower the power plant arm
     #motorD.run_for_degrees(degrees=-170, speed=50)
 
-    gyroStraight(targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_WEST - 0,  distance = _CM_PER_INCH*32, speed=60) # was 29 and then 2 more at 40 speed below
-    motorD.start(-30)
+    gyroStraight(targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_WEST - 0,  distance = _CM_PER_INCH*32, speed=80) # was 29 and then 2 more at 40 speed below
     _driveTillLine(speed = 20, distanceInCM = _CM_PER_INCH*6, target_angle = ANYA_RUN_START_OFFSET_TO_MAT_WEST - 0, blackOrWhite="White")
 
     # Skipping Toy Factory to measure time saved if moved to run 6
@@ -1257,7 +1257,7 @@ def ToyFactory2():
     _turnToAngle(ANYA_RUN_START_OFFSET_TO_MAT_WEST - 45, oneWheelTurn="Left", slowTurnRatio=0.8)
 
     # Do the Toy Factory
-    gyroStraight(targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_WEST - 45,  distance = 15, backward = True) # was 8
+    gyroStraight(speed=40, targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_WEST - 45,  distance = 15, backward = True) # was 8
 
     gyroStraight(targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_WEST - 45,  distance = 8)
     _turnToAngle2(ANYA_RUN_START_OFFSET_TO_MAT_WEST - 0, slowTurnRatio=0.6)
@@ -1623,7 +1623,8 @@ def _run1point5():
 
 _initialize()
 # doRunWithTiming(driver)
-doRunWithTiming(_run2)
+#doRunWithTiming(_run2)
+testGyro()
 
 raise SystemExit
 #endregion
