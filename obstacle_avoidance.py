@@ -175,12 +175,27 @@ class Line(object):
         '''Defines start and end points'''
         self.start = start
         self.end = end
+        self.isVerticalLine = False
+        if (self.end.getX() - self.start.getX()) != 0:
+            self.slope = (self.end.getY() - self.start.getY()) / (self.end.getX() - self.start.getX())
+        else:
+            self.isVerticalLine = True
+        self.yintercept = end.getY() - self.slope * end.getX()
+
+    def getSlope(self):
+        return self.slope
+
+    def getYIntercept(self):
+        return self.yintercept
 
     def getStart(self):
         return self.start
 
     def getEnd(self):
         return self.end
+
+    def isVertical(self):
+        return self.isVertical
 
     def isPointOnLine(self, point):
         '''TODO Returns true if the point is on the line and between start and end points'''
@@ -189,15 +204,30 @@ class Line(object):
         ''' TODO: Rishabh write this code.
             returns the intersection point else returns None.
         '''
-        # Calculate Slope & Y Intercept of both points
-        
-        robotLineSlope = (end.getY() - start.getY()) / (end.getX() - start.getX())
-        missionLineSlope = (l2y2 - l2y1) / (l2x2 - l2x1)
-        robotLineYIntercept = end.getY() - robotLineSlope * end.getX()
-        missionLineYIntercept = l2y1 - missionLineSlope * l2x1
-        # Solve Both Equations
-        intersectionX = (robotLineYIntercept - missionLineYIntercept) / (missionLineSlope - robotLineSlope)
-        intersectionY = (robotLineSlope * robotLineYIntercept - robotLineSlope * missionLineYIntercept) / (missionLineSlope - robotLineSlope)
+        intersectionX = None
+        intersectionY = None
+
+        # This line is vertical, need to deal with this specially
+        if (self.isVertical):
+            if (anotherLine.isVertical() == True):
+                # Both are vertical lines and so they dont intersect.
+                return None
+            else:
+                # This line is vertical, but the other line is not vertical
+                intersectionY = (anotherLine.getSlope() * self.getStart.getX()) + anotherLine.getYIntercept()
+                intersectionX = self.getStart.getX()
+        # The otherline is vertical, need to deal with this specially.
+        elif (anotherLine.isVertical() == True):
+            intersectionY = (self.slope * anotherLine.getStart().getX()) + self.yintercept
+            intersectionX = anotherLine.getStart().getX()
+        else:
+            l2slope = anotherLine.getSlope()
+            l2YIntercept = anotherLine.getYIntercept()
+            
+            # Solve Both Equations
+            intersectionX = (self.yintercept - l2YIntercept) / (l2slope - self.slope)
+            intersectionY = (((self.slope * self.yintercept) - (self.slope * l2YIntercept)) / (l2slope - self.slope)) + self.yintercept
+
         # Check If Point Is On Lines
         if end.getX() < start.getX():
             lowestX = end.getX()
@@ -216,8 +246,7 @@ class Line(object):
             highestY = end.getY()
 
         if intersectionX > lowestX and intersectionX < highestX and intersectionY > lowestY and intersectionY < highestY:
-            return intersectionX, intersectionY
-
+            return Point(intersectionX, intersectionY)
         else:
             return None
 
