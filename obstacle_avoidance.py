@@ -1,6 +1,6 @@
 import csv, math
 
-class robot:
+class Robot:
     currentLocationX = 0
     currentLocationY = 0
     currentRobotAngle = 0
@@ -117,14 +117,19 @@ class robot:
         #_turnToAngle(targetAngle = endAngle, speed = speed)
 
 class Mission(object):
-    def __init__(self, bottomLeft, topRight):
+    def __init__(self, name, bottomLeft, topRight):
+        self.name = name
         self.bottomLeft = bottomLeft
         self.topRight = topRight
+
+    def getName(self):
+        return self.name
 
     def findClosestIntersectionPoint(self, robotLine):
         # 1. form all the four lines that the mission is made of.
         # 2. intersect the four lines with the input line
         # 3. Return the intersection point or None.
+        # Also Returns whether this was a horizontal or vertical intersection.
 
         lines = []
         end = Point(self.topRight.getX(), self.bottomLeft.getY())
@@ -145,15 +150,27 @@ class Mission(object):
 
         minDistance = 10000000
         nearestIntersection = None
+        horizontal = None
+        counter = 1
         for line in lines:
-            intersection = line.doesIntersect(robotLine, )
+            intersection = line.doesIntersect(robotLine)
             if (intersection != None):
-                distance = intersection.distance(start)
+                distance = intersection.distance(robotLine.getStart())
                 if (distance < minDistance):
                     minDistance = distance
                     nearestIntersection = intersection
 
-        return nearestIntersection
+                    # This means that we have a horizontal intersection
+                    # Since the first two lines in the list are 
+                    # the horizontal lines
+                    if (counter < 3):
+                        horizontal = True
+                    else:
+                        horizontal = False
+
+            counter = counter + 1
+
+        return nearestIntersection, horizontal
 
 class Point(object):
     def __init__(self, x, y):
@@ -168,7 +185,14 @@ class Point(object):
         return self.Y
 
     def distance(self, point):
-        return math.sqrt(math.pow((self.x - point.getX())) + math.pow((self.y - point.getY())))
+        return math.sqrt(math.pow((self.X - point.getX()), 2) + math.pow((self.Y - point.getY()), 2))
+
+    def equal(self, otherpoint):
+        if (self.getX() != otherpoint.getX()):
+            return False
+        if (self.getY() != otherpoint.getY()):
+            return False
+        return True
 
 class Line(object):
     def __init__(self, start, end):
@@ -178,9 +202,11 @@ class Line(object):
         self.isVerticalLine = False
         if (self.end.getX() - self.start.getX()) != 0:
             self.slope = (self.end.getY() - self.start.getY()) / (self.end.getX() - self.start.getX())
+            self.yintercept = end.getY() - self.slope * end.getX()
         else:
             self.isVerticalLine = True
-        self.yintercept = end.getY() - self.slope * end.getX()
+            self.yintercept = None
+            self.slope = None
 
     def getSlope(self):
         return self.slope
@@ -195,27 +221,36 @@ class Line(object):
         return self.end
 
     def isVertical(self):
-        return self.isVertical
+        return self.isVerticalLine
 
     def isPointOnLine(self, point):
-        '''TODO Returns true if the point is on the line and between start and end points'''
+        '''Returns true if the point is on the line and between start and end points'''
+        lowX = min(self.end.getX(), self.start.getX())
+        highX = max(self.end.getX(), self.start.getX())
+
+        lowY = min(self.end.getY(), self.start.getY())
+        highY = max(self.end.getY(), self.start.getY())
+        
+        if point.getX() >= lowX and point.getX() <= highX and point.getY() >= lowY and point.getY() <= highY:
+            return True
+        else:
+            return False
     
-    def doesIntersect(self, anotherLine, intersectionPoint):
-        ''' TODO: Rishabh write this code.
-            returns the intersection point else returns None.
+    def doesIntersect(self, anotherLine):
+        ''' Returns the intersection point else returns None.
         '''
         intersectionX = None
         intersectionY = None
 
         # This line is vertical, need to deal with this specially
-        if (self.isVertical):
+        if (self.isVerticalLine == True):
             if (anotherLine.isVertical() == True):
                 # Both are vertical lines and so they dont intersect.
                 return None
             else:
                 # This line is vertical, but the other line is not vertical
-                intersectionY = (anotherLine.getSlope() * self.getStart.getX()) + anotherLine.getYIntercept()
-                intersectionX = self.getStart.getX()
+                intersectionY = (anotherLine.getSlope() * self.getStart().getX()) + anotherLine.getYIntercept()
+                intersectionX = self.getStart().getX()
         # The otherline is vertical, need to deal with this specially.
         elif (anotherLine.isVertical() == True):
             intersectionY = (self.slope * anotherLine.getStart().getX()) + self.yintercept
@@ -224,112 +259,236 @@ class Line(object):
             l2slope = anotherLine.getSlope()
             l2YIntercept = anotherLine.getYIntercept()
             
+            # Parallel lines
+            if (l2slope == self.slope):
+                return None
+
             # Solve Both Equations
             intersectionX = (self.yintercept - l2YIntercept) / (l2slope - self.slope)
             intersectionY = (((self.slope * self.yintercept) - (self.slope * l2YIntercept)) / (l2slope - self.slope)) + self.yintercept
 
-        # Check If Point Is On Lines
-        if end.getX() < start.getX():
-            lowestX = end.getX()
-            highestX = start.getX()
-
-        if end.getX() > start.getX():
-            lowestX = start.getX()
-            highestX = end.getX()
-
-        if end.getY() < start.getY():
-            lowestY = end.getY()
-            highestY = start.getY()
-
-        if end.getY() > start.getY():
-            lowestY = start.getY()
-            highestY = end.getY()
-
-        if intersectionX > lowestX and intersectionX < highestX and intersectionY > lowestY and intersectionY < highestY:
-            return Point(intersectionX, intersectionY)
-        else:
+        intersectionPoint = Point(intersectionX, intersectionY)
+        if self.isPointOnLine(intersectionPoint) == False:
             return None
 
-        return Point(10, 10)
+        if anotherLine.isPointOnLine(intersectionPoint) == False:
+            return None
 
-def findAngleToTurnAfterIntersection(mission, robotLine, intersectionPoint):
+        return intersectionPoint
+
+class LineTest(object):
+    def __init__(self):
+        return
+
+    def runTest(self, testCase):
+        print("running testCase: " + str(testCase.__name__))
+        try:
+            testCase()  
+        except AssertionError:
+            print("Test Failed")
+            return
+        print("Passed")
+
+    def Test45dLines(self):
+        line1 = Line(Point(0,0), Point(10,10))
+        line2 = Line(Point(10,0), Point(0,10))
+        expectedIntersectionPoint = Point(5,5)
+        intersectionPoint = line1.doesIntersect(line2)
+        assert expectedIntersectionPoint.equal(intersectionPoint) == True
+
+    def Test45dLineIntersectionWithVerticalLineMovingNE(self):
+        line1 = Line(Point(0,0), Point(10,10))
+        line2 = Line(Point(5,0), Point(5,20))
+        expectedIntersectionPoint = Point(5,5)
+        intersectionPoint = line1.doesIntersect(line2)
+        assert expectedIntersectionPoint.equal(intersectionPoint) == True
+
+    def Test45dLineIntersectionWithVerticalLineMovingSE(self):
+        line1 = Line(Point(0,20), Point(20,0))
+        line2 = Line(Point(5,0), Point(5,20))
+        expectedIntersectionPoint = Point(5,15)
+        intersectionPoint = line1.doesIntersect(line2)
+        assert expectedIntersectionPoint.equal(intersectionPoint) == True
+
+    def Test45dLineIntersectionWithVerticalLineMovingNW(self):
+        line1 = Line(Point(20,0), Point(0,20))
+        line2 = Line(Point(5,0), Point(5,20))
+        expectedIntersectionPoint = Point(5,15)
+        intersectionPoint = line1.doesIntersect(line2)
+        assert expectedIntersectionPoint.equal(intersectionPoint) == True
+
+    def Test45dLineIntersectionWithVerticalLineMovingSW(self):
+        line1 = Line(Point(10,10), Point(0,0))
+        line2 = Line(Point(5,0), Point(5,20))
+        expectedIntersectionPoint = Point(5,15)
+        intersectionPoint = line1.doesIntersect(line2)
+        assert expectedIntersectionPoint.equal(intersectionPoint) == True
+
+    def TestNoIntersection(self):
+        line1 = Line(Point(10,10), Point(0,0))
+        line2 = Line(Point(15,0), Point(15,0))
+        expectedIntersectionPoint = None
+        intersectionPoint = line1.doesIntersect(line2)
+        assert intersectionPoint == None
+
+    def TestNoIntersectionParallelLines(self):
+        line1 = Line(Point(10,10), Point(0,0))
+        line2 = Line(Point(10,20), Point(20,30))
+        expectedIntersectionPoint = None
+        intersectionPoint = line1.doesIntersect(line2)
+        assert intersectionPoint == None
+
+    def Test45dLineIntersectionWithHorizontalLine(self):
+        line1 = Line(Point(20,20), Point(0,0))
+        line2 = Line(Point(0,5), Point(10,5))
+        expectedIntersectionPoint = Point(5,5)
+        intersectionPoint = line1.doesIntersect(line2)
+        assert expectedIntersectionPoint.equal(intersectionPoint) == True
+
+    def runAllTests(self):
+        self.runTest(self.Test45dLines)
+        self.runTest(self.Test45dLineIntersectionWithVerticalLineMovingNE)
+        self.runTest(self.Test45dLineIntersectionWithVerticalLineMovingSE)
+        self.runTest(self.Test45dLineIntersectionWithVerticalLineMovingNW)
+        self.runTest(self.Test45dLineIntersectionWithVerticalLineMovingSW)
+        self.runTest(self.TestNoIntersection)
+        self.runTest(self.TestNoIntersectionParallelLines)
+        self.runTest(self.Test45dLineIntersectionWithHorizontalLine)
     
-    # TODO Rishabh
-    return 90
+def findAngleToTurnAfterIntersection(mission, robotLine, intersectionPoint, horizontal):
+    if (horizontal == True):
+        if (intersectionPoint.getX() < robotLine.getEnd().getX()):
+            return 0
+        else:
+            return -178
+    else:
+        if (intersectionPoint.getY() < robotLine.getEnd().getY()):
+            return -90
+        else:
+            return 90
 
 def findDistanceToTravelAfterIntersection(mission, robotLine, intersectionPoint):
-    # TODO Rishabh
-    return 10
+    # For now 10 works for all missions, we can optimize later.
+    return 30
 
 def calculateNewStartPointAfterInstersection(intersectionPoint, distance, angle):
-    # TODO Rishabh
-    return Point(100, 100)
+    if (angle == 0):
+        x = intersectionPoint.getX() + distance
+        return Point(x, intersectionPoint.getY())
+    elif(angle == -179 or angle == 179):
+        x = intersectionPoint.getX() - distance
+        return Point(x, intersectionPoint.getY())
+    elif(angle == 90):
+        y = intersectionPoint.getY() - distance
+        return Point(intersectionPoint.getX(), y)
+    else:
+        y = intersectionPoint.getY() + distance
+        return Point(intersectionPoint.getX(), y)
 
-def intersectLineWithAllMissions(reader, robotLine):
+def intersectLineWithAllMissions(missions, robotLine):
     # Intersects the robotline with all missions and returns the mission
     # and the intersection point that is closest to the start point of the
     # robot line.
+    # The code also returns if the intersection with the mission is with
+    # the horizontal line or the vertical line to aid in which way to turn.
 
     # select a large value.
     minDistance = 1000000
     nearestIntersection = None
     nearestIntersectionMission = None
-    for row in reader:
+    for row in missions:
         bottomLeft = Point(row[1], row[2])
         topRight = Point(row[3], row[4])
 
         # Form mission.    
-        mission = Mission(bottomLeft, topRight)
-        intersectionPoint = mission.findClosestIntersectionPoint(robotLine)
+        mission = Mission(row[0], bottomLeft, topRight)
+        intersectionPoint,horizontal = mission.findClosestIntersectionPoint(robotLine)
 
-        # Calculate distance of the intersection point from the start point.
-        distance = intersectionPoint.distance(robotLine.getStart())
-        if (distance < minDistance):
-            minDistance = distance
-            nearestIntersection = intersectionPoint
-            nearestIntersectionMission = mission
+        if intersectionPoint != None:
+            # Calculate distance of the intersection point from the start point.
+            distance = intersectionPoint.distance(robotLine.getStart())
+            if (distance < minDistance):
+                minDistance = distance
+                nearestIntersection = intersectionPoint
+                nearestIntersectionMission = mission
+                nearestintersectionHorizontal = horizontal
 
     if nearestIntersection != None:
-        return nearestIntersection, nearestIntersectionMission
+        return nearestIntersection, nearestIntersectionMission, nearestintersectionHorizontal
     else:
-        return None, None
+        return None, None, None
             
 def readMissionFile():
     csvfile = open("C:\\Users\\rishabh\Documents\\FLL\\SuperPowered\\mission_coordinates.txt", newline='\n')
     reader = csv.reader(csvfile, delimiter=',', quotechar='|')
+    missions = []
+    count = 0
     for row in reader:
-        print(row)
-    return reader
+        if count != 0:
+            introw = []
+            firstiteration = True
+            for value in row:
+                if firstiteration == False:
+                    introw.append(int(value))
+                else:
+                    introw.append(value)
+                firstiteration = False
+            missions.append(introw)
+            print(introw)
+        count = 1
+    return missions
 
-def addActions(speed, angle, distance, actions):
-    actions.append("_turnToAngle(targetAngle=={}, speed={}".format(angle, speed))
+def addActions(speed, angle, distance, mission, actions):
+    actions.append("# Code to get past mission: {}".format(mission.getName()))
+    actions.append("_turnToAngle(targetAngle=={}, speed={})".format(angle, speed))
     actions.append("drive(speed={}, distanceInCM = {}, target_angle = {})".format(speed, distance, angle))
 
-def findPath(start, end, reader, speed, actions):
+def findPath(start, end, missions, speed, actions):
     if (start == end):
         return True
 
     robotLine = Line(start, end)
-    intersectionPoint, mission = intersectLineWithAllMissions(reader, robotLine)
+    intersectionPoint, mission, horizontal = intersectLineWithAllMissions(missions, robotLine)
     if (intersectionPoint == None):
-        # Call Rishabh's code and return.
-        robot = robot(start.getX(), start.getY())
+        # Get to the end point.
+        robot = Robot(start.getX(), start.getY())
         robot.goto(end.getX(), end.getY(), endAngle=0, speed=speed)
+        actions.append("# Drive from {},{} to {},{}".format(start.getX(), start.getY(),
+            end.getX(), end.getY()))
         robot.addActions(speed=speed, robotActions=actions)
         return True
     else:
-        angle = findAngleToTurnAfterIntersection(mission, robotLine, intersectionPoint)
+        # First get to the intersection point.
+        robot = Robot(start.getX(), start.getY())
+        robot.goto(intersectionPoint.getX(), intersectionPoint.getY(), endAngle=0, speed=speed)
+        actions.append("# Drive from {},{} to mission:{}".format(start.getX(), start.getY(), mission.getName()))
+        robot.addActions(speed=speed, robotActions=actions)
+
+        # Add the code to get past the obstacle
+        angle = findAngleToTurnAfterIntersection(mission, robotLine, intersectionPoint, horizontal)
         distance = findDistanceToTravelAfterIntersection(mission, robotLine, intersectionPoint)
         startPoint = calculateNewStartPointAfterInstersection(intersectionPoint, distance, angle)
-        addActions(speed, angle, distance, actions)
-        if (findPath(startPoint, end, reader, speed, actions) == True):
+        addActions(speed, angle, distance, mission, actions)
+        if (findPath(startPoint, end, missions, speed, actions) == True):
             return True
 
-start = Point(0,0)
-end = Point(100,100)
-reader = readMissionFile()
+# Get to the smart grid
+start = Point(40,10)
+
+# This is right before the smart grid
+end = Point(97,94)
+missions = readMissionFile()
 actions = []
-findPath(start, end, reader, actions)
-print(actions)
+findPath(start, end, missions, 50, actions)
+
+# print the code.
+print("------------------------------")
+print("Printing code now, copy this code to edit and run robot.")
+for action in actions:
+    print(action)
+
+
+#test = LineTest()
+#test.runAllTests()
 
 
