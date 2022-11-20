@@ -1,4 +1,4 @@
- # LEGO type:standard slot:0
+ # LEGO type:standard slot:6
 from spike import PrimeHub, ColorSensor,  Motor, MotorPair
 # autostart
 from math import *
@@ -1514,7 +1514,7 @@ def _doToyFactory():
     # Back into the toy factory and align
 
     # Drop off the units.
-    moveArm(degrees = -1000, speed = 100, motor = motorD)
+    moveArm(degrees = -2000, speed = 100, motor = motorD)
     #moveArm(degrees = 1000, speed = 100, motor = motorD)
     
 def _dropRechargeableBatteryAndOilTruckWithGyroReset():
@@ -1702,10 +1702,10 @@ def _run1point5():
 
 _initialize()
 #doRunWithTiming(_run1_5)
-#doRunWithTiming(_run3)
+doRunWithTiming(_run6)
 #doRunWithTiming(driver)
 #measureColor()
-doRunWithTiming(driver)
+#doRunWithTiming(driver)
 #doRunWithTiming(_run1point5)
 
 #testCoordinateSystem()
