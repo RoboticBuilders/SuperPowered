@@ -48,8 +48,8 @@ class Robot:
                 greatestDistance = abs(yDiff)
             if abs(xDiff) == abs(yDiff):
                 greatestDistance = abs(xDiff)
-            else:
-                print("URGENT: Error in finding quadrants around robot.")
+            #else:
+            #    print("URGENT: Error in finding quadrants around robot.")
 
             maxX = x1 + greatestDistance
             minX = x1 - greatestDistance
@@ -59,7 +59,7 @@ class Robot:
 
         def _findEndQuadrant(x1,y1,x2,y2,maxX,maxY,minX,minY):
             endQuadrant = 0
-            print(x1,y1,x2,y2,maxX,maxY,minX,minY)
+            #print(x1,y1,x2,y2,maxX,maxY,minX,minY)
             if x2 >= x1 and x2 <= maxX and y2 >= y1 and y2 <= maxY:
                 endQuadrant = 1
             
@@ -72,8 +72,8 @@ class Robot:
             if x2 >= x1 and x2 <= maxX and y2 >= minY and y2 <= y1:
                 endQuadrant = 4
 
-            if endQuadrant == 0:
-                print("URGENT: Error in finding quadrant of end location")
+            #if endQuadrant == 0:
+            #    print("URGENT: Error in finding quadrant of end location")
 
             self.quadrant2 = endQuadrant
             
@@ -487,6 +487,7 @@ findPath(start, end, missions, 50, actions)
 # print the code.
 print("------------------------------")
 print("Printing code now, copy this code to edit and run robot.")
+print("------------------------------")
 for action in actions:
     print(action)
 
