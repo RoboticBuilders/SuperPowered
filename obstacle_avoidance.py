@@ -476,7 +476,10 @@ def findPath(start, end, missions, speed, actions):
 start = Point(40,10)
 
 # This is right before the smart grid
-end = Point(97,94)
+#end = Point(97,94)
+
+# This is right before the TV
+end = Point(189,80)
 missions = readMissionFile()
 actions = []
 findPath(start, end, missions, 50, actions)
