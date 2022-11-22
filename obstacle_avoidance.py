@@ -18,8 +18,8 @@ class Robot:
         self.quadrant2 = 0
 
     def addActions(self, speed, robotActions):
-        robotActions.append("_turnToAngle(targetAngle=={}, speed={}".format(self.angle, speed))
-        robotActions.append("drive(speed={}, distanceInCM = {}, target_angle = {})".format(speed, self.distance, self.angle))
+        robotActions.append("_turnToAngle(targetAngle={}, speed={})".format(self.angle, speed))
+        robotActions.append("drive(speed={}, distanceInCM={}, target_angle={})".format(speed, self.distance, self.angle))
 
     def goto(self,x2,y2,endAngle,speed):
         self.angle = 0
@@ -440,8 +440,8 @@ def readMissionFile():
 
 def addActions(speed, angle, distance, mission, actions):
     actions.append("# Code to get past mission: {}".format(mission.getName()))
-    actions.append("_turnToAngle(targetAngle=={}, speed={})".format(angle, speed))
-    actions.append("drive(speed={}, distanceInCM = {}, target_angle = {})".format(speed, distance, angle))
+    actions.append("_turnToAngle(targetAngle={}, speed={})".format(angle, speed))
+    actions.append("drive(speed={}, distanceInCM={}, target_angle={})".format(speed, distance, angle))
 
 def findPath(start, end, missions, speed, actions):
     if (start == end):
