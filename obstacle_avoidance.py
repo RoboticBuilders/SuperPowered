@@ -88,12 +88,18 @@ class Robot:
         def _fixAngle(endQuadrant, rAngle):
             turnAngle = rAngle
 
+            if endQuadrant == 1:
+                turnAngle = -1 * rAngle
+
+            if endQuadrant == 2:
+                turnAngle = -90 - (90-abs(rAngle))
+
             if endQuadrant == 3:
-                turnAngle = -1 * rAngle - 90
-
+                turnAngle = 90 + (90-abs(rAngle))
+            
             if endQuadrant == 4:
-                turnAngle = -1 * rAngle + 90
-
+                turnAngle = -1* rAngle 
+            
             self.angle = round(turnAngle)
 
         def _findDistance(x1,y1,x2,y2):
@@ -105,9 +111,16 @@ class Robot:
         #    drive(speed = speed, distanceInCM = self.distance, target_angle = self.angle)
 
         _findQuadrant(x1,y1,x2,y2)
-        _calculateSlope(x1,y1,x2,y2)
-        _calculateAngle(self.slope)
-        _fixAngle(self.quadrant2, self.angle)
+        # skip the slope calculation if we are travelling vertically
+        if (x1 != x2):
+            _calculateSlope(x1,y1,x2,y2)
+            _calculateAngle(self.slope) 
+            _fixAngle(self.quadrant2, self.angle)
+        else:
+            if (y2 > y1):
+                self.angle = -90
+            else:
+                self.angle = 90
         _findDistance(x1,y1,x2,y2)
         #_move(speed)
         #print(str(self.angle))
@@ -472,25 +485,54 @@ def findPath(start, end, missions, speed, actions):
         if (findPath(startPoint, end, missions, speed, actions) == True):
             return True
 
-# Get to the smart grid
-start = Point(40,10)
+home2 = Point(190, 20)
+TV = Point(185, 65)
+HybridCar = Point(122, 90)
+home2 = Point(190, 20)
+powerplant = Point(100, 20)
+home1 = Point(30,10)
+smartgrid = Point(97, 94)
+solarplant = Point(77, 96)
+oilplatform = Point(3, 64)
+energyStorage = Point(30, 96)
+waterReservoir = Point(74, 74)
+toyfactory = Point(125,45)
+powerToX = Point(98, 54)
 
-# This is right before the smart grid
-#end = Point(97,94)
-
-# This is right before the TV
-end = Point(189,80)
 missions = readMissionFile()
 actions = []
-findPath(start, end, missions, 50, actions)
-
-# print the code.
+run1 = [home2, TV, HybridCar, home2]
+run2 = [home2, powerplant, home1]
+run3 = [home1, smartgrid, solarplant, home1]
+run4 = [home1, oilplatform, energyStorage, home1]
+run6 = [home1, waterReservoir, toyfactory]
+points = run6
+counter = 0
 print("------------------------------")
 print("Printing code now, copy this code to edit and run robot.")
 print("------------------------------")
+        
+for point in points:
+    if counter < len(points) - 1:
+        actions.append("# Driving from ({},{}) to ({},{})".format(points[counter].getX(), 
+            points[counter].getY(), points[counter+1].getX(), points[counter+1].getY()))
+        findPath(points[counter], points[counter + 1], missions, 50, actions)
+
+    counter = counter + 1
+# print the code.
 for action in actions:
     print(action)
 
+'''
+start = Point(30, 10)
+end = Point(176, 88)
+missions = readMissionFile()
+actions = []
+findPath(start, end, missions, 50, actions)
+# print the code.
+for action in actions:
+    print(action)
+'''
 
 #test = LineTest()
 #test.runAllTests()
