@@ -320,7 +320,7 @@ class LineTest(object):
     def Test45dLineIntersectionWithVerticalLineMovingSW(self):
         line1 = Line(Point(10,10), Point(0,0))
         line2 = Line(Point(5,0), Point(5,20))
-        expectedIntersectionPoint = Point(5,15)
+        expectedIntersectionPoint = Point(5,5)
         intersectionPoint = line1.doesIntersect(line2)
         assert expectedIntersectionPoint.equal(intersectionPoint) == True
 
