@@ -432,7 +432,7 @@ def intersectLineWithAllMissions(missions, robotLine):
         return None, None, None
             
 def readMissionFile():
-    csvfile = open("C:\\Users\\rishabh\Documents\\FLL\\SuperPowered\\mission_coordinates.txt", newline='\n')
+    csvfile = open(".\\mission_coordinates.txt", newline='\n')
     reader = csv.reader(csvfile, delimiter=',', quotechar='|')
     missions = []
     count = 0
