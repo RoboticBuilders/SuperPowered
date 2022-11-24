@@ -506,7 +506,7 @@ run2 = [home2, powerplant, home1]
 run3 = [home1, smartgrid, solarplant, home1]
 run4 = [home1, oilplatform, energyStorage, home1]
 run6 = [home1, waterReservoir, toyfactory]
-points = run6
+points = run3
 counter = 0
 print("------------------------------")
 print("Printing code now, copy this code to edit and run robot.")

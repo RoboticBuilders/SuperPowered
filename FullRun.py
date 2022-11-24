@@ -1,4 +1,4 @@
- # LEGO type:standard slot:6
+# LEGO type:standard slot:0
 from spike import PrimeHub, ColorSensor,  Motor, MotorPair
 # autostart
 from math import *
@@ -283,12 +283,6 @@ def _turnToAngle(targetAngle, speed=20, forceTurn="None", slowTurnRatio=0.4, cor
     1. Spike prime gyro angles: -179 to +179. This is the input targetAngle and also the readings from the gyro.
     2. Spike prime 0-360 space. We first convert spike prime gyro angles to 0-360 
        (this is because its easier to think in this space)
-    3. Spike Prime Continous space. This is the angles produced by the ContinousAngle class. This is what the loop
-       in the _turnRobotWithSlowDown operates in. This space depends upon the start angle and zero crossings.
-       Examples: 
-       a) Turning right: 350,351,355,359,360,361,362,365...
-       b) Turning left: 5,4,3,1,0,-1,-2,-3,-5....
-    In the code its confusing what space a particular angle is in. So be careful when changing code.
     """
     logMessage("Starting turn", level=4)
     wheels.stop()
@@ -1701,16 +1695,7 @@ def _run1point5():
 #region Function Calls
 
 _initialize()
-#doRunWithTiming(_run1_5)
-doRunWithTiming(_run6)
-#doRunWithTiming(driver)
-#measureColor()
-#doRunWithTiming(driver)
-#doRunWithTiming(_run1point5)
-
-#testCoordinateSystem()
-#doRunWithTiming(_run2)
-#_toyFactoryN()
+doRunWithTiming(driver)
 
 raise SystemExit
 #endregion
