@@ -542,7 +542,7 @@ TV = Point(185, 65)
 HybridCar = Point(142, 90)
 home2 = Point(190, 20)
 powerplant = Point(100, 20)
-home1 = Point(30,10)
+home1 = Point(20,10)
 smartgrid = Point(97, 94)
 solarplant = Point(77, 96)
 oilplatform = Point(5, 64)
@@ -553,6 +553,7 @@ powerToX = Point(98, 54)
 windTurbine = Point(170, 80)
 RechargeableBattery = Point(149, 70)
 
+
 missions = readMissionFile()
 actions = []
 coordinates = []
@@ -561,8 +562,9 @@ run2 = [home2, powerplant, home1]
 run3 = [home1, smartgrid, solarplant, home1]
 run4 = [home1, oilplatform, energyStorage, home1]
 run6 = [home1, waterReservoir, toyfactory]
-trialRun = [home1, home2]
-points = run6
+justForFun = [home2, TV, windTurbine, HybridCar, RechargeableBattery, smartgrid, solarplant, waterReservoir, home1,
+            powerplant, powerToX, toyfactory, home2]
+points = justForFun
 counter = 0
 print("------------------------------")
 print("Printing code now, copy this code to edit and run robot.")

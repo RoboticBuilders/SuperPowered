@@ -484,20 +484,20 @@ def turnForMotorRotations(degreesOfRotation, direction, speed=40, oneWheelTurn="
     turnLeftRemaining = 0
     turnRightRemaining = 0
     if(direction == "Left"):
-        if(oneWheelTurn is "Left" or oneWheelTurn is "None"):
+        if(oneWheelTurn == "Left" or oneWheelTurn == "None"):
             leftSpeed = speed
             turnLeftRemaining = degreesOfRotation
             # print("Left Turn: Right speed=" + str(rightSpeed) + ", Left Remaining=" + str(turnRightRemaining))
-        if(oneWheelTurn is "Right" or oneWheelTurn is "None"):
+        if(oneWheelTurn == "Right" or oneWheelTurn == "None"):
             rightSpeed = speed
             turnRightRemaining = degreesOfRotation
             # print("Left Turn: Right speed=" + str(rightSpeed) + ", Right Remaining=" + str(turnRightRemaining))
     if(direction == "Right"):
-        if(oneWheelTurn is "Left" or oneWheelTurn is "None"):
+        if(oneWheelTurn == "Left" or oneWheelTurn == "None"):
             leftSpeed = -1*speed
             turnLeftRemaining = degreesOfRotation
             # print("Right Turn: Left speed=" + str(leftSpeed) + ", Left Remaining=" + str(turnLeftRemaining))
-        if(oneWheelTurn is "Right" or oneWheelTurn is "None"):
+        if(oneWheelTurn == "Right" or oneWheelTurn == "None"):
             rightSpeed = -1*speed
             turnRightRemaining = degreesOfRotation
             # print("Right Turn: Right speed=" + str(rightSpeed) + ", Right Remaining=" + str(turnRightRemaining))
