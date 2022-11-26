@@ -1,5 +1,16 @@
 import csv, math
-
+from turtle import Turtle, Screen
+turtle = Turtle()
+screen = Screen()
+screen.setup(780,460, 0, 0)
+screen.setworldcoordinates(0,0,202,114)
+screen.mode('world')
+turtle.pen(fillcolor="black", pencolor="blue", pensize=10)
+#screensize(1500,1500)
+screen.bgpic(".\\superpowered_wireframe.GIF")
+canvas = screen.getcanvas()
+canvas.itemconfig(screen._bgpic, anchor="sw")
+screen.update()
 class Robot:
     currentLocationX = 0
     currentLocationY = 0
@@ -137,6 +148,12 @@ class Mission(object):
 
     def getName(self):
         return self.name
+
+    def getBottomLeft(self):
+        return self.bottomLeft
+
+    def getTopRight(self):
+        return self.topRight
 
     def findClosestIntersectionPoint(self, robotLine):
         # 1. form all the four lines that the mission is made of.
@@ -373,16 +390,26 @@ def findAngleToTurnAfterIntersection(mission, robotLine, intersectionPoint, hori
         if (intersectionPoint.getX() < robotLine.getEnd().getX()):
             return 0
         else:
-            return -178
+            return -179
     else:
         if (intersectionPoint.getY() < robotLine.getEnd().getY()):
             return -90
         else:
             return 90
 
-def findDistanceToTravelAfterIntersection(mission, robotLine, intersectionPoint):
-    # For now 10 works for all missions, we can optimize later.
-    return 30
+def findDistanceToTravelAfterIntersection(mission, robotLine, intersectionPoint, angle):
+    # For now 30 works for all missions, we can optimize later.
+    distance = 30
+    offset = 20
+    if angle == 90:
+        distance = intersectionPoint.getY() - mission.getBottomLeft().getY() + offset
+    if angle == -90:
+        distance = mission.getTopRight().getY() - intersectionPoint.getY() + offset
+    if angle == 0:
+        distance = mission.getTopRight().getX() - intersectionPoint.getX() + offset
+    if angle == 179 or angle == -179:
+        distance = intersectionPoint.getX() - mission.getBottomLeft().getX() + offset
+    return distance
 
 def calculateNewStartPointAfterInstersection(intersectionPoint, distance, angle):
     if (angle == 0):
@@ -456,72 +483,105 @@ def addActions(speed, angle, distance, mission, actions):
     actions.append("_turnToAngle(targetAngle={}, speed={})".format(angle, speed))
     actions.append("drive(speed={}, distanceInCM={}, target_angle={})".format(speed, distance, angle))
 
-def findPath(start, end, missions, speed, actions):
+def drawPath(coordinates):
+    turtle.hideturtle()
+    turtle.penup()
+    turtle.goto(coordinates[0].getX(),coordinates[0].getY())
+    turtle.pendown()
+    turtle.showturtle()
+    for coordinate in range(len(coordinates)):
+            print(str(coordinates[coordinate].getX()) + ", " + str(coordinates[coordinate].getY()))
+            turtle.goto(coordinates[coordinate].getX(), coordinates[coordinate].getY())
+    screen.mainloop()
+
+def checkIfEndInMission(endX, endY):
+    for row in missions:
+        if endX >= row[1] and endX <= row[3] and endY >= row[2] and endY <= row[4]:
+            return True, Mission(row[0], Point(row[1], row[2]), Point(row[3], row[4]))
+    return False, None
+
+def findPath(start, end, missions, speed, actions, coordinates):
     if (start == end):
         return True
 
     robotLine = Line(start, end)
     intersectionPoint, mission, horizontal = intersectLineWithAllMissions(missions, robotLine)
+    coordinates.append(Point(start.getX(), start.getY()))
+    endInMission, endMission = checkIfEndInMission(end.getX(), end.getY())
     if (intersectionPoint == None):
         # Get to the end point.
         robot = Robot(start.getX(), start.getY())
         robot.goto(end.getX(), end.getY(), endAngle=0, speed=speed)
-        actions.append("# Drive from {},{} to {},{}".format(start.getX(), start.getY(),
-            end.getX(), end.getY()))
+        actions.append("# Drive from ({},{}) to ({},{})".format(start.getX(), start.getY(), end.getX(), end.getY()))
+        coordinates.append(Point(end.getX(),end.getY()))
         robot.addActions(speed=speed, robotActions=actions)
+        return True
+
+    if (endInMission == True and mission.getName() == endMission.getName()):
+        coordinates.append(Point(end.getX(), end.getY()))
         return True
     else:
         # First get to the intersection point.
         robot = Robot(start.getX(), start.getY())
         robot.goto(intersectionPoint.getX(), intersectionPoint.getY(), endAngle=0, speed=speed)
-        actions.append("# Drive from {},{} to mission:{}".format(start.getX(), start.getY(), mission.getName()))
+        actions.append("# Drive from ({},{}) to mission:{} at ({},{})".format(start.getX(), start.getY(), mission.getName(),intersectionPoint.getX(), intersectionPoint.getY()))
+        coordinates.append(intersectionPoint)
         robot.addActions(speed=speed, robotActions=actions)
 
         # Add the code to get past the obstacle
         angle = findAngleToTurnAfterIntersection(mission, robotLine, intersectionPoint, horizontal)
-        distance = findDistanceToTravelAfterIntersection(mission, robotLine, intersectionPoint)
+        distance = findDistanceToTravelAfterIntersection(mission, robotLine, intersectionPoint, angle)
         startPoint = calculateNewStartPointAfterInstersection(intersectionPoint, distance, angle)
         addActions(speed, angle, distance, mission, actions)
-        if (findPath(startPoint, end, missions, speed, actions) == True):
+        coordinates.append(startPoint)
+        if (findPath(startPoint, end, missions, speed, actions, coordinates) == True):
             return True
 
 home2 = Point(190, 20)
 TV = Point(185, 65)
-HybridCar = Point(122, 90)
+HybridCar = Point(142, 90)
 home2 = Point(190, 20)
 powerplant = Point(100, 20)
 home1 = Point(30,10)
 smartgrid = Point(97, 94)
 solarplant = Point(77, 96)
-oilplatform = Point(3, 64)
-energyStorage = Point(30, 96)
+oilplatform = Point(5, 64)
+energyStorage = Point(40, 96)
 waterReservoir = Point(74, 74)
-toyfactory = Point(125,45)
+toyfactory = Point(127,65)
 powerToX = Point(98, 54)
+windTurbine = Point(170, 80)
+RechargeableBattery = Point(149, 70)
 
 missions = readMissionFile()
 actions = []
-run1 = [home2, TV, HybridCar, home2]
+coordinates = []
+run1 = [home2, TV, windTurbine, HybridCar, RechargeableBattery, home2]
 run2 = [home2, powerplant, home1]
 run3 = [home1, smartgrid, solarplant, home1]
 run4 = [home1, oilplatform, energyStorage, home1]
 run6 = [home1, waterReservoir, toyfactory]
-points = run3
+trialRun = [home1, home2]
+points = run6
 counter = 0
 print("------------------------------")
 print("Printing code now, copy this code to edit and run robot.")
 print("------------------------------")
-        
+
 for point in points:
     if counter < len(points) - 1:
         actions.append("# Driving from ({},{}) to ({},{})".format(points[counter].getX(), 
             points[counter].getY(), points[counter+1].getX(), points[counter+1].getY()))
-        findPath(points[counter], points[counter + 1], missions, 50, actions)
+        findPath(points[counter], points[counter + 1], missions, 50, actions, coordinates)
 
     counter = counter + 1
+
 # print the code.
 for action in actions:
     print(action)
+
+# Draw the path that the robot will take using Turtle Graphics 
+drawPath(coordinates)
 
 '''
 start = Point(30, 10)
