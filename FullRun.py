@@ -1236,15 +1236,23 @@ def getToPowerPlantFromHome2():
     # Lower the power plant arm
     #motorD.run_for_degrees(degrees=-170, speed=50)
 
-    gyroStraight(targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_WEST - 0,  distance = _CM_PER_INCH*32, speed=80) # was 29 and then 2 more at 40 speed below
-    _driveTillLine(speed = 20, distanceInCM = _CM_PER_INCH*6, target_angle = ANYA_RUN_START_OFFSET_TO_MAT_WEST - 0, blackOrWhite="White")
+    gyroStraight(targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_WEST - 0,  distance = _CM_PER_INCH*32, speed=60) # was 29 and then 2 more at 40 speed below
+    # gyroStraight(targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_WEST + 5,  distance = _CM_PER_INCH*11, speed=60) # was 29 and then 2 more at 40 speed below
+    # time.sleep(10)
+    _driveTillLine(speed = 20, distanceInCM = _CM_PER_INCH*6, target_angle = ANYA_RUN_START_OFFSET_TO_MAT_WEST-0, blackOrWhite="White")
+    # time.sleep(10)
 
     # Skipping Toy Factory to measure time saved if moved to run 6
     #ToyFactory2()
-    motorD.run_for_degrees(degrees=-170, speed=50)
-    _turnToAngle2(targetAngle=ANYA_RUN_START_OFFSET_TO_MAT_WEST - 93, speed=20, slowTurnRatio=0.8, oneWheelTurn="Right")
+    gyroStraight(targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_WEST - 0,  distance = int(AXLE_DIAMETER_CM))
+    # time.sleep(10)
+
+    _turnToAngle(targetAngle=ANYA_RUN_START_OFFSET_TO_MAT_WEST - 90, speed=20, slowTurnRatio=0.8, oneWheelTurn="Left")
+    motorD.run_for_degrees(degrees=-170, speed=100)
+    
+    # _turnToAngle2(targetAngle=ANYA_RUN_START_OFFSET_TO_MAT_WEST - 93, speed=20, slowTurnRatio=0.8, oneWheelTurn="Right")
     # _driveTillLine(speed = 20, distanceInCM = _CM_PER_INCH*6, target_angle = ANYA_RUN_START_OFFSET_TO_MAT_WEST - 90, blackOrWhite="Black")
-    gyroStraight(targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_WEST - 93,  distance = _CM_PER_INCH*10, speed=20) #was 60 but rammed into power plant
+    gyroStraight(targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_WEST - 90,  distance = _CM_PER_INCH*11, speed=20) #was 60 but rammed into power plant
 
     # Sometimes our unit collector is too far from the slide, so this turn should better align it
     left_large_motor.run_for_degrees(degrees=-45, speed=60)
@@ -1273,17 +1281,9 @@ def goToHome1():
 
 
 def ReleaseEnergyUnitsFromPowerPlant():
-    # gyroStraight(distance = 4, speed = 35, backward = True, targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_WEST - 90)
     motorD.run_for_degrees(degrees=180, speed=80)
-    # _driveTillLine(speed = 20, distanceInCM = _CM_PER_INCH*2, target_angle = ANYA_RUN_START_OFFSET_TO_MAT_WEST - 90, blackOrWhite="White")
-    # motorD.run_for_degrees(degrees=-120, speed=60)
 
-    
-    # motorD.run_for_degrees(degrees=200, speed=100) #was 250
-
-    # motorD.run_for_degrees(degrees=-250, speed=100)
-
-    #endregion Anya 
+#endregion Anya 
 
 #region Nami    
 
@@ -1623,8 +1623,8 @@ def _run1point5():
 
 _initialize()
 # doRunWithTiming(driver)
-#doRunWithTiming(_run2)
-testGyro()
+doRunWithTiming(_run2)
+# testGyro()
 
 raise SystemExit
 #endregion
