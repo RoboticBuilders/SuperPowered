@@ -471,7 +471,7 @@ def _turnToAngle2(targetAngle, speed=20, forceTurn="None", slowTurnRatio=0.4, co
     
 def getMotorRotationDegreesForTurn(degreesToTurn, oneWheelTurn="None"):
     motorRotationDegrees = degreesToTurn*(AXLE_DIAMETER_CM_CORRECTED / (2*WHEEL_RADIUS_CM)) # (2πr_Axle/360) * degreesToTurn * (360/2πr_Wheel)
-    if(oneWheelTurn is not "None"):
+    if(oneWheelTurn != "None"):
         motorRotationDegrees = 2*motorRotationDegrees
     return motorRotationDegrees
 

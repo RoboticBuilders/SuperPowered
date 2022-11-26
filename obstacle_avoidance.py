@@ -1,16 +1,27 @@
 import csv, math
+from time import *
 from turtle import Turtle, Screen
-turtle = Turtle()
+
 screen = Screen()
-screen.setup(780,460, 0, 0)
-screen.setworldcoordinates(0,0,202,114)
-screen.mode('world')
-turtle.pen(fillcolor="black", pencolor="blue", pensize=10)
-#screensize(1500,1500)
-screen.bgpic(".\\superpowered_wireframe.GIF")
-canvas = screen.getcanvas()
-canvas.itemconfig(screen._bgpic, anchor="sw")
-screen.update()
+turtle = Turtle()
+screen2 = Screen()
+
+def initializeGraphics():
+    
+    screen.update()
+    screen.title("PathFinder: Visualization of calculated path.")
+    
+    screen.setup(950, 545)
+    screen.setworldcoordinates(0,0,202,114)
+        
+    screen.mode('world')
+    turtle.pen(fillcolor="black", pencolor="blue", pensize=5)
+    screen.bgpic(".\\superpowered_darker_wireframe.GIF")
+    canvas = screen.getcanvas()
+    canvas.itemconfig(screen._bgpic, anchor="sw")
+    screen.delay(20)
+    screen.update()
+
 class Robot:
     currentLocationX = 0
     currentLocationY = 0
@@ -474,27 +485,33 @@ def readMissionFile():
                     introw.append(value)
                 firstiteration = False
             missions.append(introw)
-            print(introw)
+            #print(introw)
         count = 1
     return missions
 
 def addActions(speed, angle, distance, mission, actions):
+    actions.append('')
     actions.append("# Code to get past mission: {}".format(mission.getName()))
     actions.append("_turnToAngle(targetAngle={}, speed={})".format(angle, speed))
     actions.append("drive(speed={}, distanceInCM={}, target_angle={})".format(speed, distance, angle))
 
-def drawPath(coordinates):
+def drawPath(coordinates, color, runName):
+    turtle.hideturtle()
+    turtle.penup()
+    turtle.goto(90, 10)
+    turtle.write(runName, font=("Arial", 26, "bold"))
+    
+    turtle.pencolor(color)
     turtle.hideturtle()
     turtle.penup()
     turtle.goto(coordinates[0].getX(),coordinates[0].getY())
     turtle.pendown()
     turtle.showturtle()
     for coordinate in range(len(coordinates)):
-            print(str(coordinates[coordinate].getX()) + ", " + str(coordinates[coordinate].getY()))
+            #print(str(coordinates[coordinate].getX()) + ", " + str(coordinates[coordinate].getY()))
             turtle.goto(coordinates[coordinate].getX(), coordinates[coordinate].getY())
-    screen.mainloop()
 
-def checkIfEndInMission(endX, endY):
+def checkIfEndInMission(endX, endY, missions):
     for row in missions:
         if endX >= row[1] and endX <= row[3] and endY >= row[2] and endY <= row[4]:
             return True, Mission(row[0], Point(row[1], row[2]), Point(row[3], row[4]))
@@ -507,11 +524,12 @@ def findPath(start, end, missions, speed, actions, coordinates):
     robotLine = Line(start, end)
     intersectionPoint, mission, horizontal = intersectLineWithAllMissions(missions, robotLine)
     coordinates.append(Point(start.getX(), start.getY()))
-    endInMission, endMission = checkIfEndInMission(end.getX(), end.getY())
+    endInMission, endMission = checkIfEndInMission(end.getX(), end.getY(), missions)
     if (intersectionPoint == None):
         # Get to the end point.
         robot = Robot(start.getX(), start.getY())
         robot.goto(end.getX(), end.getY(), endAngle=0, speed=speed)
+        actions.append('')
         actions.append("# Drive from ({},{}) to ({},{})".format(start.getX(), start.getY(), end.getX(), end.getY()))
         coordinates.append(Point(end.getX(),end.getY()))
         robot.addActions(speed=speed, robotActions=actions)
@@ -519,11 +537,20 @@ def findPath(start, end, missions, speed, actions, coordinates):
 
     if (endInMission == True and mission.getName() == endMission.getName()):
         coordinates.append(Point(end.getX(), end.getY()))
+
+        # Get from the intersection point to the end.
+        robot = Robot(start.getX(), start.getY())
+        robot.goto(end.getX(), end.getY(), endAngle=0, speed=speed)
+        actions.append('')
+        actions.append("# Drive from ({},{}) to ({},{})".format(start.getX(), start.getY(), end.getX(), end.getY()))
+        robot.addActions(speed=speed, robotActions=actions)
+
         return True
     else:
         # First get to the intersection point.
         robot = Robot(start.getX(), start.getY())
         robot.goto(intersectionPoint.getX(), intersectionPoint.getY(), endAngle=0, speed=speed)
+        actions.append('')
         actions.append("# Drive from ({},{}) to mission:{} at ({},{})".format(start.getX(), start.getY(), mission.getName(),intersectionPoint.getX(), intersectionPoint.getY()))
         coordinates.append(intersectionPoint)
         robot.addActions(speed=speed, robotActions=actions)
@@ -537,64 +564,84 @@ def findPath(start, end, missions, speed, actions, coordinates):
         if (findPath(startPoint, end, missions, speed, actions, coordinates) == True):
             return True
 
-home2 = Point(190, 20)
-TV = Point(185, 65)
-HybridCar = Point(142, 90)
-home2 = Point(190, 20)
-powerplant = Point(100, 20)
-home1 = Point(20,10)
-smartgrid = Point(97, 94)
-solarplant = Point(77, 96)
-oilplatform = Point(5, 64)
-energyStorage = Point(40, 96)
-waterReservoir = Point(74, 74)
-toyfactory = Point(127,65)
-powerToX = Point(98, 54)
-windTurbine = Point(170, 80)
-RechargeableBattery = Point(149, 70)
+def findPaths(points, color, runName):
+    missions = readMissionFile()
+    actions = []
+    coordinates = []
+    counter = 0
+    print("------------------------------")
+    print("Printing code now, copy this code to edit and run robot.")
+    print("------------------------------")
 
+    for point in points:
+        if counter < len(points) - 1:
+            actions.append('')
+            actions.append("# Driving from ({},{}) to ({},{})".format(points[counter].getX(), 
+                points[counter].getY(), points[counter+1].getX(), points[counter+1].getY()))
+            findPath(points[counter], points[counter + 1], missions, 50, actions, coordinates)
 
-missions = readMissionFile()
-actions = []
-coordinates = []
-run1 = [home2, TV, windTurbine, HybridCar, RechargeableBattery, home2]
-run2 = [home2, powerplant, home1]
-run3 = [home1, smartgrid, solarplant, home1]
-run4 = [home1, oilplatform, energyStorage, home1]
-run6 = [home1, waterReservoir, toyfactory]
-justForFun = [home2, TV, windTurbine, HybridCar, RechargeableBattery, smartgrid, solarplant, waterReservoir, home1,
-            powerplant, powerToX, toyfactory, home2]
-points = justForFun
-counter = 0
-print("------------------------------")
-print("Printing code now, copy this code to edit and run robot.")
-print("------------------------------")
+        counter = counter + 1
 
-for point in points:
-    if counter < len(points) - 1:
-        actions.append("# Driving from ({},{}) to ({},{})".format(points[counter].getX(), 
-            points[counter].getY(), points[counter+1].getX(), points[counter+1].getY()))
-        findPath(points[counter], points[counter + 1], missions, 50, actions, coordinates)
+    # print the code.
+    for action in actions:
+        print(action)
 
-    counter = counter + 1
+    # Draw the path that the robot will take using Turtle Graphics 
+    drawPath(coordinates, color, runName)
 
-# print the code.
-for action in actions:
-    print(action)
+def findAndShowAllPaths():
+    home2 = Point(190, 20)
+    TV = Point(185, 65)
+    HybridCar = Point(142, 90)
+    home2 = Point(190, 20)
+    powerplant = Point(100, 20)
+    home1 = Point(20,10)
+    smartgrid = Point(97, 94)
+    solarplant = Point(77, 96)
+    oilplatform = Point(5, 64)
+    energyStorage = Point(40, 96)
+    waterReservoir = Point(80, 64)
+    toyfactory = Point(127,65)
+    powerToX = Point(98, 54)
+    windTurbine = Point(175, 90)
+    RechargeableBattery = Point(149, 70)
 
-# Draw the path that the robot will take using Turtle Graphics 
-drawPath(coordinates)
+    missions = readMissionFile()
+    actions = []
+    coordinates = []
+    run1 = [home2, TV, windTurbine, HybridCar, RechargeableBattery, home2]
+    run2 = [home2, powerplant, home1]
+    run3 = [home1, smartgrid, solarplant, home1]
+    run4 = [home1, oilplatform, energyStorage, home1]
+    run6 = [home1, waterReservoir, toyfactory]
+    justForFun = [home2, TV, windTurbine, HybridCar, RechargeableBattery, smartgrid, solarplant, waterReservoir, home1,
+                powerplant, powerToX, toyfactory, home2]
+    points = justForFun
+    counter = 0
 
-'''
-start = Point(30, 10)
-end = Point(176, 88)
-missions = readMissionFile()
-actions = []
-findPath(start, end, missions, 50, actions)
-# print the code.
-for action in actions:
-    print(action)
-'''
+    runs = [(run1, "red", "Run 1"), (run2, "blue", "Run 2"), (run3, "green", "Run 3"), 
+        (run4, "brown", "Run 4"), (run6, "black", "Run 6")]
+    print("------------------------------")
+    print("Printing code now, copy this code to edit and run robot.")
+    print("------------------------------")
+
+    findPaths(run3, "blue", "Run 3")
+    '''
+    for run in runs:
+        findPaths(run[0], run[1], run[2])
+        sleep(2)
+    '''
+initializeGraphics()
+
+def repeatlyShowThePaths():
+    while(True):
+        findAndShowAllPaths()
+        sleep(1)
+        screen.reset()
+        turtle.pen(fillcolor="black", pencolor="blue", pensize=5)
+
+repeatlyShowThePaths()
+screen.mainloop()
 
 #test = LineTest()
 #test.runAllTests()
