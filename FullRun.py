@@ -1,4 +1,8 @@
-# LEGO type:standard slot:0
+# LEGO type:standard slot:0 autostart
+#from spike import PrimeHub, LightMatrix, Button, StatusLight, ForceSensor, MotionSensor, Speaker, ColorSensor, App, DistanceSensor, Motor, MotorPair
+from spike import PrimeHub, ColorSensor,  Motor, MotorPair
+#from spike.control import timer 
+# autostart
 from spike import PrimeHub, ColorSensor,  Motor, MotorPair
 # autostart
 from math import *
@@ -455,7 +459,7 @@ def _gyroStraightNoSlowDownNoStop(distance, speed = 20, backward = False, target
             correction = getCorrectionForDrive(targetAngle, correctionMultiplier = correctionMultiplier) # targetAngle - currentAngle
             wheels.start(steering = correction, speed=speed)   
 
-def turnToAngle2(targetAngle, speed=20, forceTurn="None", slowTurnRatio=0.4, correction=0.05, oneWheelTurn="None"):
+def _turnToAngle2(targetAngle, speed=20, forceTurn="None", slowTurnRatio=0.4, correction=0.05, oneWheelTurn="None"):
     degreesToTurn = getCorrectionForDrive(targetAngle=targetAngle, correctionMultiplier=1)
     motorDegToTurn = getMotorRotationDegreesForTurn(degreesToTurn=abs(degreesToTurn), oneWheelTurn=oneWheelTurn)
     # print("Deg to turn = " + str(motorDegToTurn))
@@ -546,12 +550,13 @@ def getCorrectionForDrive(targetAngle, correctionMultiplier = 2):
     return correction * correctionMultiplier
 
 def testGyro():
-    gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*16)
-    gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*2, backward =True)
-    gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*2)
-    gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*2, backward=True)
-    gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*2)
-    gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*3, backward=True)
+    wheels.move(amount = 29, unit = "in", steering = 0, speed = 60)
+    # gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*16)
+    # gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*2, backward =True)
+    # gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*2)
+    # gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*2, backward=True)
+    # gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*2)
+    # gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*3, backward=True)
   
 
 def convertDegToCM(degrees):
@@ -1216,73 +1221,6 @@ def scale(amt):
     out_max =  10
     return (amt - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
 
-def line_follow(distance, speed = 20):
-    targetThreshold = 50
-    correctionMultiplier = 0.1
-    history = list()
-
-    Kp = 0.5 #  the Constant 'K' for the 'p' proportional controller
-
-    integral = 0 # initialize
-    Ki = 0.05 #  the Constant 'K' for the 'i' integral term
-    Kd = 0.75 #  the Constant 'K' for the 'd' derivative term
-    lastError = 0
-    i=0
-    degreesToCover = (distance * 360)/(WHEEL_RADIUS_CM * 2 * 3.1416)
-    position_start = motorE.get_degrees_counted()
-
-    while i<300:
-        i=i+1
-        sensorVal = leftColorSensor.get_reflected_light()
-        error = sensorVal - targetThreshold
-        if (error == 0 or (error * lastError) < 0):
-            integral = 0
-        else:
-            integral = integral + error 
-
-        derivative = error - lastError
-        lastError = error
-
-        correction = (Kp*(error) + Ki*(integral) + + Kd*derivative)
-        truncCorrection = max(min(correction, speed), -1*speed)
-
-        print("Sensor = " + str(sensorVal) + ", Error=" + str(error) + ", integral=" + str(integral) + ", derivative=" + str(derivative) + ", correction=" + str(correction) + ", trunCorrection=" + str(truncCorrection) + ", time=" + str(time.time()))
-
-        # history.append(error)
-        # if(len(history) > 5):
-        #     history.pop(0)
-        # cumError = calcCumError(history)
-        # print(str(time.time()) + ": error=" + str(error) + ", history=" + str(history) + ", sensor=" + str(leftColorSensor.get_reflected_light()))
-        # # correction = min(error * correctionMultiplier, speed)
-        # correction = cumError*correctionMultiplier
-        # wheels.start_tank(int(speed+truncCorrection), int(speed-truncCorrection))
-        wheels.start(speed=speed, steering=int(correction))
-        time.sleep(0.01)
-        if ((motorE.get_degrees_counted() - position_start)  >= degreesToCover):
-            break
-       
-    wheels.stop()
-    finalDeg = abs(motorE.get_degrees_counted())
-
-    totalDistanceTravelled = convertDegToCM(finalDeg - position_start)
-    logMessage("Total distance travelled = " + str(totalDistanceTravelled) + " error=" + str(distance-totalDistanceTravelled), level=4)
-
-def calcCumError(history: list):
-    cumError = 0
-    index = 10
-    for error in history:
-        cumError = cumError + (error*index)
-        index = index+10
-    print("CumError Sum=" + str(cumError) + ", avg = " + str(cumError/150))
-    return cumError/150
-
-
-
-def testingGyroStraight():
-    for i in range(5):# should go to range 50 cm
-        gyroStraight(targetAngle = 0,  distance = 8*_CM_PER_INCH, speed=60)
-        gyroStraight(targetAngle = 0,  distance = 2*_CM_PER_INCH, speed=40)
-        time.sleep(1)
 #endregion Arisha
 
 #region Anya 
@@ -1294,37 +1232,27 @@ def _run2():
     ReleaseEnergyUnitsFromPowerPlant()
     goToHome1()
 
-def goToHome1():
-    wheels.move(amount = 4.5, unit = "in", steering = 0, speed = -40)
-    _turnToAngle(ANYA_RUN_START_OFFSET_TO_MAT_WEST - 15, slowTurnRatio=0.8)#used to be -105 then most recently was -25
-    # motors.move(amount = 35, unit = "in", steering = 0, speed = 90)#original speed 40
-    gyroStraight(targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_WEST - 15,  distance = _CM_PER_INCH*35, speed=90) #used to be -105
-
-
-def goToHome1_MissingUnit():
-    wheels.move(amount = 5, unit = "in", steering = 0, speed = -40)
-    # _turnToAngle(ANYA_RUN_START_OFFSET_TO_MAT_NORTH - 135)#original value -90
-    # gyroStraight(targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_NORTH - 135,  distance = _CM_PER_INCH*8, speed=90)
-    _turnToAngle(ANYA_RUN_START_OFFSET_TO_MAT_WEST - 20)
-    # wheels.move(amount = 35, unit = "in", steering = 0, speed = 90)#original speed 40
-    gyroStraight(targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_WEST - 20,  distance = _CM_PER_INCH*35, speed=90)
-
 def getToPowerPlantFromHome2():
     # Lower the power plant arm
     #motorD.run_for_degrees(degrees=-170, speed=50)
 
     gyroStraight(targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_WEST - 0,  distance = _CM_PER_INCH*32, speed=60) # was 29 and then 2 more at 40 speed below
-    motorD.start(-30)
-    _driveTillLine(speed = 20, distanceInCM = _CM_PER_INCH*6, target_angle = ANYA_RUN_START_OFFSET_TO_MAT_WEST - 0, blackOrWhite="White")
+    # gyroStraight(targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_WEST + 5,  distance = _CM_PER_INCH*11, speed=60) # was 29 and then 2 more at 40 speed below
+    # time.sleep(10)
+    _driveTillLine(speed = 20, distanceInCM = _CM_PER_INCH*6, target_angle = ANYA_RUN_START_OFFSET_TO_MAT_WEST-0, blackOrWhite="White")
+    # time.sleep(10)
 
+    # Skipping Toy Factory to measure time saved if moved to run 6
     #ToyFactory2()
-    gyroStraight(targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_WEST - 0,  distance = int(AXLE_DIAMETER_CM/2))
+    gyroStraight(targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_WEST - 0,  distance = int(AXLE_DIAMETER_CM))
+    # time.sleep(10)
 
-    #motorD.run_for_degrees(degrees=-170, speed=100)
-    motorD.stop()
-    _turnToAngle(targetAngle=ANYA_RUN_START_OFFSET_TO_MAT_WEST - 93, speed=20, slowTurnRatio=0.8)
+    _turnToAngle(targetAngle=ANYA_RUN_START_OFFSET_TO_MAT_WEST - 90, speed=20, slowTurnRatio=0.8, oneWheelTurn="Left")
+    motorD.run_for_degrees(degrees=-170, speed=100)
+    
+    # _turnToAngle2(targetAngle=ANYA_RUN_START_OFFSET_TO_MAT_WEST - 93, speed=20, slowTurnRatio=0.8, oneWheelTurn="Right")
     # _driveTillLine(speed = 20, distanceInCM = _CM_PER_INCH*6, target_angle = ANYA_RUN_START_OFFSET_TO_MAT_WEST - 90, blackOrWhite="Black")
-    gyroStraight(targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_WEST - 93,  distance = _CM_PER_INCH*9, speed=20) #was 60 but rammed into power plant
+    gyroStraight(targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_WEST - 90,  distance = _CM_PER_INCH*11, speed=20) #was 60 but rammed into power plant
 
     # Sometimes our unit collector is too far from the slide, so this turn should better align it
     left_large_motor.run_for_degrees(degrees=-45, speed=60)
@@ -1337,26 +1265,25 @@ def ToyFactory2():
     _turnToAngle(ANYA_RUN_START_OFFSET_TO_MAT_WEST - 45, oneWheelTurn="Left", slowTurnRatio=0.8)
 
     # Do the Toy Factory
-    gyroStraight(targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_WEST - 45,  distance = 15, backward = True) # was 8
+    gyroStraight(speed=40, targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_WEST - 45,  distance = 15, backward = True) # was 8
 
     gyroStraight(targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_WEST - 45,  distance = 8)
-    turnToAngle2(ANYA_RUN_START_OFFSET_TO_MAT_WEST - 0, slowTurnRatio=0.6)
+    _turnToAngle2(ANYA_RUN_START_OFFSET_TO_MAT_WEST - 0, slowTurnRatio=0.6)
 
     # Align for the Power Plant
     _driveTillLine(speed = 20, distanceInCM = _CM_PER_INCH*9, target_angle = ANYA_RUN_START_OFFSET_TO_MAT_WEST - 0, blackOrWhite="White")
 
+def goToHome1():
+    wheels.move(amount = 4.5, unit = "in", steering = 0, speed = -40)
+    _turnToAngle(ANYA_RUN_START_OFFSET_TO_MAT_WEST - 15, slowTurnRatio=0.8)#used to be -105 then most recently was -25
+    # motors.move(amount = 35, unit = "in", steering = 0, speed = 90)#original speed 40
+    gyroStraight(targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_WEST - 15,  distance = _CM_PER_INCH*35, speed=90) #used to be -105
+
+
 def ReleaseEnergyUnitsFromPowerPlant():
-    # gyroStraight(distance = 4, speed = 35, backward = True, targetAngle = ANYA_RUN_START_OFFSET_TO_MAT_WEST - 90)
     motorD.run_for_degrees(degrees=180, speed=80)
-    # _driveTillLine(speed = 20, distanceInCM = _CM_PER_INCH*2, target_angle = ANYA_RUN_START_OFFSET_TO_MAT_WEST - 90, blackOrWhite="White")
-    # motorD.run_for_degrees(degrees=-120, speed=60)
 
-    
-    # motorD.run_for_degrees(degrees=200, speed=100) #was 250
-
-    # motorD.run_for_degrees(degrees=-250, speed=100)
-
-    #endregion Anya 
+#endregion Anya 
 
 #region Nami    
 
@@ -1695,7 +1622,9 @@ def _run1point5():
 #region Function Calls
 
 _initialize()
-doRunWithTiming(driver)
+# doRunWithTiming(driver)
+doRunWithTiming(_run2)
+# testGyro()
 
 raise SystemExit
 #endregion
