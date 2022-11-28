@@ -16,7 +16,7 @@ def initializeGraphics():
         
     screen.mode('world')
     turtle.pen(fillcolor="black", pencolor="blue", pensize=5)
-    screen.bgpic(".\\superpowered_darker_wireframe.GIF")
+    screen.bgpic("./superpowered_darker_wireframe.GIF")
     canvas = screen.getcanvas()
     canvas.itemconfig(screen._bgpic, anchor="sw")
     screen.delay(20)
@@ -470,7 +470,7 @@ def intersectLineWithAllMissions(missions, robotLine):
         return None, None, None
             
 def readMissionFile():
-    csvfile = open(".\\mission_coordinates.txt", newline='\n')
+    csvfile = open("./mission_coordinates.txt", newline='\n')
     reader = csv.reader(csvfile, delimiter=',', quotechar='|')
     missions = []
     count = 0
