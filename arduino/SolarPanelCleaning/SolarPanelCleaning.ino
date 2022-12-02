@@ -157,25 +157,33 @@ unsigned long lastTimeSheetWasChanged = 0;
 
 Stepper stepper(STEPS_PER_REV, 2, 3, 4, 5);
 
-
 void setup() {
   Serial.begin(9600);
-  Serial.println("Starting solar cleaning!");
 
-  Serial.println("Starting LCD");
   initializeDigitParts();
   lcd.begin(16,2);
 }
 
 void loop() {
-    Serial.print("Input Voltage = ");
     in_voltage = readInputVoltage();
-    Serial.println(in_voltage, 2);
 
     String voltage(in_voltage, 2);
     displayVoltageOnLCD(voltage);
+    char data = Serial.read();
+    bool onDemandChange = false;
 
-    if (in_voltage < voltage_threshold && isTimeToTriggerChange())
+    if (data == '1')
+    {
+      onDemandChange = true;
+    }
+    else if (data == '2')
+    {
+      Serial.println(voltage);
+    }
+
+
+
+    if (onDemandChange || (in_voltage < voltage_threshold && isTimeToTriggerChange()))
     {
       changeProtectionSheet();
     }
@@ -186,12 +194,6 @@ void loop() {
 bool isTimeToTriggerChange()
 {
   unsigned long time = millis();
-  Serial.print("Time = ");
-  Serial.println(time);
-  Serial.print("LastTimeSheetWasChanged = ");
-  Serial.println(lastTimeSheetWasChanged);
-  Serial.print("coolOffTime = ");
-  Serial.println(coolOffTime);
   if (lastTimeSheetWasChanged == 0 ||  (time - lastTimeSheetWasChanged) > coolOffTime)
   {
     lastTimeSheetWasChanged = time;
