@@ -16,7 +16,7 @@ def initializeGraphics():
         
     screen.mode('world')
     turtle.pen(fillcolor="black", pencolor="blue", pensize=5)
-    screen.bgpic(".\\superpowered_darker_wireframe.GIF")
+    screen.bgpic("./superpowered_darker_wireframe.GIF")
     canvas = screen.getcanvas()
     canvas.itemconfig(screen._bgpic, anchor="sw")
     screen.delay(20)
@@ -470,7 +470,7 @@ def intersectLineWithAllMissions(missions, robotLine):
         return None, None, None
             
 def readMissionFile():
-    csvfile = open(".\\mission_coordinates.txt", newline='\n')
+    csvfile = open("./mission_coordinates.txt", newline='\n')
     reader = csv.reader(csvfile, delimiter=',', quotechar='|')
     missions = []
     count = 0
@@ -612,20 +612,26 @@ def findAndShowAllPaths():
     run1 = [home2, TV, windTurbine, HybridCar, RechargeableBattery, home2]
     run2 = [home2, powerplant, home1]
     run3 = [home1, smartgrid, solarplant, home1]
-    run4 = [home1, oilplatform, energyStorage, home1]
+    run4 = [home1, energyStorage, home1]
     run6 = [home1, waterReservoir, toyfactory]
     justForFun = [home2, TV, windTurbine, HybridCar, RechargeableBattery, smartgrid, solarplant, waterReservoir, home1,
                 powerplant, powerToX, toyfactory, home2]
     points = run6
     counter = 0
 
-    runs = [(run1, "red", "Run 1"), (run2, "blue", "Run 2"), (run3, "green", "Run 3"), 
-        (run4, "brown", "Run 4"), (run6, "black", "Run 6")]
+    runs = {
+            "run1": (run1, "red", "Run 1"), 
+            "run2": (run2, "blue", "Run 2"), 
+            "run3": (run3, "green", "Run 3"), 
+            "run4": (run4, "brown", "Run 4"), 
+            "run6": (run6, "black", "Run 6")
+            }
     print("------------------------------")
     print("Printing code now, copy this code to edit and run robot.")
     print("------------------------------")
 
-    findPaths(points, "blue", "Run 6")
+    run = runs.get("run4")
+    findPaths(points=run[0], color=run[1], runName=run[2])
     '''
     for run in runs:
         findPaths(run[0], run[1], run[2])
