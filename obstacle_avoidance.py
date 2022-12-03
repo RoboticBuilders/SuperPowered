@@ -630,7 +630,7 @@ def findAndShowAllPaths():
     print("Printing code now, copy this code to edit and run robot.")
     print("------------------------------")
 
-    run = runs.get("run4")
+    run = runs.get("run3")
     findPaths(points=run[0], color=run[1], runName=run[2])
     '''
     for run in runs:
