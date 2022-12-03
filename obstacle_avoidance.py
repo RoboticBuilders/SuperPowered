@@ -616,7 +616,7 @@ def findAndShowAllPaths():
     run6 = [home1, waterReservoir, toyfactory]
     justForFun = [home2, TV, windTurbine, HybridCar, RechargeableBattery, smartgrid, solarplant, waterReservoir, home1,
                 powerplant, powerToX, toyfactory, home2]
-    points = justForFun
+    points = run6
     counter = 0
 
     runs = [(run1, "red", "Run 1"), (run2, "blue", "Run 2"), (run3, "green", "Run 3"), 
@@ -625,11 +625,11 @@ def findAndShowAllPaths():
     print("Printing code now, copy this code to edit and run robot.")
     print("------------------------------")
 
-    findPaths(run3, "blue", "Run 3")
+    findPaths(points, "blue", "Run 6")
     '''
     for run in runs:
         findPaths(run[0], run[1], run[2])
-        sleep(2)
+        sleep(2)clear
     '''
 initializeGraphics()
 
@@ -640,7 +640,8 @@ def repeatlyShowThePaths():
         screen.reset()
         turtle.pen(fillcolor="black", pencolor="blue", pensize=5)
 
-repeatlyShowThePaths()
+#repeatlyShowThePaths()
+findAndShowAllPaths()
 screen.mainloop()
 
 #test = LineTest()
