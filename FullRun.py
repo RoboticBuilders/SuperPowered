@@ -1,10 +1,6 @@
-# LEGO type:standard slot:0 autostart
-#from spike import PrimeHub, LightMatrix, Button, StatusLight, ForceSensor, MotionSensor, Speaker, ColorSensor, App, DistanceSensor, Motor, MotorPair
+# LEGO type:standard slot:3
+
 from spike import PrimeHub, ColorSensor,  Motor, MotorPair
-#from spike.control import timer 
-# autostart
-from spike import PrimeHub, ColorSensor,  Motor, MotorPair
-# autostart
 from math import *
 import collections
 # Note that the "hub" import is needed, this is different from the PrimeHub import above, this is the way to access the battery.
@@ -1362,7 +1358,7 @@ def _run3():
     angle = -46
     # Turn towards the smart grid and align with the power plant.
     _turnToAngle(targetAngle=angle, speed=20, slowTurnRatio=0.9)
-    gyroStraight(distance=10, speed = 25, backward = True, targetAngle = angle)
+    gyroStraight(distance=12, speed = 25, backward = True, targetAngle = angle)
     primeHub.motion_sensor.reset_yaw_angle()
 
     # Turn towards the smart grid and drive forward we do fast run till the hydro unit, and then a slow drive forward
@@ -1389,8 +1385,8 @@ def _run3():
     gyroStraight(distance=8, speed = 25, backward = False, targetAngle = -60)
     
     # Go Home
-    _turnToAngle(targetAngle=-100, speed = 15, slowTurnRatio=0.9)
-    gyroStraight(distance=25, speed = 60, backward = False, targetAngle = -100)
+    _turnToAngle(targetAngle=-110, speed = 15, slowTurnRatio=0.9)
+    gyroStraight(distance=25, speed = 60, backward = False, targetAngle = -110)
     _turnToAngle(targetAngle=-135, speed = 15, slowTurnRatio=0.9)
     gyroStraight(distance=90, speed = 95, backward = False, targetAngle = -135)
     
@@ -1535,7 +1531,7 @@ def _run1():
         gyroStraight(distance = 5, speed = 40, backward = True, targetAngle = 0)
 
     def _getToWindTurbine():
-        angle = -40
+        angle = -40          
         # Turn towards the hybrid car.
         _turnToAngle(targetAngle = angle, speed = 25, slowTurnRatio = 0.9) 
 
@@ -1622,9 +1618,9 @@ def _run1point5():
 #region Function Calls
 
 _initialize()
-# doRunWithTiming(driver)
-doRunWithTiming(_run2)
+#doRunWithTiming(driver)
+doRunWithTiming(_run3)
 # testGyro()
 
 raise SystemExit
-#endregion
+wasdw#endregion
