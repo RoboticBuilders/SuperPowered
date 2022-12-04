@@ -1,5 +1,4 @@
-# LEGO type:standard slot:3
-
+# LEGO type:standard slot:6
 from spike import PrimeHub, ColorSensor,  Motor, MotorPair
 from math import *
 import collections
@@ -55,7 +54,7 @@ BLACK_COLOR = 20
 WHITE_COLOR = 90
 
 def driver():
-    counter = 1
+    counter = 6
     while True:
         primeHub.speaker.beep(90, 1)
         primeHub.right_button.wait_until_pressed()
@@ -1157,7 +1156,7 @@ def _run4():
     # pullTruckGoStraight()
 
 def getToOilPlatform_v2Point2():
-    print("Running now getToOilPlatform")
+    #print("Running now getToOilPlatform")
     #working version1
     gyroStraight(distance=_CM_PER_INCH*16.8, speed=60, targetAngle=0) #was 90
     # time.sleep(5)
@@ -1358,7 +1357,8 @@ def _run3():
     angle = -46
     # Turn towards the smart grid and align with the power plant.
     _turnToAngle(targetAngle=angle, speed=20, slowTurnRatio=0.9)
-    gyroStraight(distance=12, speed = 25, backward = True, targetAngle = angle)
+    # Changed distance from 12 to 10. 12/3/2022
+    gyroStraight(distance=10, speed = 25, backward = True, targetAngle = angle)
     primeHub.motion_sensor.reset_yaw_angle()
 
     # Turn towards the smart grid and drive forward we do fast run till the hydro unit, and then a slow drive forward
@@ -1619,8 +1619,13 @@ def _run1point5():
 
 _initialize()
 #doRunWithTiming(driver)
-doRunWithTiming(_run3)
-# testGyro()
+#moveArm(degrees = 2200, speed = -100, motor = motorF)
+#motorF.start_at_power(60)
+#gyroStraight(distance=8, speed = 20, backward = True, targetAngle = 162)
+#motorF.stop()    
 
+doRunWithTiming(_run6)
+# testGyro()
 raise SystemExit
-wasdw#endregion
+#endregion
+
