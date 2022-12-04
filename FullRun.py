@@ -1,4 +1,4 @@
-# LEGO type:standard slot:6
+# LEGO type:standard slot:0
 from spike import PrimeHub, ColorSensor,  Motor, MotorPair
 from math import *
 import collections
@@ -54,7 +54,7 @@ BLACK_COLOR = 20
 WHITE_COLOR = 90
 
 def driver():
-    counter = 6
+    counter = 1
     while True:
         primeHub.speaker.beep(90, 1)
         primeHub.right_button.wait_until_pressed()
@@ -1619,12 +1619,8 @@ def _run1point5():
 
 _initialize()
 #doRunWithTiming(driver)
-#moveArm(degrees = 2200, speed = -100, motor = motorF)
-#motorF.start_at_power(60)
-#gyroStraight(distance=8, speed = 20, backward = True, targetAngle = 162)
-#motorF.stop()    
-
-doRunWithTiming(_run6)
+driver()
+#_run3()
 # testGyro()
 raise SystemExit
 #endregion
