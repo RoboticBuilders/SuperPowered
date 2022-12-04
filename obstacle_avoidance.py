@@ -41,7 +41,7 @@ class Robot:
 
     def addActions(self, speed, robotActions):
         robotActions.append("_turnToAngle(targetAngle={}, speed={})".format(self.angle, speed))
-        robotActions.append("drive(speed={}, distanceInCM={}, target_angle={})".format(speed, self.distance, self.angle))
+        robotActions.append("gyroStraight(distance={}, speed={}, backward={}, targetAngle={})".format(self.distance, speed, "False", self.angle))
 
     def goto(self,x2,y2,endAngle,speed):
         self.angle = 0
@@ -493,7 +493,7 @@ def addActions(speed, angle, distance, mission, actions):
     actions.append('')
     actions.append("# Code to get past mission: {}".format(mission.getName()))
     actions.append("_turnToAngle(targetAngle={}, speed={})".format(angle, speed))
-    actions.append("drive(speed={}, distanceInCM={}, target_angle={})".format(speed, distance, angle))
+    actions.append("gyroStraight(distance={}, speed={}, backward={}, targetAngle={})".format(distance, speed, "False", angle))
 
 def drawPath(coordinates, color, runName):
     turtle.hideturtle()
@@ -569,9 +569,6 @@ def findPaths(points, color, runName):
     actions = []
     coordinates = []
     counter = 0
-    print("------------------------------")
-    print("Printing code now, copy this code to edit and run robot.")
-    print("------------------------------")
 
     for point in points:
         if counter < len(points) - 1:
@@ -616,7 +613,7 @@ def findAndShowAllPaths():
     run6 = [home1, waterReservoir, toyfactory]
     justForFun = [home2, TV, windTurbine, HybridCar, RechargeableBattery, smartgrid, solarplant, waterReservoir, home1,
                 powerplant, powerToX, toyfactory, home2]
-    points = run6
+    points = run3
     counter = 0
 
     runs = {
