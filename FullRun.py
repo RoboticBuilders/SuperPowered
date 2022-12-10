@@ -1,4 +1,4 @@
-# LEGO type:standard slot:0
+# LEGO type:standard slot:3
 from spike import PrimeHub, ColorSensor,  Motor, MotorPair
 from math import *
 import collections
@@ -7,6 +7,7 @@ import time, hub
 from spike.operator import *
 import gc
 import math
+import random
 
 # Various robot constants
 AXLE_DIAMETER_CM = 12.7
@@ -54,7 +55,7 @@ BLACK_COLOR = 20
 WHITE_COLOR = 90
 
 def driver():
-    counter = 1
+    counter = 4
     while True:
         primeHub.speaker.beep(90, 1)
         primeHub.right_button.wait_until_pressed()
@@ -66,7 +67,8 @@ def driver():
         if counter == 3:
             _run2()
         if counter == 4:
-            _run3()
+            #_run3()
+            _run3StraightLaunchSlow()
         if counter == 5:
             _run4()
         if counter == 6:
@@ -81,115 +83,25 @@ def _initialize():
     wheels.set_motor_rotation(2*3.14*WHEEL_RADIUS_CM, 'cm')
     isBatteryGood()
 
-class robot:
-    currentLocationX = 0
-    currentLocationY = 0
-    currentRobotAngle = 0
+def testTurnToAngle():
+    random.seed(5)
+    targetAngle = -30
+    increment = -30
+    while(True):
+        #targetAngle = random.randint(-178, 0)
+        print("Asking turnToAngle to turn to " + str(targetAngle))
+        #newturnToAngle(targetAngle=targetAngle, speed=20, forceTurn="None", slowTurnRatio=0.4, correction=0.05, oneWheelTurn="None")
+        _turnToAngle(targetAngle=targetAngle, speed=20, forceTurn="None", slowTurnRatio=0.4, correction=0.16, oneWheelTurn="None")
+        time.sleep(10)
+        targetAngle += increment
 
-    def __init__(self,x,y):
-        self.currentLocationX = x
-        self.currentLocationY = y
+        if targetAngle < -175 and increment == -30:
+            targetAngle = -175
+            increment = 30
 
-    def goto(self,x2,y2,endAngle,speed):
-        global angle, slope, quadrant2, distance
-        angle = 0
-        slope = 0
-        quadrant2 = 0
-        distance = 0
-        x1 = self.currentLocationX
-        y1 = self.currentLocationY
-        a1 = self.currentRobotAngle
-
-        def _calculateSlope(x1,y1,x2,y2):
-            global slope
-            lineSlope = (y1 - y2)/(x1-x2)
-            slope = lineSlope
-
-        def _findQuadrant(x1,y1,x2,y2):
-            greatestDistance = 0
-            xDiff = x1 - x2
-            yDiff = y1 - y2
-            maxX = 0
-            maxY = 0
-            minX = 0
-            minY = 0
-            if abs(xDiff) > abs(yDiff):
-                greatestDistance = abs(xDiff)
-            if abs(yDiff) > abs(xDiff):
-                greatestDistance = abs(yDiff)
-            if abs(xDiff) == abs(yDiff):
-                greatestDistance = abs(xDiff)
-            else:
-                print("URGENT: Error in finding quadrants around robot.")
-
-            maxX = x1 + greatestDistance
-            minX = x1 - greatestDistance
-            maxY = y1 + greatestDistance
-            minY = y1 - greatestDistance
-            _findEndQuadrant(x1,y1,x2,y2,maxX,maxY,minX,minY)
-
-        def _findEndQuadrant(x1,y1,x2,y2,maxX,maxY,minX,minY):
-            global quadrant2
-            endQuadrant = 0
-            print(x1,y1,x2,y2,maxX,maxY,minX,minY)
-            if x2 >= x1 and x2 <= maxX and y2 >= y1 and y2 <= maxY:
-                endQuadrant = 1
-            
-            if x2 >= minX and x2 <= x1 and y2 >= y1 and y2 <= maxY:
-                endQuadrant = 2
-            
-            if x2 >= minX and x2 <= x1 and y2 >= minY and y2 <= y1:
-                endQuadrant = 3
-            
-            if x2 >= x1 and x2 <= maxX and y2 >= minY and y2 <= y1:
-                endQuadrant = 4
-
-            if endQuadrant == 0:
-                print("URGENT: Error in finding quadrant of end location")
-
-            quadrant2 = endQuadrant
-            
-        def _calculateAngle(slope):
-            global angle
-            lineSlope = slope
-            if x1 == 0 and x2 == 0:
-                angle = 0
-            angleRadians = math.atan(lineSlope)
-            angleDegrees = math.degrees(angleRadians)
-            angle = round(angleDegrees)
-
-        def _fixAngle(endQuadrant, rAngle):
-            global angle
-            turnAngle = rAngle
-
-            if endQuadrant == 3:
-                turnAngle = -1 * rAngle - 90
-
-            if endQuadrant == 4:
-                turnAngle = -1 * rAngle + 90
-
-            angle = round(turnAngle)
-
-        def _findDistance(x1,y1,x2,y2):
-            global distance
-            distanceToDrive = math.sqrt(math.pow(x2 - x1, 2) + math.pow(y2 - y1, 2))
-            distance = round(distanceToDrive)
-        def _move(speed):
-            global angle, distance
-            _turnToAngle(targetAngle = angle, speed = speed)
-            drive(speed = speed, distanceInCM = distance, target_angle = angle)
-
-        _findQuadrant(x1,y1,x2,y2)
-        _calculateSlope(x1,y1,x2,y2)
-        _calculateAngle(slope)
-        _fixAngle(quadrant2, angle)
-        _findDistance(x1,y1,x2,y2)
-        _move(speed)
-        print(str(angle))
-        print(str(distance))
-        self.currentLocationX = x2
-        self.currentLocationY = y2
-        _turnToAngle(targetAngle = endAngle, speed = speed)
+        if targetAngle > 0 and increment == 30:
+            targetAngle = 0
+            increment = -30
 
 def testCoordinateSystem():
     for index in range(len(testX2)):
@@ -258,7 +170,72 @@ def gyroAngleZeroTo360():
             return 360 + yaw
         else:
             return yaw
-        
+
+def newturnToAngle(targetAngle, speed=20, forceTurn="None", slowTurnRatio=0.4, correction=0.05, oneWheelTurn="None"):
+    currentAngle = gyroAngleZeroTo360()
+    
+    if (targetAngle < 0):
+        targetAngle = targetAngle + 360
+    
+    # After this point the targetAngle and the
+    # currentAngle is in the 0-360 space for the remainder of this
+    # function
+    # Compute whether the left or the right
+    # turn is smaller.
+    degreesToTurnRight = 0
+    degreesToTurnLeft = 0
+    if (targetAngle > currentAngle):
+        degreesToTurnRight = targetAngle - currentAngle
+        degreesToTurnLeft = (360-targetAngle) + currentAngle
+    else:
+        degreesToTurnLeft = currentAngle - targetAngle
+        degreesToTurnRight = (360-currentAngle) + targetAngle
+     
+    degreesToTurn = 0
+    direction = "None"
+    if (forceTurn == "None"):
+        if (degreesToTurnLeft < degreesToTurnRight):
+            degreesToTurn = degreesToTurnLeft * -1
+            direction = "Left"
+        else:
+            degreesToTurn = degreesToTurnRight
+            direction = "Right"
+    elif (forceTurn == "Right"):
+        degreesToTurn = degreesToTurnRight
+        direction = "Right"
+    elif (forceTurn == "Left"):
+        degreesToTurn = degreesToTurnLeft * -1
+        direction = "Left"
+    
+    '''
+    # Use the correction to correct the target angle and the degreesToTurn
+    # note that the same formula is used for both left and right turns
+    # this works because the degreesToTurn is +ve or -ve based
+    # on which way we are turning.
+    reducedTargetAngle = targetAngle
+    if (abs(degreesToTurn) > 20):
+        reducedTargetAngle = targetAngle - (degreesToTurn * correction)
+        degreesToTurn = degreesToTurn * (1-correction)
+    '''
+
+    # Put the target angle back in -179 to 179 space.    
+    if (targetAngle >= 180):
+        targetAngle = targetAngle - 360
+    
+    if (direction == "Right"):
+         wheels.start_tank(speed, speed * -1)
+    if (direction == "Left"):
+        wheels.start_tank(speed * -1, speed)
+
+    currentAngle = primeHub.motion_sensor.get_yaw_angle()
+    while (abs(currentAngle - targetAngle) > 2):
+        #time.sleep_ms(7)
+        currentAngle = primeHub.motion_sensor.get_yaw_angle()
+    wheels.stop()
+    
+   # _turnRobotWithSlowDown(degreesToTurn, reducedTargetAngleIn179Space, speed, slowTurnRatio, direction, oneWheelTurn=oneWheelTurn)
+    
+
 
 def _turnToAngle(targetAngle, speed=20, forceTurn="None", slowTurnRatio=0.4, correction=0.05, oneWheelTurn="None"):
     """Turns the robot the specified angle.
@@ -333,7 +310,8 @@ def _turnToAngle(targetAngle, speed=20, forceTurn="None", slowTurnRatio=0.4, cor
 
     # Put the target angle back in -179 to 179 space.    
     reducedTargetAngleIn179Space = reducedTargetAngle
-    if (targetAngle >= 180):
+    # Changed from targetAngle to reducedTargetAngle as it goes into loop
+    if (reducedTargetAngleIn179Space >= 180):
         reducedTargetAngleIn179Space = reducedTargetAngle - 360
     '''
     logMessage("TargetAngle(360 space, reduced)=" + str(reducedTargetAngle) 
@@ -374,7 +352,7 @@ def _turnRobotWithSlowDown(angleInDegrees, targetAngle, speed, slowTurnRatio, di
     while (abs(currentAngle - targetAngle) > fastTurnDegrees):
         time.sleep_ms(7)
         currentAngle = primeHub.motion_sensor.get_yaw_angle()    
-
+   
     # After the initial fast turn that is done using speed, we are going to do a 
     # slow turn using the slow speed.
     turnRobot(direction, SLOW_SPEED, oneWheelTurn)
@@ -410,10 +388,11 @@ def turnRobot(direction, speed, oneWheelTurn):
     else:
         right_large_motor.start(speed)
 
-def gyroStraight(distance, speed = 20, backward = False, targetAngle = 0):
+def gyroStraight(distance, speed = 20, backward = False, targetAngle = 0, multiplier=2):
+    correctionMultiplier = multiplier
     initialDeg = abs(motorE.get_degrees_counted())
     if(distance < _CM_PER_INCH*3):
-        _gyroStraightNoSlowDownNoStop(distance = distance, speed = 20, targetAngle=targetAngle, backward=backward, correctionMultiplier = 2)
+        _gyroStraightNoSlowDownNoStop(distance = distance, speed = 20, targetAngle=targetAngle, backward=backward, correctionMultiplier = correctionMultiplier)
         wheels.stop()
         return
     
@@ -421,9 +400,10 @@ def gyroStraight(distance, speed = 20, backward = False, targetAngle = 0):
     slowDistance = 0.2 * distance
     if(slowDistance > _CM_PER_INCH*2):
         slowDistance = _CM_PER_INCH*2
-    _gyroStraightNoSlowDownNoStop(distance = gradualAccelerationDistance, speed = 20, targetAngle=targetAngle, backward=backward, correctionMultiplier = 2)
-    _gyroStraightNoSlowDownNoStop(distance = distance - slowDistance - gradualAccelerationDistance, speed = speed, targetAngle=targetAngle, backward=backward, correctionMultiplier = 2)
-    _gyroStraightNoSlowDownNoStop(distance = slowDistance, speed = 20, targetAngle=targetAngle, backward=backward, correctionMultiplier = 2)
+    _gyroStraightNoSlowDownNoStop(distance = gradualAccelerationDistance, speed = 20, targetAngle=targetAngle, backward=backward, correctionMultiplier = correctionMultiplier)
+    _gyroStraightNoSlowDownNoStop(distance = distance - slowDistance - gradualAccelerationDistance, speed = speed, targetAngle=targetAngle, backward=backward, correctionMultiplier = correctionMultiplier)
+    _gyroStraightNoSlowDownNoStop(distance = slowDistance, speed = 20, targetAngle=targetAngle, backward=backward, correctionMultiplier = correctionMultiplier)
+
     wheels.stop()
 
     finalDeg = abs(motorE.get_degrees_counted())
@@ -445,12 +425,14 @@ def _gyroStraightNoSlowDownNoStop(distance, speed = 20, backward = False, target
         while ((motorE.get_degrees_counted() - position_start)  >= degreesToCover * -1):
            
             # currentAngle = primeHub.motion_sensor.get_yaw_angle()
+            time.sleep_ms(5)
             correction = getCorrectionForDrive(targetAngle, correctionMultiplier = correctionMultiplier) # - currentAngle
             wheels.start(steering = -correction, speed=speed * -1)
     else:
          while ((motorE.get_degrees_counted() - position_start)  <= degreesToCover):
            
             # currentAngle = primeHub.motion_sensor.get_yaw_angle()
+            time.sleep_ms(5)
             correction = getCorrectionForDrive(targetAngle, correctionMultiplier = correctionMultiplier) # targetAngle - currentAngle
             wheels.start(steering = correction, speed=speed)   
 
@@ -1389,7 +1371,224 @@ def _run3():
     gyroStraight(distance=25, speed = 60, backward = False, targetAngle = -110)
     _turnToAngle(targetAngle=-135, speed = 15, slowTurnRatio=0.9)
     gyroStraight(distance=90, speed = 95, backward = False, targetAngle = -135)
+
+def _run3CircularDrive():
+    primeHub.motion_sensor.reset_yaw_angle()
+    wheels.set_stop_action("coast")
+
+    # Get out of home
+    angle = 0
+    gyroStraight(distance = 6, speed = 35, backward = False, targetAngle = angle)
+    _turnToAngle(targetAngle = angle-40, speed = 20, slowTurnRatio = 0.9, correction=0.16)
+
+    # Drive till the hydro plant to pick up the first water unit
+    gyroStraight(distance=17, speed = 35, backward = False, targetAngle = angle-40)
     
+    # Turn towards the hydro unit to drop the water unit from the hydro plant.
+    _turnToAngle(targetAngle=angle, speed = 20, slowTurnRatio=0.9, correction=0.16)
+    gyroStraight(distance=25, speed = 20, backward = False, targetAngle = angle)
+
+    position_start = motorE.get_degrees_counted()
+    wheels.start_tank(20, 25)
+    while ((motorE.get_degrees_counted() - position_start)  <= 500):
+        # Do nothing
+        True
+    wheels.stop()
+
+    angle = -90
+    _turnToAngle(targetAngle=angle, speed = 20, slowTurnRatio=0.9, correction=0.16)
+    gyroStraight(distance=25, speed = 20, backward = False, targetAngle = angle)
+
+    '''
+
+    # Turns towards the n-s black line in front of the power station.
+    gyroStraight(distance=35, speed = 70, backward = False, targetAngle = angle)
+    _turnToAngle(targetAngle= angle, speed = 25, slowTurnRatio=0.9, correction=0.16)
+    _driveTillLine(speed=45, distanceInCM=23, target_angle = angle, colorSensorToUse="Right", blackOrWhite="Black", slowSpeedRatio=0.9)
+    gyroStraight(distance=2, speed = 25, backward = False, targetAngle = angle)
+    
+    angle = -90
+    # Turn towards the smart grid and align with the power plant.
+    _turnToAngle(targetAngle=angle, speed=20, slowTurnRatio=0.9, correction=0.16)
+    gyroStraight(distance=10, speed = 35, backward = True, targetAngle = angle)
+     
+    # Turn towards the smart grid and drive forward we do fast run till the hydro unit, and then a slow drive forward
+    # in order to catch the units. 
+    gyroStraight(distance=5, speed = 55, backward = False, targetAngle = angle)
+    _turnToAngle(targetAngle=angle, speed=25, slowTurnRatio=0.9, correction=0.16)
+    gyroStraight(distance=32, speed = 55, backward = False, targetAngle = angle)
+
+    # Drive to catch the e-w line in front of the smart grid.
+    _turnToAngle(targetAngle=angle - 35, speed=20, slowTurnRatio=0.9, correction=0.16)
+    gyroStraight(distance=15, speed = 25, backward = False, targetAngle = angle - 35)
+
+    _turnToAngle(targetAngle=angle - 40, speed=25, slowTurnRatio=0.9, correction=0.16)
+    _driveTillLine(speed=25, distanceInCM=25, target_angle=angle - 40, colorSensorToUse="Right", blackOrWhite="White")
+
+    # Drive forward till the wall
+    _turnToAngle(targetAngle=angle, speed=20, slowTurnRatio=0.9, correction=0.16)
+    gyroStraight(distance=13, speed = 35, backward = False, targetAngle = angle)
+    
+    # Back off a little bit before turning to go home.
+    gyroStraight(distance=2, speed = 35, backward = True, targetAngle = angle)
+
+    # Go home first do a two part turn.
+    _turnToAngle(targetAngle=angle - 60, speed = 15, slowTurnRatio=0.9, correction=0.16)
+    gyroStraight(distance=8, speed = 25, backward = False, targetAngle = angle - 60)
+    
+    # Go Home
+    _turnToAngle(targetAngle=165, speed = 20, slowTurnRatio=0.9, correction=0.16)
+    gyroStraight(distance=25, speed = 50, backward = False, targetAngle = 165)
+    _turnToAngle(targetAngle=145, speed = 20, slowTurnRatio=0.9, correction=0.16)
+    gyroStraight(distance=90, speed = 90, backward = False, targetAngle = 145)
+    '''
+
+def _run3WithActiveArm():
+    '''
+    moveArm(degrees = 100, speed = 100, motor = motorF)
+    time.sleep(1)
+    '''
+    global GLOBAL_LEVEL
+    #GLOBAL_LEVEL = 5
+
+    primeHub.motion_sensor.reset_yaw_angle()
+    wheels.set_stop_action("coast")
+    # First pick up the arm
+    #moveArm(degrees = 120, speed = -80, motor = motorF)
+
+    # Get out of home
+    angle = 0
+    multiplier = 2
+    turnSpeed = 25
+    # Bring up the arm in parallel.
+    motorF.start_at_power(-45)
+    gyroStraight(distance = 6, speed = 50, backward = False, targetAngle = angle, multiplier=multiplier)
+    _turnToAngle(targetAngle = angle - 35, speed = turnSpeed, slowTurnRatio = 0.9, correction=0.16)
+    motorF.stop()
+
+    # Drive till the hydro plant to pick up the first water unit
+    gyroStraight(distance=24, speed = 50, backward = False, targetAngle = angle-35, multiplier=multiplier)
+    
+    # Turn towards the hydro unit to drop the water unit from the hydro plant.
+    _turnToAngle(targetAngle=angle, speed = turnSpeed, slowTurnRatio=0.9, correction=0.16)
+
+    # Drop the arm after the turn to keep the water unit inside.
+    moveArm(degrees = 120, speed = 75, motor = motorF)
+    
+    # Turns towards the n-s black line in front of the power station.
+    gyroStraight(distance=35, speed = 50, backward = False, targetAngle = angle, multiplier=multiplier)
+    _turnToAngle(targetAngle= angle, speed = turnSpeed, slowTurnRatio=0.9, correction=0.16)
+    _driveTillLine(speed=50, distanceInCM=23, target_angle = angle, colorSensorToUse="Right", blackOrWhite="Black", slowSpeedRatio=0.9)
+    gyroStraight(distance=2, speed = 25, backward = False, targetAngle = angle, multiplier=multiplier)
+    
+    angle = -89
+    # Turn towards the smart grid and flush with the power plant.
+    _turnToAngle(targetAngle=angle, speed=turnSpeed, slowTurnRatio=0.9)
+    gyroStraight(distance=14, speed = 35, backward = True, targetAngle = angle, multiplier=multiplier)
+    
+    # Drive towards the smart grid
+    gyroStraight(distance=50, speed = 50, backward = False, targetAngle = angle, multiplier=multiplier)
+    moveArm(degrees = 120, speed = -75, motor = motorF)
+    gyroStraight(distance=10, speed = 25, backward = False, targetAngle = angle, multiplier=multiplier)
+    moveArm(degrees = 120, speed = 75, motor = motorF)
+    # Start the motor to pull the smart grid tray
+    motorF.start_at_power(75)
+    gyroStraight(distance=5, speed = 25, backward = True, targetAngle = angle, multiplier=multiplier)
+    motorF.stop()
+    gyroStraight(distance=5, speed = 25, backward = True, targetAngle = angle, multiplier=multiplier)
+
+    # Turn towards the water reservoir to pick up the two water units
+    angle = 160
+    _turnToAngle(targetAngle=angle, speed=turnSpeed, slowTurnRatio=0.9)
+    # Pick up the arm to get the water units.
+    moveArm(degrees = 120, speed = -75, motor = motorF)
+    gyroStraight(distance=12, speed = 25, backward = False, targetAngle = angle, multiplier=multiplier)
+    # Drop the arm to get the water units.
+    moveArm(degrees = 120, speed = 75, motor = motorF)
+    gyroStraight(distance=5, speed = 25, backward = True, targetAngle = angle, multiplier=multiplier)
+
+    '''
+    # Turn towards the wall to pick energy unit
+    angle = -135
+    _turnToAngle(targetAngle=angle, speed=turnSpeed, slowTurnRatio=0.9)
+    # Catch the line in front of solar farm
+    _driveTillLine(speed=45, distanceInCM=15, target_angle = angle, colorSensorToUse="Left", blackOrWhite="Black", slowSpeedRatio=0.9)
+    
+    angle = -90
+    _turnToAngle(targetAngle=angle, speed=turnSpeed, slowTurnRatio=0.9)
+     # Pick up the arm to get the energy unit.
+    moveArm(degrees = 120, speed = -75, motor = motorF)
+    #Go forward to capture the energy unit
+    gyroStraight(distance=12, speed = 25, backward = False, targetAngle = angle, multiplier=multiplier)
+    # Drop the arm to get the energy units.
+    moveArm(degrees = 120, speed = 75, motor = motorF)
+    # Backup to get ready to go home
+    gyroStraight(distance=5, speed = 25, backward = True, targetAngle = angle, multiplier=multiplier)
+
+    # Go Home
+    _turnToAngle(targetAngle=165, speed = turnSpeed, slowTurnRatio=0.9, correction=0.16)
+    gyroStraight(distance=28, speed = 60, backward = False, targetAngle = 165)
+    _turnToAngle(targetAngle=142, speed = turnSpeed, slowTurnRatio=0.9, correction=0.16)
+    gyroStraight(distance=90, speed = 95, backward = False, targetAngle = 142)
+    '''
+   
+
+def _run3StraightLaunchSlow():
+    primeHub.motion_sensor.reset_yaw_angle()
+    wheels.set_stop_action("coast")
+
+    # Get out of home
+    angle = 0
+    gyroStraight(distance = 6, speed = 35, backward = False, targetAngle = angle)
+    _turnToAngle(targetAngle = angle-40, speed = 20, slowTurnRatio = 0.9, correction=0.16)
+
+    # Drive till the hydro plant to pick up the first water unit
+    gyroStraight(distance=17, speed = 35, backward = False, targetAngle = angle-40)
+    
+    # Turn towards the hydro unit to drop the water unit from the hydro plant.
+    _turnToAngle(targetAngle=angle, speed = 20, slowTurnRatio=0.9, correction=0.16)
+    
+    # Turns towards the n-s black line in front of the power station.
+    gyroStraight(distance=35, speed = 70, backward = False, targetAngle = angle)
+    _turnToAngle(targetAngle= angle, speed = 25, slowTurnRatio=0.9, correction=0.16)
+    _driveTillLine(speed=45, distanceInCM=23, target_angle = angle, colorSensorToUse="Right", blackOrWhite="Black", slowSpeedRatio=0.9)
+    gyroStraight(distance=2, speed = 25, backward = False, targetAngle = angle)
+    
+    angle = -90
+    # Turn towards the smart grid and align with the power plant.
+    _turnToAngle(targetAngle=angle, speed=20, slowTurnRatio=0.9, correction=0.16)
+    gyroStraight(distance=10, speed = 35, backward = True, targetAngle = angle)
+     
+    # Turn towards the smart grid and drive forward we do fast run till the hydro unit, and then a slow drive forward
+    # in order to catch the units. 
+    gyroStraight(distance=5, speed = 55, backward = False, targetAngle = angle)
+    _turnToAngle(targetAngle=angle, speed=25, slowTurnRatio=0.9, correction=0.16)
+    gyroStraight(distance=32, speed = 55, backward = False, targetAngle = angle)
+
+    # Drive to catch the e-w line in front of the smart grid.
+    _turnToAngle(targetAngle=angle - 35, speed=20, slowTurnRatio=0.9, correction=0.16)
+    gyroStraight(distance=15, speed = 25, backward = False, targetAngle = angle - 35)
+
+    _turnToAngle(targetAngle=angle - 40, speed=25, slowTurnRatio=0.9, correction=0.16)
+    _driveTillLine(speed=25, distanceInCM=25, target_angle=angle - 40, colorSensorToUse="Right", blackOrWhite="White")
+
+    # Drive forward till the wall
+    _turnToAngle(targetAngle=angle, speed=20, slowTurnRatio=0.9, correction=0.16)
+    gyroStraight(distance=13, speed = 35, backward = False, targetAngle = angle)
+    
+    # Back off a little bit before turning to go home.
+    gyroStraight(distance=2, speed = 35, backward = True, targetAngle = angle)
+
+    # Go home first do a two part turn.
+    _turnToAngle(targetAngle=angle - 60, speed = 15, slowTurnRatio=0.9, correction=0.16)
+    gyroStraight(distance=8, speed = 25, backward = False, targetAngle = angle - 60)
+    
+    # Go Home
+    _turnToAngle(targetAngle=165, speed = 20, slowTurnRatio=0.9, correction=0.16)
+    gyroStraight(distance=25, speed = 50, backward = False, targetAngle = 165)
+    _turnToAngle(targetAngle=145, speed = 20, slowTurnRatio=0.9, correction=0.16)
+    gyroStraight(distance=90, speed = 90, backward = False, targetAngle = 145)
+
 def _run6():
     primeHub.motion_sensor.reset_yaw_angle()
     # Drive forward first. Drive at a slight angle to avoid hitting the power plant.
@@ -1618,8 +1817,12 @@ def _run1point5():
 #region Function Calls
 
 _initialize()
-#doRunWithTiming(driver)
-driver()
+#doRunWithTiming(_run3StraightLaunchSlow)
+#_run3CircularDrive()
+doRunWithTiming(_run3WithActiveArm)
+#gyroStraight(distance=15, speed = 55, backward = False, targetAngle = 0)
+
+#driver()
 #_run3()
 # testGyro()
 raise SystemExit
