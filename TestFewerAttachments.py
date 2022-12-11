@@ -1,4 +1,4 @@
-# LEGO type:standard slot:3
+# LEGO type:standard slot:1
 from spike import PrimeHub, ColorSensor,  Motor, MotorPair
 from math import *
 import collections
@@ -902,6 +902,72 @@ def _driveStraightWithSlowDownTillLine(distance, speed, target_angle, gain, slow
     logMessage("DrivestraightWiuthSlowDownTillLine completed", level=5)
     return stopCondition
     
+def _driveBackwardTillLine(distance, speed, target_angle, colorSensorToUse="Left", blackOrWhite="Black", gain=1):
+    wheels.stop()
+    # First establish which color sensor to use.
+    colorSensor = None
+    if (colorSensorToUse == "Left"):
+        colorSensor = colorA
+    else:
+        colorSensor = colorB
+
+    # Now establish the termination condition to use.
+    stoppingCondition = None
+    if (blackOrWhite == "Black"):
+        #stoppingCondition = lambda: colorSensor.get_reflected_light() <= BLACK_COLOR
+        def blackStoppingCondition():
+            light = colorSensor.get_reflected_light()
+            logMessage(" color={}".format(str(light)), level=5)
+            return light <= BLACK_COLOR
+        stoppingCondition = blackStoppingCondition
+    elif (blackOrWhite == "White"):
+        #stoppingCondition = lambda: colorSensor.get_reflected_light() >= WHITE_COLOR
+        def whiteStoppingCondition():
+            light = colorSensor.get_reflected_light()
+            logMessage(" color={}".format(str(light)), level=5)
+            return light >= WHITE_COLOR
+        stoppingCondition = whiteStoppingCondition
+    elif (blackOrWhite == "Green"):
+        stoppingCondition = lambda: colorSensor.get_color() == 'green'
+
+    startDistanceInDeg = abs(motorC.get_degrees_counted())
+    distanceInDeg = converCMToDeg(distance)
+    currentSpeed = -1*speed
+
+    if (target_angle == -180):
+        target_angle = 180
+
+    # Drop the speed from speed to five in distanceInDeg.
+    distanceInDegTravelled = 0
+    
+    FINAL_SLOW_SPEED=15
+    wheels.start(0, int(currentSpeed))
+    correction = previousCorrection = 0
+    stopCondition = False
+    while  distanceInDegTravelled <= distanceInDeg and stopCondition == False:
+        current_yaw_angle = primeHub.motion_sensor.get_yaw_angle()
+
+        # This hackery is needed to handle 180 or -180 straight run.
+        if (target_angle == 180 and current_yaw_angle < 0):
+            current_yaw_angle = (360 + current_yaw_angle)
+
+        previousCorrection = correction
+        correction = target_angle - current_yaw_angle
+        
+        turn_rate = correction * gain
+        logMessage("Left color={} Right color={} currrentSpeed={} distanceInDegTravelledInCM={} distanceInCM={} distanceInDegTravelled={} distanceToTravelInDeg={} target_angle={} current_yaw_angle={} correction={}".format(
+            str(colorA.get_reflected_light()), str(colorB.get_reflected_light()), str(int(currentSpeed)), str(convertDegToCM(distanceInDegTravelled)), str(distance),
+            str(distanceInDegTravelled), str(distanceInDeg), str(target_angle), str(current_yaw_angle), str(correction)), level=5)
+
+        if (abs(correction) > 1):
+            wheels.start(turn_rate, int(currentSpeed))
+
+        distanceInDegTravelled = abs(motorC.get_degrees_counted()) - startDistanceInDeg
+        stopCondition = stoppingCondition()
+
+    logMessage("DrivestraightWiuthSlowDownTillLine completed", level=5)
+    return stopCondition
+    
 # Line squares on the black line. Call this function once one of the color sensors hits the line.    
 def lineSquare():
     sensor = "Left"
@@ -1723,6 +1789,9 @@ def _toyFactoryN():
 #endregion Nami
 
 #region Rishabh
+# 12/1/2022: Trying new thing.
+# This is the run with using the new run3 arm. It also tries to include the
+# power plant. 
 def _run1():
     def _watchTV():
         # Drive to Watch Television. We do this in two parts. First fast and
@@ -1761,43 +1830,59 @@ def _run1():
     def _pickUpRechargeableBattery():
         angle = 40
 
-        # Start bringing down the hybrid car arm. We do this slowly so the 
-        # arm is high enough to clear the hybrid car, when it turns.
-        motorD.start(-50)
-
         # Backoff from the windwill and flush against the rechargeable battery.
         # We go back fast first, and then slow down to flush.
         wheels.move(amount = 5, unit = "cm", steering = 0, speed = -45) 
         _turnToAngle(targetAngle = angle, speed = 25)
         wheels.move(amount = 20, unit = "cm", steering = 0, speed = -45)
         wheels.move(amount = 7, unit = "cm", steering = 0, speed = -25) 
-        motorD.stop()
-
+        
         # Reset the gyro since we aligned.
         primeHub.motion_sensor.reset_yaw_angle()
         
     def _hybridCar():
         # Drive forward a little to be able to turn
-        gyroStraight(distance=12, speed = 40, backward = False, targetAngle = 0)
+        gyroStraight(distance=2, speed = 40, backward = False, targetAngle = 0)
 
-        # Align with the hybrid car.
-        angle = -90
+        # Drive forward towards the hybrid car.
+        angle = -95
         _turnToAngle(targetAngle = angle, speed = 25, slowTurnRatio = 0.6)
+        _driveTillLine(speed=25, distanceInCM=25, target_angle=angle, colorSensorToUse="Left", blackOrWhite="Black")
 
-        # Starting bringing down the hybrid car arm.
-        motorD.start(-70)
+        # Turn to get between the hybrid car and the toy factory
+        angle = -135
+        _turnToAngle(targetAngle = angle, speed = 25, slowTurnRatio = 0.6)
+        gyroStraight(distance=14, speed = 25, backward = False, targetAngle = angle)
+           
+        # Turn to get to the back of the hybrid car.
+        angle = -45
+        _turnToAngle(targetAngle = angle, speed = 25, slowTurnRatio = 0.6)
+        _driveTillLine(speed=25, distanceInCM=5, target_angle=angle, colorSensorToUse="Left", blackOrWhite="Black")
+        gyroStraight(distance=10, speed = 25, backward = False, targetAngle = angle)
+
+        # Pick up the hybrid car.
+        moveArm(degrees = 150, speed = -70, motor = motorF)
+
+    def _doPowerPlant():
+        # Drop the arm before we back off.
+        moveArm(degrees = 120, speed = 100, motor = motorF)
+
+        # Backup to the black line
+        _driveBackwardTillLine(distance=14, speed=20, target_angle=-45, colorSensorToUse="Left", blackOrWhite="Black")
         
-        # Drive forward to align with the hybrid car.
-        gyroStraight(distance=25, speed = 25, backward = False, targetAngle = angle)
+        # Catch the n-s line running in the middle of the map.
+        angle = -155
+        _turnToAngle(targetAngle = angle, speed = 25, slowTurnRatio = 0.6)
+        _driveTillLine(speed=25, distanceInCM=15, target_angle=angle, colorSensorToUse="Left", blackOrWhite="Black")
+        gyroStraight(distance=5, speed = 20, backward = False, targetAngle = angle)
 
-        # Stop the arm
-        motorD.stop()
-
-        # Bring up the arm.
-        moveArm(degrees = 2000, speed = 100, motor = motorD)
-
-        # Backup from the hybrid car.
-        gyroStraight(distance=20, speed = 70, backward = True, targetAngle = angle)
+        global GLOBAL_LEVEL
+        GLOBAL_LEVEL = 5
+        
+        # Point to the power plant
+        angle = 135
+        _turnToAngle(targetAngle = angle, speed = 20, slowTurnRatio = 0.4, correction=0.16)
+        gyroStraight(distance=55, speed = 40, backward = False, targetAngle = angle)
 
     def _goHome():
         _turnToAngle(targetAngle = -70, speed = 45, slowTurnRatio = 0.9)
@@ -1808,7 +1893,8 @@ def _run1():
     _windTurbine()
     _pickUpRechargeableBattery()
     _hybridCar()
-    _goHome()
+    _doPowerPlant()
+    #_goHome()
 
 #endregion
 
@@ -1820,23 +1906,47 @@ def _run1point5():
     gyroStraight(distance=37, speed=60, targetAngle=0)
 #region Function Calls
 
-_initialize()
-#doRunWithTiming(_run3StraightLaunchSlow)
-#_run3CircularDrive()
-doRunWithTiming(_run3WithActiveArm)
-#gyroStraight(distance=15, speed = 55, backward = False, targetAngle = 0)
+
+def _newrun4smallerattachment():
+    primeHub.motion_sensor.reset_yaw_angle()
+    gyroStraight(distance=30, speed=25, backward = False, targetAngle=0)
+    angle = 30
+    _turnToAngle(targetAngle = angle, speed = 25, slowTurnRatio = 0.9)
+    gyroStraight(distance=42, speed=25, backward = False, targetAngle=angle)
+    angle = 0
+    _turnToAngle(targetAngle = angle, speed = 25, slowTurnRatio = 0.9)
+    gyroStraight(distance=30, speed=25, backward = False, targetAngle=angle)
+    moveArm(degrees = 250, speed = 75, motor = motorF)
+    gyroStraight(distance=7, speed=25, backward = True, targetAngle=angle)
+    moveArm(degrees = 1500, speed = -75, motor = motorF)
+    moveArm(degrees = 1500, speed = 75, motor = motorF)
+
+    moveArm(degrees = 1500, speed = -75, motor = motorF)
+    moveArm(degrees = 1500, speed = 75, motor = motorF)
+
+    moveArm(degrees = 1500, speed = -75, motor = motorF)
+    moveArm(degrees = 1500, speed = 75, motor = motorF)
+    gyroStraight(distance=12, speed=25, backward = False, targetAngle=angle)
+    moveArm(degrees = 3000, speed = -75, motor = motorF)
 
 def tryPowerPlantWithRun3Arm():
     #testTurnToAngle(speed = 35, slowturnratio=0.6, correction=0.30)
+    gyroStraight(distance=11, speed = 20, backward = False, targetAngle = 0)
+    moveArm(degrees = 250, speed = 100, motor = motorD)
+    gyroStraight(distance=8, speed = 20, backward = True, targetAngle = 0)
     moveArm(degrees = 120, speed = -50, motor = motorF)
-    gyroStraight(distance=9, speed = 20, backward = False, targetAngle = 0)
+    gyroStraight(distance=2, speed = 20, backward = False, targetAngle = 0)
     moveArm(degrees = 120, speed = 50, motor = motorF)
-    gyroStraight(distance=3, speed = 20, backward = False, targetAngle = 0)
-    moveArm(degrees = 150, speed = -50, motor = motorF)
+  
+    #gyroStraight(distance=3, speed = 20, backward = False, targetAngle = 0)
+    #moveArm(degrees = 150, speed = -50, motor = motorF)
 
-#driver()
-#_run3()
-# testGyro()
+_initialize()
+doRunWithTiming(_run1)
+#doRunWithTiming(_run3StraightLaunchSlow)
+#doRunWithTiming(_run3WithActiveArm)
+#_newrun4smallerattachment()
+#tryPowerPlantWithRun3Arm()
 raise SystemExit
 #endregion
 
