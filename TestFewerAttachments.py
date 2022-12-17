@@ -2068,7 +2068,6 @@ def tryPowerPlantWithRun3Arm():
 
 _initialize()
 
-
 def SquareinBothDirections():
     logMessage("STARTING SQUARE IN THE LEFT DIRECTION")
    
@@ -2139,14 +2138,14 @@ def random90DegreeTurns():
         _turnAndDrive(targetAngle=angle, distance=0, speed=30)
         currentAngle = targetAngle
 
-GLOBAL_LEVEL=5
-
 '''
+GLOBAL_LEVEL=5
 counter = 1
 while counter < 6:
     SquareinBothDirections()
     counter = counter + 1
 '''
+
 def powerplanttest():
     angle=0
     moveArm(degrees = 200, speed = 100, motor = motorD)
@@ -2156,14 +2155,6 @@ def powerplanttest():
     moveArm(degrees = 100, speed = 100, motor = motorD)
     gyroStraight(distance=6, speed = 20, backward = False, targetAngle = angle)
     #moveArm(degrees = 130, speed = 100, motor = motorD)
-
-GLOBAL_LEVEL=5
-#while True:
-    #allLeftTurns()
-#    LTurns()
-#    time.sleep(2)
-#    primeHub.motion_sensor.reset_yaw_angle()
-
 
 #doRunWithTiming(_newrun4smallerattachment)
 doRunWithTiming(_run1)
@@ -2179,10 +2170,10 @@ doRunWithTiming(_run1)
 #     gyroStraight(distance=3,speed=20,backward=True)
 
 # try power plant arm...     
-moveArm(degrees = 1800, speed = -100, motor = motorD)
-time.sleep(2)
-moveArm(degrees = 2000, speed = 100, motor = motorD)     
-time.sleep(5)
+#moveArm(degrees = 1800, speed = -100, motor = motorD)
+#time.sleep(2)
+#moveArm(degrees = 2000, speed = 100, motor = motorD)     
+#time.sleep(5)
      
 #doRunWithTiming(_run3StraightLaunchSlow)
 #doRunWithTiming(_run3WithActiveArm)
