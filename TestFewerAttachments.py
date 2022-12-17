@@ -1885,19 +1885,24 @@ def _run1():
         _turnToAngle(targetAngle = angle, speed = 25, slowTurnRatio = 0.9)
 
     def _windTurbine():
+        #raise the powerplant arm
+        
         angle = 40
         #correction = 0.06
         #angle = calculateReducedTargetAngle(40,correction)
         # Drive towards Wind Turbine and push the lever once
-        drive(speed = 20, distanceInCM = 22, target_angle = angle)
-        
+        #drive(speed = 20, distanceInCM = 22, target_angle = angle)
+        gyroStraight(distance=22, speed = 20, backward = False, targetAngle = angle)#changed 12/15
         # Push the lever the remaining two times
         for i in range(3): 
             # Backup so the robot can push the Wind Turbine again
-            wheels.move(amount = 7, unit = "cm", steering = 0, speed = -30) 
-            
+            #wheels.move(amount = 7, unit = "cm", steering = 0, speed = -30) 
+            gyroStraight(distance=7, speed = 30, backward = True, targetAngle = angle)#changed 12/15
             # Drive forward to push the Wind Turbine
-            drive(speed = 20, distanceInCM = 14, target_angle = angle)
+            #drive(speed = 20, distanceInCM = 14, target_angle = angle)
+            gyroStraight(distance=14, speed = 20, backward = False, targetAngle = angle)#changed 12/15
+            
+       
 
     def _pickUpRechargeableBattery():
         angle = 40
@@ -1906,72 +1911,84 @@ def _run1():
 
         # Backoff from the windwill and flush against the rechargeable battery.
         # We go back fast first, and then slow down to flush.
-        wheels.move(amount = 5, unit = "cm", steering = 0, speed = -45) 
+        #wheels.move(amount = 5, unit = "cm", steering = 0, speed = -45) 
+        #gyroStraight(distance=5, speed = 45, backward = True, targetAngle = angle)#changed 12/15
         _turnToAngle(targetAngle = angle, speed = 25)
-        wheels.move(amount = 18, unit = "cm", steering = 0, speed = -45)
-        wheels.move(amount = 8, unit = "cm", steering = 0, speed = -25) 
+        #wheels.move(amount = 18, unit = "cm", steering = 0, speed = -45)
+        gyroStraight(distance=23, speed = 45, backward = True, targetAngle = angle)#changed 12/15
+        #wheels.move(amount = 8, unit = "cm", steering = 0, speed = -25)
+        gyroStraight(distance=8, speed = 25, backward = True, targetAngle = angle)#changed 12/15 
+        #drop the hybrid car arm
+        moveArm(degrees = 200, speed = -100, motor = motorD)
         
         # Reset the gyro since we aligned.
-        #primeHub.motion_sensor.reset_yaw_angle()
+        primeHub.motion_sensor.reset_yaw_angle()
         
     def _hybridCar():
         # Drive forward a little to be ale to turn
-        gyroStraight(distance=2, speed = 20, backward = False, targetAngle = 40)
-
+        #gyroStraight(distance=2, speed = 20, backward = False, targetAngle = 40)
+        gyroStraight(distance=2, speed = 20, backward = False, targetAngle = 0)# added due to gyro reset
         # Start moving the hybrid car arm.
-        motorD.start_at_power(-40)
+       
 
         # Drive forward towards the hybrid car.
-        angle = -50
+        angle = -90 #-50
         _turnToAngle(targetAngle = angle, speed = 25, slowTurnRatio = 0.6)
         _driveTillLine(speed=25, distanceInCM=25, target_angle=angle, colorSensorToUse="Left", blackOrWhite="Black")
-
-        motorD.stop()
-
-        # Move forward a little to get to the hybrid car arm.
-        angle = -40
-        _turnToAngle(targetAngle = angle, speed = 25, slowTurnRatio = 0.6, correction=0.16)
         gyroStraight(distance=10, speed = 25, backward = False, targetAngle = angle)
+        
+        # Move forward a little to get to the hybrid car arm.
+        angle = -80
+        _turnToAngle(targetAngle = angle, speed = 25, slowTurnRatio = 0.6, correction=0.16)
+        gyroStraight(distance=2, speed = 25, backward = False, targetAngle = angle)
+        #angle = -40
+        #_turnToAngle(targetAngle = angle, speed = 25, slowTurnRatio = 0.6, correction=0.16)
+       
 
         # Lift up the hybrid car.
-        moveArm(degrees = 1200, speed = 100, motor = motorD)
-        
-    def _doPowerPlant():
-        angle = -40
-        gyroStraight(distance=6, speed = 25, backward = True, targetAngle = angle)
+        moveArm(degrees = 200, speed = 50, motor = motorD)
+        moveArm(degrees = 90, speed = -100, motor = motorD)
 
+    def _doPowerPlant():
+        angle = -78
+        gyroStraight(distance=11, speed = 25, backward = True, targetAngle = angle)
+       
         # Turn to get to the n-s line in front of the smart grid.
-        angle = -100
+        angle = -140#-100
         _turnToAngle(targetAngle = angle, speed = 25, slowTurnRatio = 0.6, correction=0.16)
-        gyroStraight(distance=5, speed = 25, backward = False, targetAngle = angle)
-        _driveTillLine(speed=25, distanceInCM=22, target_angle=angle, colorSensorToUse="Left", blackOrWhite="Black")
-        gyroStraight(distance=5, speed = 20, backward = False, targetAngle = angle)
+        gyroStraight(distance=10, speed = 25, backward = False, targetAngle = angle)
+        _driveTillLine(speed=20, distanceInCM=22, target_angle=angle, colorSensorToUse="Left", blackOrWhite="Black")
+        gyroStraight(distance=2, speed = 20, backward = False, targetAngle = angle)
 
         global GLOBAL_LEVEL
         GLOBAL_LEVEL = 5
         # Point to the power plant
-        angle = -178 
+        angle = 140#-178 
         _turnToAngle(targetAngle = angle, speed = 20, slowTurnRatio = 0.4)
+        # Flush against the smartgrid
+        gyroStraight(distance=6, speed = 20, backward = True, targetAngle = angle)
         time.sleep(10)
-        motorD.start_at_power(-40)
-        gyroStraight(distance=50, speed = 40, backward = False, targetAngle = angle)
-
-        motorD.stop()
-        gyroStraight(distance=3, speed = 40, backward = False, targetAngle = angle)
-        moveArm(degrees = 1200, speed = 100, motor = motorD)
-
+        
+        gyroStraight(distance=51, speed = 20, backward = False, targetAngle = angle)
+        gyroStraight(distance=13, speed = 20, backward = False, targetAngle = angle)
+        moveArm(degrees = 100, speed = 100, motor = motorD)
+        moveArm(degrees = 180, speed = -100, motor = motorD)
+        
 
 
     def _goHome():
         _turnToAngle(targetAngle = -70, speed = 45, slowTurnRatio = 0.9)
         gyroStraight(distance=60, speed = 90, backward = True, targetAngle = -70)
     
+    #bring hybrid car arm up.
+    
+    moveArm(degrees = 200, speed = 75, motor = motorD)
     _watchTV()
     _getToWindTurbine()
     _windTurbine()
     _pickUpRechargeableBattery()
     _hybridCar()
-    _doPowerPlant()
+    #_doPowerPlant()
     #_goHome()
 
 #endregion
@@ -2130,17 +2147,26 @@ while counter < 6:
     SquareinBothDirections()
     counter = counter + 1
 '''
+def powerplanttest():
+    angle=0
+    moveArm(degrees = 200, speed = 100, motor = motorD)
+    moveArm(degrees = 100, speed = -100, motor = motorD)
+    gyroStraight(distance=51, speed = 20, backward = False, targetAngle = angle)
+    gyroStraight(distance=5, speed = 20, backward = False, targetAngle = angle)
+    moveArm(degrees = 100, speed = 100, motor = motorD)
+    gyroStraight(distance=6, speed = 20, backward = False, targetAngle = angle)
+    #moveArm(degrees = 130, speed = 100, motor = motorD)
 
-while True:
-    JustLeftTurns()
-    
-#    allLeftTurns()
+GLOBAL_LEVEL=5
+#while True:
+    #allLeftTurns()
+#    LTurns()
 #    time.sleep(2)
 #    primeHub.motion_sensor.reset_yaw_angle()
 
 
 #doRunWithTiming(_newrun4smallerattachment)
-#doRunWithTiming(_run1)
+doRunWithTiming(_run1)
 
 # Pick up the hybrid car.
 #while True:
@@ -2153,10 +2179,10 @@ while True:
 #     gyroStraight(distance=3,speed=20,backward=True)
 
 # try power plant arm...     
-#moveArm(degrees = 1800, speed = -100, motor = motorD)
-#time.sleep(2)
-#moveArm(degrees = 2000, speed = 100, motor = motorD)     
-#time.sleep(5)
+moveArm(degrees = 1800, speed = -100, motor = motorD)
+time.sleep(2)
+moveArm(degrees = 2000, speed = 100, motor = motorD)     
+time.sleep(5)
      
 #doRunWithTiming(_run3StraightLaunchSlow)
 #doRunWithTiming(_run3WithActiveArm)
