@@ -1,4 +1,4 @@
-# LEGO type:standard slot:0
+# LEGO type:standard slot:3
 from spike import PrimeHub, ColorSensor,  Motor, MotorPair
 from math import *
 import collections
@@ -2254,9 +2254,9 @@ def testHybridCarArm():
      
 
 #testHybridCarArm()
-doRunWithTiming(_run1)
+#doRunWithTiming(_run1)
 #doRunWithTiming(_run3StraightLaunchSlow)
-#doRunWithTiming(_run3WithActiveArm)
+doRunWithTiming(_run3WithActiveArm)
 #_newrun4smallerattachment()
 #tryPowerPlantWithRun3Arm()
 #_run6()
