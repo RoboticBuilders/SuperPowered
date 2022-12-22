@@ -1679,7 +1679,7 @@ def _run3WithActiveArmAndGlobalCorrection():
     gyroStraight(distance=10, speed = 25, backward = True, targetAngle = angle, multiplier=multiplier)
 
     # Drive towards the e-w line infront of the smart grid.
-    angle = -135
+    angle = -155
     angle = calculateReducedTargetAngle(angle)
     _turnToAngle(targetAngle=angle, speed=turnSpeed, slowTurnRatio=0.9)
     # Catch the line in front of solar farm
@@ -1691,13 +1691,13 @@ def _run3WithActiveArmAndGlobalCorrection():
      # Pick up the arm to get the energy unit.
     moveArm(degrees = 120, speed = -75, motor = motorF)
     #Go forward to capture the energy unit
-    gyroStraight(distance=12, speed = 25, backward = False, targetAngle = angle, multiplier=multiplier)
+    gyroStraight(distance=14, speed = 25, backward = False, targetAngle = angle, multiplier=multiplier)
     # Drop the arm to get the energy units.
     moveArm(degrees = 120, speed = 75, motor = motorF)
     # Backup to get ready to go home
     gyroStraight(distance=5, speed = 25, backward = True, targetAngle = angle, multiplier=multiplier)
 
-    # Go Home ij three parts
+    # Go Home ijjj (not in) three parts
     angle = -170
     angle = calculateReducedTargetAngle(angle)
     _turnToAngle(targetAngle=angle, speed = turnSpeed, slowTurnRatio=0.9, correction=0.16)
@@ -1706,12 +1706,12 @@ def _run3WithActiveArmAndGlobalCorrection():
     angle = 145
     angle = calculateReducedTargetAngle(angle)
     _turnToAngle(targetAngle=angle, speed = turnSpeed, slowTurnRatio=0.9, correction=0.16)
-    gyroStraight(distance=60, speed = 70, backward = False, targetAngle = angle, multiplier=1)
+    gyroStraight(distance=45, speed = 70, backward = False, targetAngle = angle, multiplier=1)
 
     angle = 130
     angle = calculateReducedTargetAngle(angle)
-    _turnToAngle(targetAngle=angle, speed = turnSpeed, slowTurnRatio=0.9, correction=0.16)
-    gyroStraight(distance=30, speed = 70, backward = False, targetAngle = angle, multiplier=1)
+    _turnToAngle(targetAngle=angle, speed = 50, slowTurnRatio=0.9, correction=0.16)
+    gyroStraight(distance=50, speed = 70, backward = False, targetAngle = angle, multiplier=1)
 
 def _run6():
     primeHub.motion_sensor.reset_yaw_angle()
