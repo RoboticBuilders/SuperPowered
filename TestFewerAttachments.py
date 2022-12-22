@@ -884,14 +884,14 @@ def _driveTillLine(speed, distanceInCM, target_angle, gain = 1, colorSensorToUse
         #stoppingCondition = lambda: colorSensor.get_reflected_light() <= BLACK_COLOR
         def blackStoppingCondition():
             light = colorSensor.get_reflected_light()
-            logMessage(" color={}".format(str(light)), level=5)
+            #logMessage(" color={}".format(str(light)), level=5)
             return light <= BLACK_COLOR
         stoppingCondition = blackStoppingCondition
     elif (blackOrWhite == "White"):
         #stoppingCondition = lambda: colorSensor.get_reflected_light() >= WHITE_COLOR
         def whiteStoppingCondition():
             light = colorSensor.get_reflected_light()
-            logMessage(" color={}".format(str(light)), level=5)
+            #logMessage(" color={}".format(str(light)), level=5)
             return light >= WHITE_COLOR
         stoppingCondition = whiteStoppingCondition
     elif (blackOrWhite == "Green"):
@@ -962,9 +962,9 @@ def _driveStraightWithSlowDownTillLine(distance, speed, target_angle, gain, slow
         correction = target_angle - current_yaw_angle
         
         turn_rate = correction * gain
-        logMessage("Left color={} Right color={} currrentSpeed={} distanceInDegTravelledInCM={} distanceInCM={} distanceInDegTravelled={} distanceToTravelInDeg={} target_angle={} current_yaw_angle={} correction={}".format(
-            str(colorA.get_reflected_light()), str(colorB.get_reflected_light()), str(int(currentSpeed)), str(convertDegToCM(distanceInDegTravelled)), str(distance),
-            str(distanceInDegTravelled), str(distanceInDeg), str(target_angle), str(current_yaw_angle), str(correction)), level=5)
+        #logMessage("Left color={} Right color={} currrentSpeed={} distanceInDegTravelledInCM={} distanceInCM={} distanceInDegTravelled={} distanceToTravelInDeg={} target_angle={} current_yaw_angle={} correction={}".format(
+        #    str(colorA.get_reflected_light()), str(colorB.get_reflected_light()), str(int(currentSpeed)), str(convertDegToCM(distanceInDegTravelled)), str(distance),
+        #    str(distanceInDegTravelled), str(distanceInDeg), str(target_angle), str(current_yaw_angle), str(correction)), level=5)
 
         if (abs(correction) > 1):
             wheels.start(turn_rate, int(currentSpeed))
@@ -1761,7 +1761,7 @@ def _run6():
     motorF.start_at_power(60)
     
     # Backoff to leave the water reservoir
-    gyroStraight(distance=17, speed = 20, backward = True, targetAngle = 162)
+    gyroStraight(distance=16, speed = 20, backward = True, targetAngle = 162)
 
     motorF.stop()    
     _doToyFactory()
@@ -1775,12 +1775,14 @@ def _doToyFactory():
     gyroStraight(distance=19, speed = 35, backward = True, targetAngle = -165)
     _turnToAngle(targetAngle = -130, speed = 20, slowTurnRatio = 0.9)
     #changed to 11 on 12/21/2022
-    gyroStraight(distance=9, speed = 35, backward = True, targetAngle = -120)
+    #changed to 10 on 12/21/2022
+    gyroStraight(distance=10, speed = 35, backward = True, targetAngle = -120)
 
     # Back into the toy factory and align
 
     # Drop off the units.
-    moveArm(degrees = -2000, speed = 100, motor = motorD)
+    #moveArm(degrees = -2000, speed = 100, motor = motorD)
+    #_____________________________________________________
     #moveArm(degrees = 1000, speed = 100, motor = motorD)
     
 def _dropRechargeableBatteryAndOilTruckWithGyroReset():
@@ -2236,7 +2238,7 @@ def _run1WithGlobalCorrection():
         angle = 140
         angle, correction = calculateReducedTargetAngleAndCorrection(angle, correction)
         _turnToAngle(targetAngle = angle, speed = 25, slowTurnRatio = 0.6, correction=correction)
-        gyroStraight(distance=23, speed = 45, backward = False, targetAngle = angle)
+        gyroStraight(distance=27, speed = 45, backward = False, targetAngle = angle)
         #gyroStraight(distance=55, speed = 45, backward = False, targetAngle = angle)
         
         # Turn towards toy factory
@@ -2313,6 +2315,7 @@ def _newrun4smallerattachment():
     # Initialize the speed variables for this run.
     turnSpeed = 25
     slowSpeed = 25
+    alignSpeed = 35
     fastSpeed = 50
     goHomeSpeed = 75
 
@@ -2328,9 +2331,9 @@ def _newrun4smallerattachment():
     gyroStraight(distance = 40, speed = slowSpeed, backward = False, targetAngle = angle)
 
     # Drive towards the Energy Storage
-    angle = 10
+    angle = -5
     _turnToAngle(targetAngle = angle, speed = turnSpeed, slowTurnRatio = 0.9)
-    gyroStraight(distance = 35, speed = fastSpeed, backward = False, targetAngle = angle)
+    gyroStraight(distance = 35, speed = alignSpeed, backward = False, targetAngle = angle)
 
     # Lower the Oil Platform arm so that it fits underneath the Oil Platform lever
     gyroStraight(distance = 2, speed = slowSpeed, backward = True, targetAngle = angle)
@@ -2338,18 +2341,20 @@ def _newrun4smallerattachment():
 
     # Back up to the Oil Platform so that the Oil Platform arm is under the lever
     backUpDist = 3
+    angle = 10
     gyroStraight(distance = backUpDist, speed = slowSpeed, backward = True, targetAngle = angle)
+    _turnToAngle(targetAngle = angle, speed = turnSpeed, slowTurnRatio = 0.9)
 
     # Repeatedly raise and lower the Oil Platform arm to expell the units. Drive forward and backward so that the arm does not end up on top of the lever
-    angle = 0
     for i in range(3):
         moveArm(degrees = 1500, speed = -100, motor = motorF)
-        gyroStraight(distance = backUpDist, speed = slowSpeed, backward = False, targetAngle = primeHub.motion_sensor.get_yaw_angle())
+        gyroStraight(distance = backUpDist + 1, speed = slowSpeed, backward = False, targetAngle = primeHub.motion_sensor.get_yaw_angle())
+        _turnToAngle(targetAngle = angle, speed = turnSpeed, slowTurnRatio = 0.9)
         moveArm(degrees = 1500, speed = 100, motor = motorF)
         gyroStraight(distance = backUpDist, speed = slowSpeed, backward = True, targetAngle = primeHub.motion_sensor.get_yaw_angle())
     
     # Drive forward towards the Energy Storage
-    gyroStraight(distance = 4, speed = slowSpeed, backward = False, targetAngle = angle)
+    gyroStraight(distance = 5, speed = slowSpeed, backward = False, targetAngle = angle)
 
     # Lower the Solar Farm and Energy Storage Tray arms to collect them
     moveArm(degrees = 3000, speed = -75, motor = motorF)
@@ -2466,24 +2471,35 @@ def powerplanttest():
     gyroStraight(distance=6, speed = 20, backward = False, targetAngle = angle)
     #moveArm(degrees = 130, speed = 100, motor = motorD)
 
-#doRunWithTiming(_newrun4smallerattachment)
-print("Battery voltage: " + str(hub.battery.voltage()))
-#doRunWithTiming(_run1WithGlobalCorrection)
-doRunWithTiming(_run6)
-#doRunWithTiming(runhome1tohome2)
-# Pick up the hybrid car.
 def testHybridCarArm():
     while True:
         time.sleep(5)
         moveArm(degrees = 180, speed = 50, motor = motorD) 
         time.sleep(5)
         moveArm(degrees = 180, speed = -100, motor = motorD)
- 
+
+
+def testDriveTillLine():
+    #global GLOBAL_LEVEL
+    #GLOBAL_LEVEL = 5
+
+    angle = 0
+    while True:
+        primeHub.motion_sensor.reset_yaw_angle()
+        _driveTillLine(speed=35, distanceInCM=72, target_angle=angle, colorSensorToUse="Left", blackOrWhite="Black")
+        time.sleep(5)
+
+print("Battery voltage: " + str(hub.battery.voltage())) 
 #doRunWithTiming(_newrun4smallerattachment)
-print("Battery voltage: " + str(hub.battery.voltage()))
-doRunWithTiming(_run6)
+#print("Battery voltage: " + str(hub.battery.voltage()))
+doRunWithTiming(_run1WithGlobalCorrection)
+#doRunWithTiming(_run6)
+#doRunWithTiming(runhome1tohome2)
+# Pick up the hybrid car.
+#doRunWithTiming(_newrun4smallerattachment)
+#testDriveTillLine()
+#doRunWithTiming(_newrun4smallerattachment)
 #testHybridCarArm()
-#doRunWithTiming(_newrun4smallerattachment)
 #doRunWithTiming(_run3StraightLaunchSlow)
 #doRunWithTiming(_run3WithActiveArm)
 #_newrun4smallerattachment()
