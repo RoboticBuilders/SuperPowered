@@ -1725,7 +1725,9 @@ def _run3StraightLaunchSlow():
 def _run6():
     primeHub.motion_sensor.reset_yaw_angle()
     # Drive forward first. Drive at a slight angle to avoid hitting the power plant.
-    drive(speed = 65, distanceInCM = 50, target_angle = -5, gain = 2)
+    gyroStraight(distance= 50, speed= 65, targetAngle= -5)
+    '''changed from drive to gyroStraight'''
+    #drive(speed = 65, distanceInCM = 50, target_angle = -5, gain = 2)
     print(str(primeHub.motion_sensor.get_yaw_angle()))
     
     # Turn slightly to catch the n-s line in front of the power plant
@@ -1749,7 +1751,7 @@ def _run6():
     motorF.start_at_power(60)
     
     # Backoff to leave the water reservoir
-    gyroStraight(distance=11, speed = 20, backward = True, targetAngle = 162)
+    gyroStraight(distance=17, speed = 20, backward = True, targetAngle = 162)
 
     motorF.stop()    
     _doToyFactory()
@@ -1758,8 +1760,11 @@ def _doToyFactory():
     # turn to get to the toyfactory.
     _turnToAngle(targetAngle = -165, speed = 20, slowTurnRatio = 0.9)
     #changed distance from 24 to 27 on 12/18/2022
-    gyroStraight(distance=27, speed = 35, backward = True, targetAngle = -165)
-    _turnToAngle(targetAngle = -120, speed = 20, slowTurnRatio = 0.9)
+    #changed to 21 on 12/21/2022
+    #changed to 19 on 12/21/2022
+    gyroStraight(distance=19, speed = 35, backward = True, targetAngle = -165)
+    _turnToAngle(targetAngle = -130, speed = 20, slowTurnRatio = 0.9)
+    #changed to 11 on 12/21/2022
     gyroStraight(distance=9, speed = 35, backward = True, targetAngle = -120)
 
     # Back into the toy factory and align
@@ -2267,9 +2272,7 @@ def powerplanttest():
     gyroStraight(distance=6, speed = 20, backward = False, targetAngle = angle)
     #moveArm(degrees = 130, speed = 100, motor = motorD)
 
-#doRunWithTiming(_newrun4smallerattachment)
-print("Battery voltage: " + str(hub.battery.voltage()))
-doRunWithTiming(_run1)
+
 
 # Pick up the hybrid car.
 def testHybridCarArm():
@@ -2278,7 +2281,10 @@ def testHybridCarArm():
         moveArm(degrees = 180, speed = 50, motor = motorD) 
         time.sleep(5)
         moveArm(degrees = 180, speed = -100, motor = motorD)
-        
+ 
+#doRunWithTiming(_newrun4smallerattachment)
+print("Battery voltage: " + str(hub.battery.voltage()))
+doRunWithTiming(_run6)
 #testHybridCarArm()
 #doRunWithTiming(_newrun4smallerattachment)
 #doRunWithTiming(_run3StraightLaunchSlow)
