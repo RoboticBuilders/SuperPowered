@@ -1754,7 +1754,7 @@ def _run6():
     gyroStraight(distance= 50, speed= 65, targetAngle= -5)
     '''changed from drive to gyroStraight'''
     #drive(speed = 65, distanceInCM = 50, target_angle = -5, gain = 2)
-    #print(str(primeHub.motion_sensor.get_yaw_angle()))
+    print(str(primeHub.motion_sensor.get_yaw_angle()))
     
     # Turn slightly to catch the n-s line in front of the power plant
     _driveTillLine(speed=30, distanceInCM=35, target_angle=-8, colorSensorToUse="Left", blackOrWhite="Black")
@@ -1791,12 +1791,14 @@ def _doToyFactory():
     gyroStraight(distance=19, speed = 35, backward = True, targetAngle = -165)
     _turnToAngle(targetAngle = -130, speed = 20, slowTurnRatio = 0.9)
     #changed to 11 on 12/21/2022
-    gyroStraight(distance=9, speed = 35, backward = True, targetAngle = -120)
+    #changed to 10 on 12/21/2022
+    gyroStraight(distance=10, speed = 35, backward = True, targetAngle = -120)
 
     # Back into the toy factory and align
 
     # Drop off the units.
-    moveArm(degrees = -2000, speed = 100, motor = motorD)
+    #moveArm(degrees = -2000, speed = 100, motor = motorD)
+    #_____________________________________________________
     #moveArm(degrees = 1000, speed = 100, motor = motorD)
     
 def _dropRechargeableBatteryAndOilTruckWithGyroReset():
@@ -2143,7 +2145,7 @@ def _run1WithGlobalCorrection():
         angle=0
         # Drive to Watch Television. We do this in two parts. First fast and
         # then do it slow so the energy unit does not fall off.
-        gyroStraight(distance = 37, speed = 50, backward = False, targetAngle = angle)
+        gyroStraight(distance = 36, speed = 50, backward = False, targetAngle = angle)
         gyroStraight(distance = 5, speed = 20, backward = False, targetAngle = angle)
         
         # Backup from Watch Television
@@ -2198,11 +2200,11 @@ def _run1WithGlobalCorrection():
 
         # Drive forward towards the hybrid car.
         #angle = -93
-        angle = -95
+        angle = -100
         #angle = calculateReducedTargetAngle(angle)
         _turnToAngle(targetAngle = angle, speed = 20, slowTurnRatio = 0.6)
         #moveArm(degrees = 150, speed = -50, motor = motorD)
-        _driveTillLine(speed=35, distanceInCM=250, target_angle=angle, colorSensorToUse="Left", blackOrWhite="Black")
+        _driveTillLine(speed=50, distanceInCM=250, target_angle=angle, colorSensorToUse="Left", blackOrWhite="Black")
         #Bring arm down to get ready for hybrid car
         moveArm(degrees = 150, speed = -50, motor = motorD)
         
@@ -2244,23 +2246,51 @@ def _run1WithGlobalCorrection():
         _turnToAngle(targetAngle = angle, speed = 20, slowTurnRatio = 0.6, correction=correction)
         gyroStraight(distance=7, speed = 35, backward = False, targetAngle = angle)
         _driveTillLine(speed=35, distanceInCM=72, target_angle=angle, colorSensorToUse="Left", blackOrWhite="Black")
-        gyroStraight(distance=5, speed = 35, backward = False, targetAngle = angle)
 
-        # Move towards the power plant.
-        #global GLOBAL_LEVEL
-        #GLOBAL_LEVEL = 5
-        angle = 140
+        # Now lift the bucket arm to capture the 2 water units.
+        moveArm(degrees = 120, speed = -100, motor = motorF)
+        angle = -165
         angle, correction = calculateReducedTargetAngleAndCorrection(angle, correction)
-        _turnToAngle(targetAngle = angle, speed = 25, slowTurnRatio = 0.6, correction=correction)
-        gyroStraight(distance=24, speed = 45, backward = False, targetAngle = angle)
-        #gyroStraight(distance=55, speed = 45, backward = False, targetAngle = angle)
-        
-        # Turn towards toy factory
+        _turnToAngle(targetAngle = angle, speed = 25, correction = correction)
+        gyroStraight(distance=18, speed = 35, backward = False, targetAngle = angle)
+        # Now lower the arm to collect the water units
+        moveArm(degrees = 120, speed = 100, motor = motorF)
+        gyroStraight(distance=7, speed = 35, backward = True, targetAngle = angle)
+
+        # Now go to solar farm to pick the energy unit
         angle = 90
         angle, correction = calculateReducedTargetAngleAndCorrection(angle, correction)
-        _turnToAngle(targetAngle = angle, speed = 25, slowTurnRatio = 0.6, correction=correction)
-        gyroStraight(distance=21, speed = 50, backward = False, targetAngle = angle)
+        _turnToAngle(targetAngle = angle, speed = 25, correction = correction)
+        #gyroStraight(distance = 8, speed = 20, backward = True, targetAngle = angle)
+        _driveBackwardTillLine(distance = 10, speed = 25, target_angle = angle, colorSensorToUse = "Left", blackOrWhite = "Black")
+
+        # Collect the solar farm unit
+        angle = 135
+        angle, correction = calculateReducedTargetAngleAndCorrection(angle, correction)
+        _turnToAngle(targetAngle = angle, speed = 25, correction = correction)
+        gyroStraight(distance = 25, speed = 35, backward = True, targetAngle = angle)
+        _driveTillLine(speed = 25, distanceInCM = 35, target_angle = angle, colorSensorToUse = "Left", blackOrWhite = "Black")
+
+        # Drive to Toy Factory
+        angle = 110
+        angle, correction = calculateReducedTargetAngleAndCorrection(angle, correction)
+        _turnToAngle(targetAngle = angle, speed = 25, slowTurnRatio = 0.6, correction = correction)
+        gyroStraight(distance = 54, speed = 50, backward = False, targetAngle = angle)
+
+        # # Move towards the power plant.
+        # #global GLOBAL_LEVEL
+        # #GLOBAL_LEVEL = 5
+        # angle = 140
+        # angle, correction = calculateReducedTargetAngleAndCorrection(angle, correction)
+        # _turnToAngle(targetAngle = angle, speed = 25, slowTurnRatio = 0.6, correction=correction)
+        # gyroStraight(distance=24, speed = 45, backward = False, targetAngle = angle)
+        # #gyroStraight(distance=55, speed = 45, backward = False, targetAngle = angle)
         
+        # # Turn towards toy factory
+        # angle = 90
+        # angle, correction = calculateReducedTargetAngleAndCorrection(angle, correction)
+        # _turnToAngle(targetAngle = angle, speed = 25, slowTurnRatio = 0.6, correction=correction)
+        # gyroStraight(distance=21, speed = 50, backward = False, targetAngle = angle)
         # Flush with the toy factory
         angle=178
         angle, correction = calculateReducedTargetAngleAndCorrection(angle, correction)
@@ -2268,7 +2298,8 @@ def _run1WithGlobalCorrection():
         gyroStraight(distance=8, speed = 35, backward = True, targetAngle = angle)
 
         # Bring arm down to get ready for power plant
-        moveArm(degrees = 175, speed = -50, motor = motorD)
+        # Changed degrees from 175 to 120
+        moveArm(degrees = 120, speed = -50, motor = motorD)
        
         # Reset yaw angle as we are aligned against toyfactory
         resetTotalDegreesTurned()
@@ -2306,10 +2337,10 @@ def _run1WithGlobalCorrection():
    
         
     moveArm(degrees = 150, speed = 50, motor = motorD)
-    _watchTV()
-    _getToWindTurbine()
-    _windTurbine()
-    _pickUpRechargeableBattery()
+    # _watchTV()
+    # _getToWindTurbine()
+    # _windTurbine()
+    # _pickUpRechargeableBattery()
     _hybridCar()
     _doPowerPlant()
     _goHome()
@@ -2490,12 +2521,6 @@ def powerplanttest():
     gyroStraight(distance=6, speed = 20, backward = False, targetAngle = angle)
     #moveArm(degrees = 130, speed = 100, motor = motorD)
 
-#doRunWithTiming(_newrun4smallerattachment)
-print("Battery voltage: " + str(hub.battery.voltage()))
-#doRunWithTiming(_run1WithGlobalCorrection)
-doRunWithTiming(_run6)
-#doRunWithTiming(runhome1tohome2)
-# Pick up the hybrid car.
 def testHybridCarArm():
     while True:
         time.sleep(5)
