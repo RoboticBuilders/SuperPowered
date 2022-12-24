@@ -1738,7 +1738,7 @@ def _run6():
     gyroStraight(distance= 50, speed= 65, targetAngle= -5)
     '''changed from drive to gyroStraight'''
     #drive(speed = 65, distanceInCM = 50, target_angle = -5, gain = 2)
-    print(str(primeHub.motion_sensor.get_yaw_angle()))
+    #print(str(primeHub.motion_sensor.get_yaw_angle()))
     
     # Turn slightly to catch the n-s line in front of the power plant
     _driveTillLine(speed=30, distanceInCM=35, target_angle=-8, colorSensorToUse="Left", blackOrWhite="Black")
@@ -1761,7 +1761,7 @@ def _run6():
     motorF.start_at_power(60)
     
     # Backoff to leave the water reservoir
-    gyroStraight(distance=17, speed = 20, backward = True, targetAngle = 162)
+    gyroStraight(distance=16, speed = 20, backward = True, targetAngle = 162)
 
     motorF.stop()    
     _doToyFactory()
@@ -1775,12 +1775,13 @@ def _doToyFactory():
     gyroStraight(distance=19, speed = 35, backward = True, targetAngle = -165)
     _turnToAngle(targetAngle = -130, speed = 20, slowTurnRatio = 0.9)
     #changed to 11 on 12/21/2022
-    gyroStraight(distance=9, speed = 35, backward = True, targetAngle = -120)
+    gyroStraight(distance=10, speed = 35, backward = True, targetAngle = -120)
 
     # Back into the toy factory and align
 
     # Drop off the units.
-    moveArm(degrees = -2000, speed = 100, motor = motorD)
+    #moveArm(degrees = -2000, speed = 100, motor = motorD)
+    #----This is the one we were using without passive------
     #moveArm(degrees = 1000, speed = 100, motor = motorD)
     
 def _dropRechargeableBatteryAndOilTruckWithGyroReset():
@@ -2467,9 +2468,9 @@ def powerplanttest():
     #moveArm(degrees = 130, speed = 100, motor = motorD)
 
 #doRunWithTiming(_newrun4smallerattachment)
-print("Battery voltage: " + str(hub.battery.voltage()))
+#print("Battery voltage: " + str(hub.battery.voltage()))
 #doRunWithTiming(_run1WithGlobalCorrection)
-doRunWithTiming(_run6)
+#doRunWithTiming(_run6)
 #doRunWithTiming(runhome1tohome2)
 # Pick up the hybrid car.
 def testHybridCarArm():
