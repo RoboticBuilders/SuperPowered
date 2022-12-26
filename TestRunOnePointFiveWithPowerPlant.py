@@ -1962,7 +1962,7 @@ def run1point5with4missions():
         
         #Turn to get to the n-s line in front of the smart  grid
         angle = -45
-        correction=0
+        correction=0.03
         angle, correction = calculateReducedTargetAngleAndCorrection(angle, correction)
         _turnToAngle(targetAngle = angle, speed = 25, slowTurnRatio = 0.6, correction = correction)
         
