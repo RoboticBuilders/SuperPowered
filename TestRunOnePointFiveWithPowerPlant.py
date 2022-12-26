@@ -5,6 +5,8 @@ import collections
 # Note that the "hub" import is needed, this is different from the PrimeHub import above, this is the way to access the battery.
 import time, hub
 from spike.operator import *
+from spike.control import wait_for_seconds
+from spike.control import *
 import gc
 import math
 import random
@@ -281,6 +283,12 @@ def calculateReducedTargetAngle(angle):
     logMessage("currentAngle={} angleIn360={} angle={} reducedTargetAngleIn179Space={} TOTAL_DEGREES_TURNED={}".format(
         str(currentAngle),str(anglein360),str(angle), str(reducedTargetAngle),str(TOTAL_DEGREES_TURNED),str()))
     return  int(reducedTargetAngle)
+
+
+def flushForTime(speed=30, timeInSeconds=2):
+    wheels.start(steering=0, speed=speed)
+    wait_for_seconds(timeInSeconds)
+    wheels.stop()
 
 def newturnToAngle(targetAngle, speed=20, forceTurn="None", slowTurnRatio=0.4, correction=0.05, oneWheelTurn="None"):
     currentAngle = gyroAngleZeroTo360()
@@ -1790,7 +1798,7 @@ def run1point5with4missions():
 
         # Back off from the hybrid car.
         gyroStraight(distance=8, speed=40,targetAngle=angle,backward=True)
-    
+
     # 12/24 230am this not being used.
     def _gotoRechargablebatteryForDropoff():
         angle = 0
@@ -1902,8 +1910,10 @@ def run1point5with4missions():
         angle = -178
         angle, correction = calculateReducedTargetAngleAndCorrection(angle, correction)
         _turnToAngle(targetAngle = angle, speed = 25, correction = correction)
-        gyroStraight(distance = 8, speed = 35, backward = True, targetAngle = angle)
-        gyroStraight(distance = 5, speed = 80, backward = True, targetAngle = angle)
+        # Replaced backward gyrostraight with flushfortime for flushing
+        flushForTime(speed=-30, timeInSeconds=1)
+        #gyroStraight(distance = 8, speed = 35, backward = True, targetAngle = angle)
+        #gyroStraight(distance = 5, speed = 80, backward = True, targetAngle = angle)
 
         # Reset the gyro after the flush.
         angle = 0
@@ -1911,7 +1921,7 @@ def run1point5with4missions():
         if _driveTillLine(speed = 25, distanceInCM = 35, target_angle = angle, colorSensorToUse = "Left", blackOrWhite = "Black") == False:
             logMessage("Note --------------------> Missed e-w line in front of solar farm grid", level=0)
            
-        gyroStraight(distance = 4, speed = 60, backward = False, targetAngle = angle)
+        gyroStraight(distance = 4, speed = 40, backward = False, targetAngle = angle)
 
     def _goToToyFactory():
         angle = -45
@@ -1924,7 +1934,9 @@ def run1point5with4missions():
         angle=45
         angle, correction = calculateReducedTargetAngleAndCorrection(angle, correction)
         _turnToAngle(targetAngle = angle, speed = 25, slowTurnRatio = 0.6, correction=correction)
-        gyroStraight(distance=8, speed = 35, backward = True, targetAngle = angle)
+        # Replaced backward gyrostraight with flushfortime for flushing
+        flushForTime(speed=-30, timeInSeconds=1)
+        #gyroStraight(distance=8, speed = 35, backward = True, targetAngle = angle)
 
     def _doPowerPlant():
         # Bring arm down to get ready for power plant
@@ -1966,13 +1978,13 @@ def run1point5with4missions():
         angle, correction = calculateReducedTargetAngleAndCorrection(angle, correction)
         _turnToAngle(targetAngle = angle, speed = 25, slowTurnRatio = 0.6, correction = correction)
         
-        _driveTillLine(speed=20, distanceInCM=22, target_angle=angle, colorSensorToUse="Left", blackOrWhite="Black")
+        _driveTillLine(speed=20, distanceInCM=22, target_angle=angle, colorSensorToUse="Right", blackOrWhite="Black")
         gyroStraight(distance=3, speed = 20, backward = False, targetAngle = angle)
         # Now drive towards powerplant
         angle = 0
         _turnToAngle(targetAngle = angle, speed = 20)
         moveArm(degrees = 120, speed = -50, motor = motorD)
-        gyroStraight(distance=40, speed = 20, backward = False, targetAngle = angle)
+        gyroStraight(distance=43, speed = 20, backward = False, targetAngle = angle)
         # Now do the powerplant mission
         moveArm(degrees = 175, speed = 75, motor = motorD)
         gyroStraight(distance=5, speed = 15, backward = True, targetAngle = angle)
@@ -1995,15 +2007,16 @@ def run1point5with4missions():
 
     primeHub.motion_sensor.reset_yaw_angle()
     moveArm(degrees = 150, speed = 50, motor = motorD)
+    #rechargeableBatteryBackwards()
     _smallerCatchAreaGotoRechargablebatteryForDropoff()
     _getHybridCarOutOfTheWay()
     _gotoSmartGrid()
     _doSmartGrid()
     _picktwoWaterUnits()
     _pickSolarFarmUnitwithFlushing()
-    #_goToToyFactory()
-    #_doPowerPlant()
-    _doPowerPlantFromSmartGrid()
+    _goToToyFactory()
+    _doPowerPlant()
+    # _doPowerPlantFromSmartGrid()
     # _goHome()
 
 
@@ -2334,6 +2347,8 @@ _initialize()
 #moveArm(degrees = 140, speed = 50, motor = motorD)
 #doRunWithTiming(_run1WithGlobalCorrection)
 doRunWithTiming(run1point5with4missions)
+#flushForTime(speed=-30, timeInSeconds=1)
+
 
 '''#
 while True:
