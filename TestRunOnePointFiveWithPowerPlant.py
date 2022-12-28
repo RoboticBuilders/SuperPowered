@@ -2414,8 +2414,8 @@ _initialize()
 #    SquareinBothDirections()
 
 
-random90DegreeTurns()
-#driverWithFewerArms()
+#random90DegreeTurns()
+driverWithFewerArms()
 #doRunWithTiming(_newrun4smallerattachment)
 #print("Battery voltage: " + str(hub.battery.voltage()))
 #moveArm(degrees = 140, speed = 50, motor = motorD)
