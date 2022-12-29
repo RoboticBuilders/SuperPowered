@@ -1,4 +1,4 @@
-# LEGO type:standard slot:1
+# LEGO type:standard slot:0
 from spike import PrimeHub, ColorSensor,  Motor, MotorPair
 from math import *
 import collections
@@ -19,6 +19,12 @@ GLOBAL_LEVEL = 0
 ANYA_RUN_START_OFFSET_TO_MAT_WEST = 0
 TOTAL_DEGREES_TURNED = 0
 LAST_TURN_LEFT = False
+
+# Which Marvin is this.
+# Amogh: A
+# Rishabh-Nami: RN
+# Anya:Arisha: AA
+ROBOT = "A" 
 
 primeHub = PrimeHub()
 
@@ -57,7 +63,6 @@ testY2 = [10]
 # at about 18-20mm of the ground.
 BLACK_COLOR = 20
 WHITE_COLOR = 90
-
 
 def driverWithFewerArms():
     counter = 1
@@ -354,8 +359,6 @@ def newturnToAngle(targetAngle, speed=20, forceTurn="None", slowTurnRatio=0.4, c
     
    # _turnRobotWithSlowDown(degreesToTurn, reducedTargetAngleIn179Space, speed, slowTurnRatio, direction, oneWheelTurn=oneWheelTurn)
     
-
-
 def _turnToAngle(targetAngle, speed=20, forceTurn="None", slowTurnRatio=0.4, correction=0.05, oneWheelTurn="None"):
     """Turns the robot the specified angle.
     It calculates if the right or the left turn is the closest
@@ -379,7 +382,7 @@ def _turnToAngle(targetAngle, speed=20, forceTurn="None", slowTurnRatio=0.4, cor
     2. Spike prime 0-360 space. We first convert spike prime gyro angles to 0-360 
        (this is because its easier to think in this space)
     """
-    logMessage("======= TurnToAngleStart current_angle={} targetAngle={}".format(str(getyawangle()), targetAngle), level=4)
+    logMessage("TurnToAngleStart current_angle={} targetAngle={}".format(str(getyawangle()), targetAngle), level=4)
     wheels.stop()
     currentAngle = gyroAngleZeroTo360()
     
@@ -429,19 +432,9 @@ def _turnToAngle(targetAngle, speed=20, forceTurn="None", slowTurnRatio=0.4, cor
     if (reducedTargetAngleIn179Space >= 180):
         reducedTargetAngleIn179Space = reducedTargetAngle - 360
 
-    '''
-    # This part is only needed to completely remove the reducedTargetAngle computatation
-    # If the reduced target angle code is turned on then this should be turned off.
-    targetAngleIn179Space = targetAngle
-    if (targetAngleIn179Space >= 180):
-        targetAngleIn179Space = targetAngle - 360
-    reducedTargetAngleIn179Space = targetAngleIn179Space
-    '''
-    #logMessage("TargetAngle(360 space, reduced)= {} TargetAngle(-179 to +179 space, reduced)= {}  direction: {}".format(str(reducedTargetAngleIn179Space), str(reducedTargetAngleIn179Space),direction), level=4)
-    _turnRobotWithSlowDown(degreesToTurn, reducedTargetAngleIn179Space, speed, slowTurnRatio, direction, oneWheelTurn=oneWheelTurn)
-    
+    _turnRobotWithSlowDown(degreesToTurn, reducedTargetAngleIn179Space, speed, slowTurnRatio, direction, oneWheelTurn=oneWheelTurn)    
     currentAngle = correctedGyroAngleZeroTo360()
-    logMessage("========== TurnToAngle complete. GyroAngle:{} reducedtargetAngle(0-360):{} ".format(str(getyawangle()), str(reducedTargetAngleIn179Space)), level=4)
+    logMessage("TurnToAngle complete. GyroAngle:{} reducedtargetAngle(0-360):{} ".format(str(getyawangle()), str(reducedTargetAngleIn179Space)), level=4)
 
 def _turnRobotWithSlowDown(angleInDegrees, targetAngle, speed, slowTurnRatio, direction, oneWheelTurn="None"):
     """
@@ -457,26 +450,20 @@ def _turnRobotWithSlowDown(angleInDegrees, targetAngle, speed, slowTurnRatio, di
     oneWheelTurn -- Optional parameter with "None" as the default. Values can be "Left", "Right", "None".
     """
     SLOW_SPEED = 10
-    
     currentAngle = getyawangle()
     
     # First we will do a fast turn at speed. The amount to turn is 
     # controlled by the slowTurnRatio.
     turnRobot(direction, speed, oneWheelTurn)
-
     fastTurnDegrees =  (1 - slowTurnRatio) * abs(angleInDegrees)
     while (abs(currentAngle - targetAngle) > fastTurnDegrees):
         currentAngle = getyawangle()
-        #currentAngle = primeHub.motion_sensor.get_yaw_angle()    
-   
+
     # After the initial fast turn that is done using speed, we are going to do a 
     # slow turn using the slow speed.
     turnRobot(direction, SLOW_SPEED, oneWheelTurn)
-    
     while (abs(currentAngle - targetAngle) > 1):
-        #time.sleep_ms(7)
         currentAngle = getyawangle()
-        #currentAngle = primeHub.motion_sensor.get_yaw_angle()
 
     wheels.stop()
     
@@ -491,7 +478,7 @@ def turnRobot(direction, speed, oneWheelTurn):
     else:
         right_large_motor.start(speed)
 
-def gyroStraight(distance, speed = 20, backward = False, targetAngle = 0, multiplier=2):
+def gyroStraight(distance, speed = 20, backward = False, targetAngle = 0, multiplier=1.0, gradualAcceleration=True, slowDown=True):
     logMessage("=========== GyroStraight Start distance={} current_angle={} targetAngle={}".format(str(distance), str(getyawangle()),str(targetAngle)), level=4)
     correctionMultiplier = multiplier
     initialDeg = abs(motorE.get_degrees_counted())
@@ -500,13 +487,24 @@ def gyroStraight(distance, speed = 20, backward = False, targetAngle = 0, multip
         wheels.stop()
         return
     
-    gradualAccelerationDistance = _CM_PER_INCH*1
-    slowDistance = 0.2 * distance
-    if(slowDistance > _CM_PER_INCH*2):
-        slowDistance = _CM_PER_INCH*2
-    _gyroStraightNoSlowDownNoStop(distance = gradualAccelerationDistance, speed = 20, targetAngle=targetAngle, backward=backward, correctionMultiplier = correctionMultiplier)
+    gradualAccelerationDistance = 0
+    slowDistance = 0
+    if slowDown == True:
+        slowDistance = 0.2 * distance
+        if(slowDistance > _CM_PER_INCH*2):
+            slowDistance = _CM_PER_INCH*2
+
+    # Run slow if the gradual acceleration is on.    
+    if gradualAcceleration == True:
+        gradualAccelerationDistance = _CM_PER_INCH*1
+        _gyroStraightNoSlowDownNoStop(distance = gradualAccelerationDistance, speed = 20, targetAngle=targetAngle, backward=backward, correctionMultiplier = correctionMultiplier)
+    
+    # Do the middle part of the run
     _gyroStraightNoSlowDownNoStop(distance = distance - slowDistance - gradualAccelerationDistance, speed = speed, targetAngle=targetAngle, backward=backward, correctionMultiplier = correctionMultiplier)
-    _gyroStraightNoSlowDownNoStop(distance = slowDistance, speed = 20, targetAngle=targetAngle, backward=backward, correctionMultiplier = correctionMultiplier)
+    
+    # Slow down at the end.
+    if slowDown == True:
+        _gyroStraightNoSlowDownNoStop(distance = slowDistance, speed = 20, targetAngle=targetAngle, backward=backward, correctionMultiplier = correctionMultiplier)
 
     wheels.stop()
 
@@ -1734,6 +1732,7 @@ def _fasterRun1():
             # Backup so the robot can push the Wind Turbine again
             gyroStraight(distance=7, speed = 30, backward = True, targetAngle = angle)
             # Drive forward to push the Wind Turbine
+            #flushForTime(speed=20, timeInSeconds=0.6)
             gyroStraight(distance=14, speed = 20, backward = False, targetAngle = angle)
 
     def _pickUpRechargeableBattery():
@@ -1779,7 +1778,7 @@ def _fasterRun1():
         gyroStraight(distance=4, speed = 25, backward = False, targetAngle = angle)
         
         # Lift up the hybrid car.
-        moveArm(degrees = 140, speed = 85, motor = motorD)
+        moveArm(degrees = 140, speed = 75, motor = motorD)
 
     def _goHome():
         time.sleep(0.1)
@@ -2034,7 +2033,11 @@ def _fasterRun2():
         _turnToAngle(targetAngle = angle, speed = 25, slowTurnRatio = 0.6, correction=correction)
         gyroStraight(distance=25, speed=50,targetAngle=angle,backward=False)
 
-        angle=-92
+        if ROBOT == "A":
+            # Amogh's robot is newer motors and 90d turn seems to work better with this robot.
+            angle = -90
+        else:
+            angle=-92
         angle, correction = calculateReducedTargetAngleAndCorrection(angle, correction)
         _turnToAngle(targetAngle = angle, speed = 20, slowTurnRatio = 0.2, correction=correction)
         if _driveTillLine(speed=50, distanceInCM=45, target_angle=angle, colorSensorToUse="Left", blackOrWhite="Black") == False:
@@ -2128,7 +2131,10 @@ def _fasterRun2():
         # Replaced backward gyrostraight with flushfortime for flushing
         # Also dropping the arm in parallel when flushing.
         motorD.start_at_power(-50)
-        flushForTime(speed=-30, timeInSeconds=1)
+        if (ROBOT == "A"):
+            flushForTime(speed=-30, timeInSeconds=0.5)
+        else:
+            flushForTime(speed=-30, timeInSeconds=1)
         motorD.stop()
         #gyroStraight(distance=8, speed = 35, backward = True, targetAngle = angle)
 
@@ -2188,11 +2194,17 @@ def _fasterRun2():
 
     def _goHome():
         # Go Home
-        angle = -120
+        if ROBOT == "A":
+            angle = -125
+        else:
+            angle = -120
         correction = 0
         angle, correction = calculateReducedTargetAngleAndCorrection(angle, correction)
         _turnToAngle(targetAngle = angle, speed = 35, slowTurnRatio = 0.6, correction=correction)
-        gyroStraight(distance=90, speed = 80, backward = False, targetAngle = angle)
+        if (ROBOT == "A"):
+            gyroStraight(distance=90, speed = 80, backward = False, targetAngle = angle, multiplier=1.0, gradualAcceleration=False, slowDown=False)
+        else:
+            gyroStraight(distance=90, speed = 80, backward = False, targetAngle = angle)
 
     def _goHomeAfterStraight():
         # Go Home
@@ -2517,7 +2529,6 @@ def testGyroLag():
         #primeHub.speaker.beep(90, 1)
         #primeHub.right_button.wait_until_pressed()
         #primeHub.motion_sensor.reset_yaw_angle()
-    
 
 print("Battery voltage: " + str(hub.battery.voltage())) 
 _initialize()
@@ -2525,45 +2536,31 @@ _initialize()
 #testGyroLag()
 #SquareinBothDirections()
 #SquareinLeftDirection()
-
 #for i in range(1, 5):
 #    logMessage("Total degrees travelled={}".format(str(TOTAL_DEGREES_TURNED)), level=0)
 #    #SquareinLeftDirection()
 #    SquareinBothDirections()
-
-
 #random90DegreeTurns()
 #driverWithFewerArms()
-#doRunWithTiming(_newrun4smallerattachment)
-#print("Battery voltage: " + str(hub.battery.voltage()))
-#moveArm(degrees = 140, speed = 50, motor = motorD)
-doRunWithTiming(_fasterRun1)
-#doRunWithTiming(_fasterRun2)
-#doRunWithTiming(run1point5with4missions)
 #doRunWithTiming(_run4)
-#flushForTime(speed=-30, timeInSeconds=1)
-#testDriveTillLine()
-#_newRun2()
-
-
-'''#
-while True:
-    angle = 0
-    gyroStraight(distance=8, speed = 25, backward = True, targetAngle = angle)
-    gyroStraight(distance=8, speed = 20, backward = False, targetAngle = angle)
-    time.sleep(3)
-''' 
-
-#doRunWithTiming(runhome1tohome2)
-#doRunWithTiming(_run3)
-#doRunWithTiming(_run6)
-#testDriveTillLine()
 #doRunWithTiming(_newrun4smallerattachment)
+#doRunWithTiming(_run4)
+#testDriveTillLine()
+
+'''
+for i in range(3):
+    #Raise the oil platform
+    moveArm(degrees = 1750, speed = -75, motor = motorF)
+    #Lower the oil platform
+    moveArm(degrees = 1750, speed = 75, motor = motorF)
+'''
+#doRunWithTiming(runhome1tohome2)
+#testDriveTillLine()
 #testHybridCarArm()
 #_newrun4smallerattachment()
-#tryPowerPlantWithRun3Arm()
-#_run6()
 #driverWithFewerArms()
+#doRunWithTiming(_fasterRun1())
+doRunWithTiming(_fasterRun2)
 raise SystemExit
 #endregion
 
