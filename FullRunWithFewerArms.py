@@ -1267,6 +1267,8 @@ def _fasterRun1():
     _goHome()
 
 #endregion
+
+
 def _fasterRun2():
 
     def _doRechargablebattery():
@@ -1357,7 +1359,7 @@ def _fasterRun2():
        
         # Drop the arm to get the water units.
         moveArm(degrees = 150, speed = 75, motor = motorF)
-        gyroStraight(distance=10, speed = 25, backward = True, targetAngle = angle)
+        gyroStraight(distance=5, speed = 25, backward = True, targetAngle = angle)
 
     def _pickSolarFarmUnitwithFlushing():
          # Now go to solar farm to pick the energy unit
@@ -1407,7 +1409,7 @@ def _fasterRun2():
         motorD.stop()
         #gyroStraight(distance=8, speed = 35, backward = True, targetAngle = angle)
 
-    def _doPowerPlant():
+    def _goToPowerPlant():
         # Bring arm down to get ready for power plant
         # moveArm(degrees = 120, speed = -50, motor = motorD)
        
@@ -1432,11 +1434,45 @@ def _fasterRun2():
         angle = -45
         correction = 0
         angle, correction = calculateReducedTargetAngleAndCorrection(angle, correction)
-        
         _turnToAngle(targetAngle = angle, speed = 25, slowTurnRatio = 0.1, correction=correction)
         gyroStraight(distance=20, speed = 20, backward = False, targetAngle = angle)
+            
+    def _doPowerPlant():
+        # This is the original code to lift the power plant.
+        # Either use this or uncomment the code below.
+        '''
+        correction = 0
+        angle = -45
+        angle, correction = calculateReducedTargetAngleAndCorrection(angle, correction)
         moveArm(degrees = 175, speed = 75, motor = motorD)
         gyroStraight(distance=5, speed = 15, backward = True, targetAngle = angle)
+        '''
+
+        # First lift the power plant. Sometimes we are not able to lift
+        # we backoff a little and try again before moving on.
+        motorD.start_at_power(75)
+        wait_for_seconds(0.2)
+        motorD.stop()
+
+        # In case we were stuck, bring down the arm first and then backoff a little and try again.
+        moveArm(degrees = 120, speed = -75, motor = motorD)
+        gyroStraight(distance = 1, speed = 20, backward=True, targetAngle=angle)
+        moveArm(degrees = 175, speed = 100, motor = motorD)
+        gyroStraight(distance=5, speed = 15, backward = True, targetAngle = angle)
+
+    def _goHome():
+        # Go Home
+        if ROBOT == "A":
+            angle = -125
+        else:
+            angle = -120
+        correction = 0
+        angle, correction = calculateReducedTargetAngleAndCorrection(angle, correction)
+        _turnToAngle(targetAngle = angle, speed = 35, slowTurnRatio = 0.6, correction=correction)
+        if (ROBOT == "A"):
+            gyroStraight(distance=90, speed = 80, backward = False, targetAngle = angle, multiplier=1.0, gradualAcceleration=False, slowDown=False)
+        else:
+            gyroStraight(distance=90, speed = 80, backward = False, targetAngle = angle)
 
     def _doPowerPlantFromSmartGrid():
         angle = 0
@@ -1461,20 +1497,6 @@ def _fasterRun2():
         # Backup from the power plant
         gyroStraight(distance=5, speed = 15, backward = True, targetAngle = angle)
 
-    def _goHome():
-        # Go Home
-        if ROBOT == "A":
-            angle = -125
-        else:
-            angle = -120
-        correction = 0
-        angle, correction = calculateReducedTargetAngleAndCorrection(angle, correction)
-        _turnToAngle(targetAngle = angle, speed = 35, slowTurnRatio = 0.6, correction=correction)
-        if (ROBOT == "A"):
-            gyroStraight(distance=90, speed = 80, backward = False, targetAngle = angle, multiplier=1.0, gradualAcceleration=False, slowDown=False)
-        else:
-            gyroStraight(distance=90, speed = 80, backward = False, targetAngle = angle)
-
     def _goHomeAfterStraight():
         # Go Home
         angle = -80
@@ -1492,6 +1514,7 @@ def _fasterRun2():
     _picktwoWaterUnits()
     _pickSolarFarmUnitwithFlushing()
     _goToToyFactory()
+    _goToPowerPlant()
     _doPowerPlant()
     _goHome()
     #_doPowerPlantFromSmartGrid()
@@ -1592,7 +1615,9 @@ def _runhome1tohome2():
 
 print("Battery voltage: " + str(hub.battery.voltage())) 
 _initialize()
-driverWithFewerArms()
+#doRunWithTiming(_fasterRun2)
+doIntelligentPowerPlant()
+#driverWithFewerArms()
 raise SystemExit
 #endregion
 
