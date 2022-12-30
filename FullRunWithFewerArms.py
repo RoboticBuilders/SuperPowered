@@ -422,8 +422,6 @@ def gyroStraight(distance, speed = 20, backward = False, targetAngle = 0, multip
     
 
 def _gyroStraightNoSlowDownNoStop(distance, speed = 20, backward = False, targetAngle = 0, correctionMultiplier = 2):
-    initialDeg = abs(motorE.get_degrees_counted())
-
     underBiasErrorMultiplier = 1 # 1.106
     errorAdjustedDistanceInCm = distance*underBiasErrorMultiplier
 
@@ -438,7 +436,7 @@ def _gyroStraightNoSlowDownNoStop(distance, speed = 20, backward = False, target
     else:
          while ((motorE.get_degrees_counted() - position_start)  <= degreesToCover):           
             # currentAngle = primeHub.motion_sensor.get_yaw_angle()
-            correction = getCorrectionForDrive(targetAngle, correctionMultiplier = correctionMultiplier) # targetAngle - currentAngle
+            correction = getCorrectionForDrive(targetAngle, correctionMultiplier = correctionMultiplier)
             wheels.start(steering = correction, speed=speed)   
 
 def _turnToAngle2(targetAngle, speed=20, forceTurn="None", slowTurnRatio=0.4, correction=0.05, oneWheelTurn="None"):
@@ -529,8 +527,7 @@ def getCorrectionForDrive(targetAngle, correctionMultiplier = 2):
     else:
         correction = -1*(360 - abs(currentAngle) - abs(targetAngle))
 
-    #logMessage("Correction needed = {}".format(str(correction)), 4)
-    return correction * correctionMultiplier
+    return int(correction * correctionMultiplier)
 
 def _turnAndDrive(targetAngle, distance, speed):
     #angle = targetAngle
