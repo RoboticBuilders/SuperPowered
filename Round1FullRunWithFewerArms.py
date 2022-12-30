@@ -1452,7 +1452,6 @@ def _fasterRun2():
         moveArm(degrees = 175, speed = 75, motor = motorD)
         gyroStraight(distance=5, speed = 15, backward = True, targetAngle = angle)
         '''
-
         # First lift the power plant. Sometimes we are not able to lift
         # we backoff a little and try again before moving on.
         motorD.start_at_power(75)
@@ -1468,9 +1467,9 @@ def _fasterRun2():
     def _goHome():
         # Go Home
         if ROBOT == "A":
-            angle = -125
+            angle = 125
         else:
-            angle = -120
+            angle = 120
         correction = 0
         angle, correction = calculateReducedTargetAngleAndCorrection(angle, correction)
         _turnToAngle(targetAngle = angle, speed = 35, slowTurnRatio = 0.6, correction=correction)
