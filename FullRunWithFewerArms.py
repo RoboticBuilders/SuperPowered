@@ -564,9 +564,6 @@ def _driveTillLine(speed, distanceInCM, target_angle, gain = 1, colorSensorToUse
     colorSensorToUse - "Left" or "Right". 
     blackOrWhite - "Black" or "White".
     """
-    assert(colorSensorToUse == "Left" or colorSensorToUse == "Right")
-    assert(blackOrWhite == "Black" or blackOrWhite == "White" or blackOrWhite == "Green")
-
     wheels.stop()
    
     logMessage("driveStraight for distance:{} target angle:{}".format(str(distanceInCM), str(target_angle)), level=2)
@@ -583,17 +580,13 @@ def _driveTillLine(speed, distanceInCM, target_angle, gain = 1, colorSensorToUse
     # Now establish the termination condition to use.
     stoppingCondition = None
     if (blackOrWhite == "Black"):
-        #stoppingCondition = lambda: colorSensor.get_reflected_light() <= BLACK_COLOR
         def blackStoppingCondition():
             light = colorSensor.get_reflected_light()
-            #logMessage(" color={}".format(str(light)), level=5)
             return light <= BLACK_COLOR
         stoppingCondition = blackStoppingCondition
     elif (blackOrWhite == "White"):
-        #stoppingCondition = lambda: colorSensor.get_reflected_light() >= WHITE_COLOR
         def whiteStoppingCondition():
             light = colorSensor.get_reflected_light()
-            #logMessage(" color={}".format(str(light)), level=5)
             return light >= WHITE_COLOR
         stoppingCondition = whiteStoppingCondition
     elif (blackOrWhite == "Green"):
