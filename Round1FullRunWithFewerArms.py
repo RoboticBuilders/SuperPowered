@@ -1,4 +1,8 @@
 # LEGO type:standard slot:2
+# This is meant to be round1, in this run we go to left home from 
+# the power plant. This means we give up on one unit. 
+# The idea is that we save time by doing this and thus enabling us
+# to finish the run.
 from spike import PrimeHub, ColorSensor,  Motor, MotorPair
 from math import *
 import collections

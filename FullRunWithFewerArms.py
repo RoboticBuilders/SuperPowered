@@ -1,4 +1,4 @@
-# LEGO type:standard slot:2
+# LEGO type:standard slot:1
 from spike import PrimeHub, ColorSensor,  Motor, MotorPair
 from math import *
 import collections
@@ -1620,7 +1620,8 @@ def _runhome1tohome2():
 
 print("Battery voltage: " + str(hub.battery.voltage())) 
 _initialize()
-doRunWithTiming(_fasterRun2)
+#doRunWithTiming(_fasterRun2)
+doRunWithTiming(_fasterRun1)
 #driverWithFewerArms()
 raise SystemExit
 #endregion
