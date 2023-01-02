@@ -183,7 +183,6 @@ def gyroAngleZeroTo360():
         Returns a number between 0-360. Note that it will not return 180 because the yaw angle is never 180.
         """
         yaw = primeHub.motion_sensor.get_yaw_angle()
-        #logMessage("In gyroAngleZeroTo360: yaw is " + str(yaw), level=5)
         if (yaw < 0):
             return 360 + yaw
         else:
@@ -292,7 +291,7 @@ def _turnToAngle(targetAngle, speed=20, forceTurn="None", slowTurnRatio=0.4, cor
     2. Spike prime 0-360 space. We first convert spike prime gyro angles to 0-360 
        (this is because its easier to think in this space)
     """
-    logMessage("TurnToAngleStart current_angle={} targetAngle={}".format(str(getyawangle()), targetAngle), level=4)
+    #logMessage("TurnToAngleStart current_angle={} targetAngle={}".format(str(getyawangle()), targetAngle), level=4)
     wheels.stop()
     currentAngle = gyroAngleZeroTo360()
     
@@ -344,7 +343,7 @@ def _turnToAngle(targetAngle, speed=20, forceTurn="None", slowTurnRatio=0.4, cor
 
     _turnRobotWithSlowDown(degreesToTurn, reducedTargetAngleIn179Space, speed, slowTurnRatio, direction, oneWheelTurn=oneWheelTurn)    
     currentAngle = correctedGyroAngleZeroTo360()
-    logMessage("TurnToAngle complete. GyroAngle:{} reducedtargetAngle(0-360):{} ".format(str(getyawangle()), str(reducedTargetAngleIn179Space)), level=4)
+    #logMessage("TurnToAngle complete. GyroAngle:{} reducedtargetAngle(0-360):{} ".format(str(getyawangle()), str(reducedTargetAngleIn179Space)), level=4)
 
 def _turnRobotWithSlowDown(angleInDegrees, targetAngle, speed, slowTurnRatio, direction, oneWheelTurn="None"):
     """
@@ -389,7 +388,7 @@ def _turnRobot(direction, speed, oneWheelTurn):
         right_large_motor.start(speed)
 
 def gyroStraight(distance, speed = 20, backward = False, targetAngle = 0, multiplier=1.0, gradualAcceleration=True, slowDown=True):
-    logMessage("=========== GyroStraight Start distance={} current_angle={} targetAngle={}".format(str(distance), str(getyawangle()),str(targetAngle)), level=4)
+    #logMessage("=========== GyroStraight Start distance={} current_angle={} targetAngle={}".format(str(distance), str(getyawangle()),str(targetAngle)), level=4)
     correctionMultiplier = multiplier
     initialDeg = abs(motorE.get_degrees_counted())
     if(distance < _CM_PER_INCH*3):
@@ -421,8 +420,8 @@ def gyroStraight(distance, speed = 20, backward = False, targetAngle = 0, multip
     finalDeg = abs(motorE.get_degrees_counted())
 
     totalDistanceTravelled = convertDegToCM(finalDeg - initialDeg)
-    logMessage("Total distance travelled = {} error = {}".format(str(totalDistanceTravelled), str(distance-totalDistanceTravelled)), level=4)
-    logMessage("=========== GyroStraight complete distance={} current_angle={}".format(str(distance), str(getyawangle())), level=4)
+    #logMessage("Total distance travelled = {} error = {}".format(str(totalDistanceTravelled), str(distance-totalDistanceTravelled)), level=4)
+    #logMessage("=========== GyroStraight complete distance={} current_angle={}".format(str(distance), str(getyawangle())), level=4)
     
 
 def _gyroStraightNoSlowDownNoStop(distance, speed = 20, backward = False, targetAngle = 0, correctionMultiplier = 2):
@@ -570,7 +569,7 @@ def _driveTillLine(speed, distanceInCM, target_angle, gain = 1, colorSensorToUse
     """
     wheels.stop()
    
-    logMessage("driveStraight for distance:{} target angle:{}".format(str(distanceInCM), str(target_angle)), level=2)
+    #logMessage("driveStraight for distance:{} target angle:{}".format(str(distanceInCM), str(target_angle)), level=2)
     initialDeg = abs(motorC.get_degrees_counted())
     remainingDistance = distanceInCM
     
@@ -608,14 +607,14 @@ def _driveTillLine(speed, distanceInCM, target_angle, gain = 1, colorSensorToUse
             # Drive the remaining distance at slow speed
             distanceTravelled = convertDegToCM(abs(motorC.get_degrees_counted()) - initialDeg)
             remainingDistance = distanceInCM - distanceTravelled
-            logMessage("_driveTillLine: Distance travelled after first part = {} error={}".format(str(distanceTravelled),str(distanceTravelled-distance60)), level=4)
+            #logMessage("_driveTillLine: Distance travelled after first part = {} error={}".format(str(distanceTravelled),str(distanceTravelled-distance60)), level=4)
             reachedStoppingCondition = _driveStraightWithSlowDownTillLine(remainingDistance, FINAL_SLOW_SPEED, target_angle, gain, slowDown=False, reachedStoppingCondition=stoppingCondition)
 
     wheels.stop()
     finalDeg = abs(motorC.get_degrees_counted())
 
     totalDistanceTravelled = convertDegToCM(finalDeg - initialDeg)
-    logMessage("_driveTillLine: Total distance travelled={} error={}".format(str(totalDistanceTravelled), str(totalDistanceTravelled-distanceInCM)), level=2)
+    #logMessage("_driveTillLine: Total distance travelled={} error={}".format(str(totalDistanceTravelled), str(totalDistanceTravelled-distanceInCM)), level=2)
     return reachedStoppingCondition
     
 def _driveStraightWithSlowDownTillLine(distance, speed, target_angle, gain, slowDown, reachedStoppingCondition):
@@ -633,7 +632,7 @@ def _driveStraightWithSlowDownTillLine(distance, speed, target_angle, gain, slow
     return the output of the stoppingCondition.
     """
     startDistanceInDeg = abs(motorC.get_degrees_counted())
-    logMessage("startDistanceInDeg={}".format(str(int(startDistanceInDeg))), level=5)
+    #logMessage("startDistanceInDeg={}".format(str(int(startDistanceInDeg))), level=5)
     distanceInDeg = converCMToDeg(distance)
     currentSpeed = speed
 
@@ -673,7 +672,7 @@ def _driveStraightWithSlowDownTillLine(distance, speed, target_angle, gain, slow
         distanceInDegTravelled = abs(motorC.get_degrees_counted()) - startDistanceInDeg
         stopCondition = reachedStoppingCondition()
 
-    logMessage("DrivestraightWiuthSlowDownTillLine completed", level=5)
+    #logMessage("DrivestraightWiuthSlowDownTillLine completed", level=5)
     return stopCondition
     
 def _driveBackwardTillLine(distance, speed, target_angle, colorSensorToUse="Left", blackOrWhite="Black", gain=1, useAngularCorrection=True):
@@ -729,39 +728,8 @@ def _driveBackwardTillLine(distance, speed, target_angle, colorSensorToUse="Left
         distanceInDegTravelled = abs(motorC.get_degrees_counted()) - startDistanceInDeg
         stopCondition = stoppingCondition()
 
-    logMessage("DrivestraightWiuthSlowDownTillLine completed", level=5)
+    #logMessage("DrivestraightWiuthSlowDownTillLine completed", level=5)
     return stopCondition
-    
-# Line squares on the black line. Call this function once one of the color sensors hits the line.    
-def lineSquare():
-    sensor = "Left"
-    logMessage("left color: " + str(colorA.get_reflected_light()) + " Right color: " + str(colorB.get_reflected_light()), level=4)
-
-    # First find out which color sensor hit the line.
-    if (colorA.get_reflected_light() <= BLACK_COLOR):
-        sensor = "Left"
-    elif (colorB.get_reflected_light() <= BLACK_COLOR):
-        sensor = "Right"
-    else:
-        assert False
-
-    logMessage("Found Black Line on : " + sensor, level=4)
-    if (sensor == "Left"):
-        # Turn left till the right color sensor also hits black.
-        wheels.start(100, -15)
-        while (abs(colorB.get_reflected_light() - colorA.get_reflected_light()) >= 1):
-            logMessage("left color: " + str(colorA.get_reflected_light()) + " Right color: " + str(colorB.get_reflected_light()), level=4)
-
-            continue
-        wheels.stop()
-    else:
-        # Turn right till the Left color sensor also hits black.
-        wheels.start(100, 15)
-        while (colorA.get_reflected_light() >= BLACK_COLOR):
-            logMessage("left color: " + str(colorA.get_reflected_light()) + " Right color: " + str(colorB.get_reflected_light()), level=4)
-            continue
-        wheels.stop()
-        
     
 def isGyroGood():
     """
@@ -799,128 +767,22 @@ def isBatteryGood():
 def wait_until_either_color(sensor1, sensor2, color, message):
     while True:
         if((color == "black" and (sensor1.get_reflected_light() <= BLACK_COLOR or sensor2.get_reflected_light() <= BLACK_COLOR)) or (color == "white" and (sensor1.get_reflected_light() >= WHITE_COLOR or sensor2.get_reflected_light() >= WHITE_COLOR))):
-            logMessage(message, level=1)
+            #logMessage(message, level=1)
             return
 
 def wait_until_both_color(sensor1, sensor2, color, message):    
     while True:
         if((color == "black" and (sensor1.get_reflected_light() <= BLACK_COLOR and sensor2.get_reflected_light() <= BLACK_COLOR)) or (color == "white" and (sensor1.get_reflected_light() >= WHITE_COLOR and sensor2.get_reflected_light() >= WHITE_COLOR))):
-                logMessage(message, level=1)
+                #logMessage(message, level=1)
                 return
 
 def wait_until_color(sensor, color, message):
     while(True):
         if ((color == "black" and sensor.get_reflected_light() <= BLACK_COLOR) or (color == "white" and  sensor.get_reflected_light() >= WHITE_COLOR)):
-            logMessage(message, level=1)
+            #logMessage(message, level=1)
             wheels.stop()
             return
 
-# This code assumes that ahead of Marvin there is a black line that it has
-# to stand square to
-def lineSquaring(speed):
-    lowspeed = 10
-    numTimes = 1
-    # move straight until one of the left sensor or right sensor lands on black line
-    wheels.start(0, speed)
-    wait_until_either_color(rightColorSensor, leftColorSensor, "black", "First hit")
-    wheels.stop()
- 
-    if(rightColorSensor.get_reflected_light() <= BLACK_COLOR):
-        logMessage("right sensor found black", level=3)
-        logMessage("move left wheel forward", level=3)
-        wheels.start_tank(lowspeed, -1)
-        wait_until_color(leftColorSensor, "black", "left sensor found black")
-        # at this point we are as close t straight as we could get with that speed
-        # pull back both wheels off the black line
-        for x in range(numTimes):
-            wheels.start_tank(-lowspeed, -lowspeed)
-            wait_until_both_color(rightColorSensor, leftColorSensor, "white", "back off from black line")
-            wheels.stop()
-    
-            logMessage(str(leftColorSensor.get_reflected_light()), level=3)
-            logMessage(str(rightColorSensor.get_reflected_light()), level=3)
-
-            #start again
-            wheels.start(0, lowspeed)
-            wait_until_either_color(rightColorSensor, leftColorSensor, "black", "second time black hit")
-            wheels.stop()
-            logMessage(str(leftColorSensor.get_reflected_light()), level=3)
-            logMessage(str(rightColorSensor.get_reflected_light()), level=3)
-
-            if(rightColorSensor.get_reflected_light() <= BLACK_COLOR):
-                logMessage("right sensor found black", level=3)
-                logMessage("move left wheel forward", level=3)
-                wheels.start_tank(lowspeed, 0)
-                wait_until_color(leftColorSensor, "black", "left sensor found black")
-                
-                logMessage("move right wheel backward", level=3)
-                wheels.start_tank(0, -lowspeed)
-                wait_until_color(rightColorSensor, "white", "right sensor found white")
-
-                logMessage("move left wheel backward", level=3)
-                wheels.start_tank(-lowspeed, 0)
-                wait_until_color(leftColorSensor, "white", "left sensor found white")
-                
-                logMessage("move right wheel forward", level=3)
-                wheels.start_tank(0, lowspeed)
-                wait_until_color(rightColorSensor, "black", "right sensor found black")
-                
-                logMessage("move left wheel forward", level=3)
-                wheels.start_tank(lowspeed, 0)
-                wait_until_color(leftColorSensor, "black", "left sensor found black")
-
-                logMessage("***********ENOUGH**********", level=3)
- 
-
-    elif (leftColorSensor.get_reflected_light() <= BLACK_COLOR):
-        logMessage("left sensor found black", level=3)
-        logMessage("move right wheel forward", level=3)
-        wheels.start_tank(-1, lowspeed)
-        wait_until_color(rightColorSensor, "black", "right sensor found black")
-
-        logMessage(str(leftColorSensor.get_reflected_light()), level=3)
-        logMessage(str(rightColorSensor.get_reflected_light()), level=3)   
-        
-        # at this point we are as close t straight as we could get with that speed
-        # pull back both wheels off the black line
-        for x in range(numTimes):
-            wheels.start_tank(-lowspeed, -lowspeed)
-            wait_until_both_color(rightColorSensor, leftColorSensor, "white", "back off from black line")
-            wheels.stop()
-            
-            #start again
-            wheels.start(0, lowspeed)
-            wait_until_either_color(rightColorSensor, leftColorSensor, "black", "second time black hit")
-            wheels.stop()
-
-            if(leftColorSensor.get_reflected_light() <= BLACK_COLOR):
-                logMessage("left sensor found black", level=3)
-                logMessage("move right wheel forward", level=3)
-                wheels.start_tank(0, lowspeed)
-                wait_until_color(rightColorSensor, "black", "right sensor found black")
-                
-                logMessage("move left wheel backward", level=3)
-                wheels.start_tank(-lowspeed, 0)
-                wait_until_color(leftColorSensor, "white", "left sensor found white")
-
-                logMessage("move right wheel backward", level=3)
-                wheels.start_tank(0, -lowspeed)
-                wait_until_color(rightColorSensor, "white", "right sensor found white")
-                
-                logMessage("move left wheel forward", level=3)
-                wheels.start_tank(lowspeed, 0)
-                wait_until_color(leftColorSensor, "black", "left sensor found black")
-                
-                logMessage("move right wheel forward", level=3)
-                wheels.start_tank(0, lowspeed)
-                wait_until_color(rightColorSensor, "black", "right sensor found black")
-
-                logMessage("***********ENOUGH**********", level=3)
-
-   
-
-def testLineSquaring():
-    lineSquaring(30)
 
  # ------------------------------------------------------------------- End Utilities --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
  #endregion
