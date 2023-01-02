@@ -1,4 +1,4 @@
-# LEGO type:standard slot:2
+# LEGO type:standard slot:0
 # This is meant to be round1, in this run we go to left home from 
 # the power plant. This means we give up on one unit. 
 # The idea is that we save time by doing this and thus enabling us
@@ -1450,7 +1450,8 @@ def _runhome1tohome2():
 
 print("Battery voltage: " + str(hub.battery.voltage())) 
 _initialize()
-doRunWithTiming(_fasterRun2)
+#doRunWithTiming(_fasterRun2)
+driverWithFewerArms()
 #_driveBackwardTillLine(distance=30,speed=25,target_angle=0,colorSensorToUse="Left",blackOrWhite="Black",useAngularCorrection=False)
 
 #driverWithFewerArms()
