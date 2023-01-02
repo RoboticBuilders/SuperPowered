@@ -1,4 +1,4 @@
-# LEGO type:standard slot:0
+# LEGO type:standard slot:2
 # This is meant to be round1, in this run we go to left home from 
 # the power plant. This means we give up on one unit. 
 # The idea is that we save time by doing this and thus enabling us
@@ -689,6 +689,7 @@ def _driveBackwardTillLine(distance, speed, target_angle, colorSensorToUse="Left
     if (blackOrWhite == "Black"):
         def blackStoppingCondition():
             light = colorSensor.get_reflected_light()
+            
             return light <= BLACK_COLOR
         stoppingCondition = blackStoppingCondition
     elif (blackOrWhite == "White"):
@@ -713,6 +714,7 @@ def _driveBackwardTillLine(distance, speed, target_angle, colorSensorToUse="Left
     wheels.start(0, int(currentSpeed))
     stopCondition = False
     while  distanceInDegTravelled <= distanceInDeg and stopCondition == False:
+        
         if useAngularCorrection == True:
             current_yaw_angle = primeHub.motion_sensor.get_yaw_angle()
 
@@ -724,11 +726,12 @@ def _driveBackwardTillLine(distance, speed, target_angle, colorSensorToUse="Left
             turn_rate = correction * gain
             if (abs(correction) > 1):
                 wheels.start(turn_rate, int(currentSpeed))
-
+        
         distanceInDegTravelled = abs(motorC.get_degrees_counted()) - startDistanceInDeg
         stopCondition = stoppingCondition()
-
+    wheels.stop()
     #logMessage("DrivestraightWiuthSlowDownTillLine completed", level=5)
+    
     return stopCondition
     
 def isGyroGood():
@@ -892,7 +895,7 @@ def _run6():
     # Turn towards the power plant and then try to catch the black line running e-w line in front of the smart grid.
     angle = -87
     _turnToAngle(targetAngle = angle, speed = 20, slowTurnRatio = 0.7)
-    _driveTillLine(speed=45, distanceInCM=70, target_angle = angle, colorSensorToUse="Left", blackOrWhite="Black")
+    _driveTillLine(speed=50, distanceInCM=70, target_angle = angle, colorSensorToUse="Left", blackOrWhite="Black")
     #gyroStraight(distance=3, speed = 20, backward = True, targetAngle = angle)
 
     # Turn towards the hydro-electric plant and then drop the water units. 
@@ -916,12 +919,15 @@ def _run6():
 def _dorun6ToyFactory():
     # turn to get to the toyfactory.
     angle = -175
-    _turnToAngle(targetAngle = angle, speed = 20, slowTurnRatio = 0.9)
-    gyroStraight(distance=18, speed = 35, backward = True, targetAngle = angle)
+    correction = 0.16
+    _turnToAngle(targetAngle = angle, speed = 25, slowTurnRatio = 0.9,correction=correction)
+    #gyroStraight(distance=20, speed = 40, backward = True, targetAngle = angle)
+    _driveBackwardTillLine(distance=20,speed=25,target_angle=angle,colorSensorToUse="Left",blackOrWhite="Black")
+    gyroStraight(distance=10, speed = 40, backward = True, targetAngle = angle)
 
     angle = -135
-    _turnToAngle(targetAngle = angle, speed = 20, slowTurnRatio = 0.9)
-    gyroStraight(distance=10, speed = 35, backward = True, targetAngle = angle)
+    _turnToAngle(targetAngle = angle, speed = 25, slowTurnRatio = 0.9)
+    gyroStraight(distance=9, speed = 40, backward = True, targetAngle = angle)
 
 def _dropRechargeableBatteryAndOilTruckWithGyroReset():
     # Start bringing up the arm
@@ -1142,7 +1148,8 @@ def _fasterRun2():
 
         # Intentionally doing a slow turn.
         _turnToAngle(targetAngle = angle, speed = 20, slowTurnRatio = 0.2, correction=correction)
-        if _driveTillLine(speed=straightSpeed, distanceInCM=45, target_angle=angle, colorSensorToUse="Left", blackOrWhite="Black", slowSpeedRatio=1) == False:
+        gyroStraight(distance=5, speed=straightSpeed,targetAngle=angle,backward=False)
+        if _driveTillLine(speed=straightSpeed, distanceInCM=40, target_angle=angle, colorSensorToUse="Left", blackOrWhite="Black", slowSpeedRatio=1) == False:
             logMessage("Note --------------------> Missed line between hybrid car and toy factory", level=0)
 
         angle=-110
@@ -1443,8 +1450,10 @@ def _runhome1tohome2():
 
 print("Battery voltage: " + str(hub.battery.voltage())) 
 _initialize()
-#doRunWithTiming(_run6)
-driverWithFewerArms()
+doRunWithTiming(_fasterRun2)
+#_driveBackwardTillLine(distance=30,speed=25,target_angle=0,colorSensorToUse="Left",blackOrWhite="Black",useAngularCorrection=False)
+
+#driverWithFewerArms()
 raise SystemExit
 #endregion
 
