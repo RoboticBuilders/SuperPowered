@@ -1,13 +1,16 @@
-# LEGO type:standard slot:2
-# This is meant to be round1, in this run we go to left home from 
-# the power plant. This means we give up on one unit. 
-# The idea is that we save time by doing this and thus enabling us
-# to finish the run. In this file we do
+# LEGO type:standard slot:0
+# This is the next version of the Round1 that we tried. This file was done after Round1FullRunWithFewerArms.py
+# This file was created because in Round1FullRunWithFewerArms the power plant arm is on when we pick up the water units.
+# This causes the water units to drop and not be cleanly picked up. Resulting in the water units being left behind.
+# This run thus does the power plant as a separate run, and goes back to home1, that way when we do the run to
+# collect the water units, then we dont have the power plant arm, we onlyh have the bucket arm.
+# 
 # Run1 : TV, wind turbine, rechargeable, hybrid car
-# Run2 : Drop off units in rechargeable, two water units (We dont do the smart grid, this is because the smrat grid was causing the water units to be displaced and to make the run more
-#        reliable we do the smart grid in run6), one solar power unit, flush with toy factory and then do the power plant and go to home2. We are carrying the dinosaur all the time.
-# Run3 : Small run to get the one water unit and the hydro-electric unit.
-# Run4 : No change (oil platform run)
+# Run2 : Power plant and go back to Right home.
+# Run3 : Drop off units in rechargeable, two water units (Like the Round1FullRunWithFewerArms we dont do the smart grid here.), 
+#        one solar power unit and go to Left home. We are carrying the dinosaur. (Note we dont do the power plant here.)
+# Run4 : Small run to get the one water unit and the hydro-electric unit.
+# Run5 : No change (oil platform run)
 # Run6 : Smart grid, Water reservoir, power to X, toy factory
 
 from spike import PrimeHub, ColorSensor,  Motor, MotorPair
@@ -94,15 +97,17 @@ def driverWithFewerArms():
             logMessage("Time for arm change time(ms): {}".format(str(time.ticks_diff(arm_change_end_time, arm_change_start_time))), level=0)
 
         if counter == 1:
-            doRunWithTiming(_fasterRun1)
+            doRunWithTiming(_run1)
         if counter == 2:
-            doRunWithTiming(_fasterRun2WithoutSmartGrid)
+            doRunWithTiming(_run2)
         if counter == 3:
             doRunWithTiming(_run3)
         if counter == 4:
             doRunWithTiming(_run4)
         if counter == 5:
-            doRunWithTiming(_fasterRun6)
+            doRunWithTiming(_run5)
+        if counter == 6:
+            doRunWithTiming(_run6)
         counter = counter + 1
 
 #region Utilities
@@ -798,7 +803,7 @@ def wait_until_color(sensor, color, message):
  #endregion
 
 #region Arisha
-def _run4():
+def _run5():
     primeHub.motion_sensor.reset_yaw_angle()
 
     getToOilPlatform_v2Point2()
@@ -852,14 +857,6 @@ def goBackHomeFromOilPlatform():
    #turnToAngle(30)
    #wheels.move(amount = 11, unit = "in", steering = 0, speed = -30) # Back home doesnt require accuracy
 
-def _run5():
-    primeHub.motion_sensor.reset_yaw_angle()
-    gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH * 10, speed=40)
-    motorF.run_for_degrees(degrees=-1000, speed=100)
-    # motorF.start(speed=-100)
-    # time.sleep(2)
-    wheels.move(amount = 14, unit = "in", steering = 0, speed = -30)
-
 def scale(amt):
     in_min  =  BLACK_COLOR
     in_max  =  WHITE_COLOR
@@ -870,7 +867,7 @@ def scale(amt):
 #endregion Arisha
 #region Nami    
 
-def _run3():
+def _run4():
     # This is the new run3 with just doing the hydrodam. 
     # It picks the water unit in front of hydrodam and brings back the hydrodam unit.
 
@@ -890,54 +887,8 @@ def _run3():
     moveArm(degrees = 120, speed = 75,motor = motorF)
     #Go back home
     gyroStraight(distance = 30, speed = 50, backward = True, targetAngle = angle)
-    
+
 def _run6():
-    primeHub.motion_sensor.reset_yaw_angle()
-    # Drive forward first. Drive at a slight angle to avoid hitting the power plant.
-    gyroStraight(distance= 50, speed= 65, targetAngle= -5)
-    
-    # Turn slightly to catch the n-s line in front of the power plant
-    _driveTillLine(speed=30, distanceInCM=35, target_angle=-8, colorSensorToUse="Left", blackOrWhite="Black", slowSpeedRatio=0.9)
-    
-    # Turn towards the power plant and then try to catch the black line running e-w line in front of the smart grid.
-    angle = -87
-    _turnToAngle(targetAngle = angle, speed = 20, slowTurnRatio = 0.7)
-    _driveTillLine(speed=50, distanceInCM=70, target_angle = angle, colorSensorToUse="Left", blackOrWhite="Black")
-    #gyroStraight(distance=3, speed = 20, backward = True, targetAngle = angle)
-
-    # Turn towards the hydro-electric plant and then drop the water units. 
-    # This also drops the energy units and the innovation project.
-    angle = 150
-    _turnToAngle(targetAngle = angle, speed = 20, slowTurnRatio = 0.9)
-    gyroStraight(speed=25, distance=26, targetAngle=angle)
-
-    # Drop the water units    
-    moveArm(degrees = 2200, speed = -100, motor = motorF)
-
-    # Start bringing up the arm
-    motorF.start_at_power(60)
-    
-    # Backoff to leave the water reservoir
-    gyroStraight(distance=15, speed = 20, backward = True, targetAngle = angle)
-
-    motorF.stop()    
-    _dorun6ToyFactory()
-
-def _dorun6ToyFactory():
-    # turn to get to the toyfactory.
-    angle = -175
-    correction = 0.16
-    _turnToAngle(targetAngle = angle, speed = 25, slowTurnRatio = 0.9,correction=correction)
-    #gyroStraight(distance=20, speed = 40, backward = True, targetAngle = angle)
-    _driveBackwardTillLine(distance=20,speed=25,target_angle=angle,colorSensorToUse="Left",blackOrWhite="Black")
-    gyroStraight(distance=10, speed = 40, backward = True, targetAngle = angle)
-
-    angle = -135
-    _turnToAngle(targetAngle = angle, speed = 25, slowTurnRatio = 0.9)
-    gyroStraight(distance=9, speed = 40, backward = True, targetAngle = angle)
-
-
-def _fasterRun6():
     def _doSmartGrid():
         angle = -85
         _turnToAngle(targetAngle = angle, speed = 30, slowTurnRatio = 0.7)
@@ -993,71 +944,11 @@ def _fasterRun6():
     motorF.stop()    
     _dorun6ToyFactory()
 
-def _dropRechargeableBatteryAndOilTruckWithGyroReset():
-    # Start bringing up the arm
-    motorF.start_at_power(60)
-    
-    # Backoff to leave the water reservoir
-    gyroStraight(distance=15, speed = 20, backward = True, targetAngle = 0)
-
-    # Uncomment this for a serial run.
-    #moveArm(degrees = 3000, speed = 100, motor = motorF)
-
-    motorF.stop()    
-
-    _doToyFactory()
-
-    '''
-    # Turn towards the toy factory
-    _turnToAngle(targetAngle = 0 + zero_adjustment, speed = 20, slowTurnRatio=0.9)
-
-    # Drive past the n-s line in front of the toy factory
-    gyroStraight(distance=20, speed = 35, backward = False, targetAngle = 0 + zero_adjustment)
-
-    # We expect the arm to have come up by now.
-    motorF.stop()
-    '''
-    
-    # Commented to remove the _run6 past the robot clearing the hydro plant.
-    # This is done to remove the oil truck dropoff.
-    # This change was done on 11/6/2022 after the team meeting where we decided to remove
-    # _run5 and shorten _run6
-    # Turn to catch e-w line in front of smartgrid
-    _turnToAngle(targetAngle = 170, speed = 20, slowTurnRatio=0.9)
-
-    # Its possible that this line is missed occasionally. 
-    _driveTillLine(speed=35, distanceInCM=10, target_angle= 170, colorSensorToUse="Left", blackOrWhite="Black")
-
-    # Turn to catch n-s line near toy factory
-    # 10/23/2022: was 5+zero_adjustment
-    _turnToAngle(targetAngle = 5 + zero_adjustment, speed = 20, slowTurnRatio=0.9)
-    _driveTillLine(speed=35, distanceInCM=13, target_angle=5 + zero_adjustment, colorSensorToUse="Right", blackOrWhite="Black")
-
-    # Move and turn towards rechargeable battery
-    gyroStraight(distance=21, speed = 35, backward = False, targetAngle = 5 + zero_adjustment)
-    _turnToAngle(targetAngle = 33 + zero_adjustment, speed = 20, slowTurnRatio=0.9)
-    gyroStraight(distance=12, speed = 25, backward = False, targetAngle = 33 + zero_adjustment)
-
-    # Drop energy units in rechargeable battery
-    # Used to be 3000 made it 1800, by lowering the arm a litte.
-    moveArm(degrees = 1800, speed = 100, motor = motorD)
-    
-    # Start picking up the arm. Uncomment this for the competition. Instead of the waiting for bringing up the arm.
-    motorD.start_at_power(-100)
-    #moveArm(degrees = 3000, speed = -100, motor = motorD)
-    
-    # Backup to the fuel station with the oil truck to finish
-    _turnToAngle(targetAngle = 80 + zero_adjustment, speed = 20)
-    gyroStraight(distance=30, speed = 35, backward = True, targetAngle = 80 + zero_adjustment)
-    
-    # Uncomment this for the competition.
-    motorD.stop()
-
 #endregion Nami
 
 #region Rishabh
 
-def _fasterRun1():
+def _run1():
     def _watchTV():
         angle=0
         # Drive to Watch Television. We do this in two parts. First fast and
@@ -1168,258 +1059,7 @@ def _fasterRun1():
     _goHome()
 
 #endregion
-
-
-def _fasterRun2():
-
-    def _doRechargablebattery():
-        straightSpeed = 50
-        angle = 0
-        correction=0
-        angle, correction = calculateReducedTargetAngleAndCorrection(angle, correction)
-        gyroStraight(distance=33, speed=straightSpeed,targetAngle=angle,backward=False)
-
-        angle = -67
-        angle, correction = calculateReducedTargetAngleAndCorrection(angle, correction)
-        _turnToAngle(targetAngle = angle, speed = 25, slowTurnRatio = 0.4)
-
-        # Start picking up the arm in parallel
-        #motorF.start_at_power(-75)
-        gyroStraight(distance=23, speed=straightSpeed,targetAngle=angle,backward=False)
-        #motorF.stop()
-
-        # Drop off the units. 
-        moveArm(degrees = 140, speed = -75, motor = motorF)
-
-        # Backoff from the toy factory.
-        gyroStraight(distance=8,speed=straightSpeed,targetAngle=angle,backward=True)   
-
-    def _gotoSmartGrid():
-        # This cab be as high as 50.
-        straightSpeed = 40
-        correction = 0
-        angle = 0
-        angle, correction = calculateReducedTargetAngleAndCorrection(angle, correction)
-        _turnToAngle(targetAngle = angle, speed = 25, slowTurnRatio = 0.6, correction=correction)
-        gyroStraight(distance=25, speed=straightSpeed,targetAngle=angle,backward=False)
-
-        if ROBOT == "A":
-            # Amogh's robot is newer motors and 90d turn seems to work better with this robot.
-            angle = -90
-        else:
-            angle=-92
-        angle, correction = calculateReducedTargetAngleAndCorrection(angle, correction)
-
-        # Intentionally doing a slow turn.
-        _turnToAngle(targetAngle = angle, speed = 20, slowTurnRatio = 0.2, correction=correction)
-        gyroStraight(distance=5, speed=straightSpeed,targetAngle=angle,backward=False)
-        if _driveTillLine(speed=straightSpeed, distanceInCM=40, target_angle=angle, colorSensorToUse="Left", blackOrWhite="Black", slowSpeedRatio=1) == False:
-            logMessage("Note --------------------> Missed line between hybrid car and toy factory", level=0)
-
-        angle=-110
-        angle, correction = calculateReducedTargetAngleAndCorrection(angle, correction)
-        _turnToAngle(targetAngle = angle, speed = 25, slowTurnRatio = 0.6, correction=correction)
-        gyroStraight(distance=20,speed=straightSpeed,targetAngle=angle,backward=False)
-        if _driveTillLine(speed=straightSpeed, distanceInCM=15, target_angle=angle, colorSensorToUse="Right", blackOrWhite="Black",slowSpeedRatio=1) == False:
-            logMessage("Note --------------------> Missed n-s line in front of smart grid", level=0)
-        else:
-            gyroStraight(distance=4,speed=35,targetAngle=angle,backward=False)
-                
-    def _doSmartGrid():
-        # Turn towards the smart grid
-        angle = 0
-        correction = 0
-        angle, correction = calculateReducedTargetAngleAndCorrection(angle, correction)
-        # This turn is very slow intentionally.
-        _turnToAngle(targetAngle = angle, speed = 20, slowTurnRatio = 0.1, correction=correction)
-
-        # First backoff to ensure that we are behind the black line
-        #gyroStraight(distance=8, speed=35, targetAngle=angle,backward=True)
-        
-        # Catch the black line in front of the smart grid
-        if _driveTillLine(speed=35, distanceInCM=20, target_angle=angle, colorSensorToUse="Left", blackOrWhite="Black") == False:
-            logMessage("Note --------------------> Missed e-w line in front of smart grid", level=0)
-        gyroStraight(distance=2, speed=35, targetAngle=angle,backward=False)
-        
-        # Bring down the arm to pull the smart grid.
-        moveArm(degrees = 120, speed = 75, motor = motorF)
-
-        motorF.start_at_power(75)
-        gyroStraight(distance=8, speed = 25, backward = True, targetAngle = angle)
-        motorF.stop()
-
-        # Pick up the arm again to pick up the water units
-        moveArm(degrees = 200, speed = -75, motor = motorF)
-
-    def _picktwoWaterUnits():
-        # Turn towards the water reservoir to pick up the two water units
-        angle = -100
-        correction=0
-        angle, correction = calculateReducedTargetAngleAndCorrection(angle, correction)
-        _turnToAngle(targetAngle=angle, speed=25, slowTurnRatio=0.6, correction=correction)
-        gyroStraight(distance=14, speed = 25, backward = False, targetAngle = angle)
-       
-        # Drop the arm to get the water units.
-        moveArm(degrees = 150, speed = 75, motor = motorF)
-        gyroStraight(distance=10, speed = 25, backward = True, targetAngle = angle)
-
-    def _pickSolarFarmUnitwithFlushing():
-         # Now go to solar farm to pick the energy unit
-        angle = 150
-        correction=0.02
-        angle, correction = calculateReducedTargetAngleAndCorrection(angle, correction)
-        _turnToAngle(targetAngle = angle, speed = 25, correction = correction)
-        #gyroStraight(distance = 8, speed = 20, backward = True, targetAngle = angle)
-        _driveBackwardTillLine(distance = 10, speed = 35, target_angle = angle, colorSensorToUse = "Left", blackOrWhite = "Black")
-        gyroStraight(distance=7, speed = 35, backward = True, targetAngle = angle)
-
-        # Collect the solar farm unit
-        angle = -178
-        angle, correction = calculateReducedTargetAngleAndCorrection(angle, correction)
-        _turnToAngle(targetAngle = angle, speed = 25, correction = correction)
-        
-        # flush with the wall
-        flushForTime(speed=-30, timeInSeconds=1)
-        primeHub.motion_sensor.reset_yaw_angle()        
-
-        # Reset the gyro after the flush.
-        angle = 0
-        if _driveTillLine(speed = 35, distanceInCM = 15, target_angle = angle, colorSensorToUse = "Left", blackOrWhite = "Black") == False:
-            logMessage("Note --------------------> Missed e-w line in front of solar farm grid", level=0)
-           
-        #gyroStraight(distance = 4, speed = 40, backward = False, targetAngle = angle)
-
-    def _goToToyFactory():
-        angle = -43
-        correction=0
-        angle, correction = calculateReducedTargetAngleAndCorrection(angle, correction)
-        _turnToAngle(targetAngle = angle, speed = 25, slowTurnRatio = 0.6, correction = correction)
-        gyroStraight(distance = 57, speed = 60, backward = False, targetAngle = angle)
-
-        # Flush with the toy factory
-        angle=45
-        angle, correction = calculateReducedTargetAngleAndCorrection(angle, correction)
-        _turnToAngle(targetAngle = angle, speed = 25, slowTurnRatio = 0.6, correction=correction)
-
-        # Replaced backward gyrostraight with flushfortime for flushing
-        # Also dropping the arm in parallel when flushing.
-        motorD.start_at_power(-50)
-        if (ROBOT == "A"):
-            flushForTime(speed=-30, timeInSeconds=1)
-        else:
-            flushForTime(speed=-30, timeInSeconds=1)
-        motorD.stop()
-        #gyroStraight(distance=8, speed = 35, backward = True, targetAngle = angle)
-
-    def _goToPowerPlant():
-        # Bring arm down to get ready for power plant
-        # moveArm(degrees = 120, speed = -50, motor = motorD)
-       
-        # Reset yaw angle as we are aligned against toyfactory
-        resetTotalDegreesTurned()
-        primeHub.motion_sensor.reset_yaw_angle()
-
-        angle = 0
-        correction=0
-        # Move ahaead a little so we can turn
-        gyroStraight(distance = 4, speed = 25, backward = False, targetAngle = angle)
-        
-        # First catch the n-s line infront of the power plant.
-        angle = 45
-        angle, correction = calculateReducedTargetAngleAndCorrection(angle, correction)
-        _turnToAngle(targetAngle = angle, speed = 25, slowTurnRatio = 0.6, correction=correction)
-        if _driveTillLine(speed=40, distanceInCM=20, target_angle=angle, colorSensorToUse="Left", blackOrWhite="Black") == False:
-            logMessage("Note --------------------> Missed n-s line in front of power plant", level=0)
-        else:
-            gyroStraight(distance=4, speed = 25, backward = False, targetAngle = angle)
-        
-        # Turn left towards the power plant and do the power plant.
-        angle = -45
-        correction = 0
-        angle, correction = calculateReducedTargetAngleAndCorrection(angle, correction)
-        _turnToAngle(targetAngle = angle, speed = 25, slowTurnRatio = 0.1, correction=correction)
-        gyroStraight(distance=20, speed = 20, backward = False, targetAngle = angle)
-            
-    def _doPowerPlant():
-        # This is the original code to lift the power plant.
-        # Either use this or uncomment the code below.
-        '''
-        correction = 0
-        angle = -45
-        angle, correction = calculateReducedTargetAngleAndCorrection(angle, correction)
-        moveArm(degrees = 175, speed = 75, motor = motorD)
-        gyroStraight(distance=5, speed = 15, backward = True, targetAngle = angle)
-        '''
-        # First lift the power plant. Sometimes we are not able to lift
-        # we backoff a little and try again before moving on.
-        motorD.start_at_power(75)
-        wait_for_seconds(0.2)
-        motorD.stop()
-        angle= -45
-        # In case we were stuck, bring down the arm first and then backoff a little and try again.
-        moveArm(degrees = 120, speed = -75, motor = motorD)
-        gyroStraight(distance = 1, speed = 20, backward=True, targetAngle=angle)
-        moveArm(degrees = 175, speed = 100, motor = motorD)
-        gyroStraight(distance=5, speed = 15, backward = True, targetAngle = angle)
-
-    def _goHome():
-        # Go Home
-        if ROBOT == "A":
-            angle = 40
-        else:
-            angle = 40
-        correction = 0
-        angle, correction = calculateReducedTargetAngleAndCorrection(angle, correction)
-        _turnToAngle(targetAngle = angle, speed = 35, slowTurnRatio = 0.6, correction=correction)
-        gyroStraight(distance=90, speed = 80, backward = False, targetAngle = angle, multiplier=1.0, gradualAcceleration=False, slowDown=False)
-
-    def _doPowerPlantFromSmartGrid():
-        angle = 0
-        gyroStraight(distance = 4, speed = 40, backward = False, targetAngle = angle)
-
-        #Turn to get to the n-s line in front of the smart  grid
-        angle = -45
-        correction=0.03
-        angle, correction = calculateReducedTargetAngleAndCorrection(angle, correction)
-        _turnToAngle(targetAngle = angle, speed = 25, slowTurnRatio = 0.6, correction = correction)
-        _driveTillLine(speed=30, distanceInCM=15, target_angle=angle, colorSensorToUse="Left", blackOrWhite="Black")
-        gyroStraight(distance=3, speed = 30, backward = False, targetAngle = angle)
-
-        # Now drive towards powerplant
-        angle = 0
-        _turnToAngle(targetAngle = angle, speed = 20, slowTurnRatio=0.1)
-        moveArm(degrees = 120, speed = -50, motor = motorD)
-        gyroStraight(distance = 47, speed = 40, backward = False, targetAngle = angle)
-        # Now do the powerplant mission
-        moveArm(degrees = 175, speed = 75, motor = motorD)
-
-        # Backup from the power plant
-        gyroStraight(distance=5, speed = 15, backward = True, targetAngle = angle)
-
-    def _goHomeAfterStraight():
-        # Go Home
-        angle = -80
-        correction = 0
-        angle, correction = calculateReducedTargetAngleAndCorrection(angle, correction)
-        _turnToAngle(targetAngle = angle, speed = 35, slowTurnRatio = 0.6, correction=correction)
-        gyroStraight(distance=90, speed = 80, backward = False, targetAngle = angle)
-
-    primeHub.motion_sensor.reset_yaw_angle()
-    #moveArm(degrees = 150, speed = 50, motor = motorD)
-    
-    _doRechargablebattery()
-    _gotoSmartGrid()
-    _doSmartGrid()
-    _picktwoWaterUnits()
-    _pickSolarFarmUnitwithFlushing()
-    _goToToyFactory()
-    _goToPowerPlant()
-    _doPowerPlant()
-    _goHome()
-    #_doPowerPlantFromSmartGrid()
-    #_goHomeAfterStraight()
-
-def _fasterRun2WithoutSmartGrid():
+def _run3():
 
     def _doRechargablebattery():
         straightSpeed = 50
@@ -1443,7 +1083,7 @@ def _fasterRun2WithoutSmartGrid():
 
     def _gotoSmartGrid():
         # This cab be as high as 50.
-        straightSpeed = 40
+        straightSpeed = 65
         correction = 0
         angle = 0
         angle, correction = calculateReducedTargetAngleAndCorrection(angle, correction)
@@ -1459,7 +1099,7 @@ def _fasterRun2WithoutSmartGrid():
 
         # Intentionally doing a slow turn.
         _turnToAngle(targetAngle = angle, speed = 20, slowTurnRatio = 0.2, correction=correction)
-        gyroStraight(distance=5, speed=straightSpeed,targetAngle=angle,backward=False)
+        #gyroStraight(distance=5, speed=straightSpeed,targetAngle=angle,backward=False)
         if _driveTillLine(speed=straightSpeed, distanceInCM=40, target_angle=angle, colorSensorToUse="Left", blackOrWhite="Black", slowSpeedRatio=1) == False:
             logMessage("Note --------------------> Missed line between hybrid car and toy factory", level=0)
 
@@ -1469,29 +1109,29 @@ def _fasterRun2WithoutSmartGrid():
         gyroStraight(distance=20,speed=straightSpeed,targetAngle=angle,backward=False)
         if _driveTillLine(speed=straightSpeed, distanceInCM=15, target_angle=angle, colorSensorToUse="Right", blackOrWhite="Black",slowSpeedRatio=1) == False:
             logMessage("Note --------------------> Missed n-s line in front of smart grid", level=0)
-        else:
-            gyroStraight(distance=4,speed=35,targetAngle=angle,backward=False)
+        #else:
+        #    gyroStraight(distance=4,speed=35,targetAngle=angle,backward=False)
 
     def _picktwoWaterUnits():
         # Turn towards the water reservoir to pick up the two water units
-        angle = -90
+        angle = -100
         correction=0
         angle, correction = calculateReducedTargetAngleAndCorrection(angle, correction)
-        _turnToAngle(targetAngle=angle, speed=25, slowTurnRatio=0.6, correction=correction)
-        gyroStraight(distance=12, speed = 25, backward = False, targetAngle = angle)
+        #_turnToAngle(targetAngle=angle, speed=25, slowTurnRatio=0.6, correction=correction)
+        gyroStraight(distance=15, speed = 30, backward = False, targetAngle = angle)
        
         # Drop the arm to get the water units.
         moveArm(degrees = 150, speed = 75, motor = motorF)
-        gyroStraight(distance=10, speed = 25, backward = True, targetAngle = angle)
+        gyroStraight(distance=7, speed = 45, backward = True, targetAngle = angle)
 
     def _pickSolarFarmUnitwithFlushing():
          # Now go to solar farm to pick the energy unit
-        angle = 150
+        angle = 160
         correction=0.02
         angle, correction = calculateReducedTargetAngleAndCorrection(angle, correction)
         _turnToAngle(targetAngle = angle, speed = 25, correction = correction)
         #gyroStraight(distance = 8, speed = 20, backward = True, targetAngle = angle)
-        _driveBackwardTillLine(distance = 10, speed = 35, target_angle = angle, colorSensorToUse = "Left", blackOrWhite = "Black")
+        _driveBackwardTillLine(distance = 10, speed = 35, target_angle = angle, colorSensorToUse = "Right", blackOrWhite = "Black")
         gyroStraight(distance=7, speed = 35, backward = True, targetAngle = angle)
 
         # Collect the solar farm unit
@@ -1510,199 +1150,65 @@ def _fasterRun2WithoutSmartGrid():
            
         #gyroStraight(distance = 4, speed = 40, backward = False, targetAngle = angle)
 
-    def _goToToyFactory():
-        angle = -43
-        correction=0
-        angle, correction = calculateReducedTargetAngleAndCorrection(angle, correction)
-        _turnToAngle(targetAngle = angle, speed = 25, slowTurnRatio = 0.6, correction = correction)
-        gyroStraight(distance = 57, speed = 60, backward = False, targetAngle = angle)
-
-        # Flush with the toy factory
-        angle=45
-        angle, correction = calculateReducedTargetAngleAndCorrection(angle, correction)
-        _turnToAngle(targetAngle = angle, speed = 25, slowTurnRatio = 0.6, correction=correction)
-
-        # Replaced backward gyrostraight with flushfortime for flushing
-        # Also dropping the arm in parallel when flushing.
-        motorD.start_at_power(-50)
-        if (ROBOT == "A"):
-            flushForTime(speed=-30, timeInSeconds=1)
-        else:
-            flushForTime(speed=-30, timeInSeconds=1)
-        motorD.stop()
-        #gyroStraight(distance=8, speed = 35, backward = True, targetAngle = angle)
-
-    def _goToPowerPlant():
-        # Bring arm down to get ready for power plant
-        # moveArm(degrees = 120, speed = -50, motor = motorD)
-       
-        # Reset yaw angle as we are aligned against toyfactory
-        resetTotalDegreesTurned()
-        primeHub.motion_sensor.reset_yaw_angle()
-
-        angle = 0
-        correction=0
-        # Move ahaead a little so we can turn
-        gyroStraight(distance = 4, speed = 25, backward = False, targetAngle = angle)
-        
-        # First catch the n-s line infront of the power plant.
-        angle = 45
-        angle, correction = calculateReducedTargetAngleAndCorrection(angle, correction)
-        _turnToAngle(targetAngle = angle, speed = 25, slowTurnRatio = 0.6, correction=correction)
-        if _driveTillLine(speed=40, distanceInCM=20, target_angle=angle, colorSensorToUse="Left", blackOrWhite="Black") == False:
-            logMessage("Note --------------------> Missed n-s line in front of power plant", level=0)
-        else:
-            gyroStraight(distance=4, speed = 25, backward = False, targetAngle = angle)
-        
-        # Turn left towards the power plant and do the power plant.
-        angle = -45
-        correction = 0
-        angle, correction = calculateReducedTargetAngleAndCorrection(angle, correction)
-        _turnToAngle(targetAngle = angle, speed = 25, slowTurnRatio = 0.1, correction=correction)
-        gyroStraight(distance=20, speed = 20, backward = False, targetAngle = angle)
-            
-    def _doPowerPlant():
-        # This is the original code to lift the power plant.
-        # Either use this or uncomment the code below.
-        '''
-        correction = 0
-        angle = -45
-        angle, correction = calculateReducedTargetAngleAndCorrection(angle, correction)
-        moveArm(degrees = 175, speed = 75, motor = motorD)
-        gyroStraight(distance=5, speed = 15, backward = True, targetAngle = angle)
-        '''
-        # First lift the power plant. Sometimes we are not able to lift
-        # we backoff a little and try again before moving on.
-        motorD.start_at_power(75)
-        wait_for_seconds(0.2)
-        motorD.stop()
-        angle= -45
-        # In case we were stuck, bring down the arm first and then backoff a little and try again.
-        moveArm(degrees = 120, speed = -75, motor = motorD)
-        gyroStraight(distance = 1, speed = 20, backward=True, targetAngle=angle)
-        moveArm(degrees = 175, speed = 100, motor = motorD)
-        gyroStraight(distance=5, speed = 15, backward = True, targetAngle = angle)
-
     def _goHome():
         # Go Home
-        if ROBOT == "A":
-            angle = 40
-        else:
-            angle = 40
+        angle = 90
         correction = 0
         angle, correction = calculateReducedTargetAngleAndCorrection(angle, correction)
         _turnToAngle(targetAngle = angle, speed = 35, slowTurnRatio = 0.6, correction=correction)
-        gyroStraight(distance=90, speed = 80, backward = False, targetAngle = angle, multiplier=1.0, gradualAcceleration=False, slowDown=False)
+        gyroStraight(distance=25, speed = 60, backward = False, targetAngle = angle, multiplier=1.0, gradualAcceleration=False, slowDown=False)
+
+        angle = 35
+        angle, correction = calculateReducedTargetAngleAndCorrection(angle, correction)
+        _turnToAngle(targetAngle = angle, speed = 35, slowTurnRatio = 0.6, correction=correction)
+        gyroStraight(distance=80, speed = 100, backward = False, targetAngle = angle, multiplier=1.0, gradualAcceleration=False, slowDown=False)
+        
     
     primeHub.motion_sensor.reset_yaw_angle()
     _doRechargablebattery()
     _gotoSmartGrid()
     _picktwoWaterUnits()
     _pickSolarFarmUnitwithFlushing()
-    _goToToyFactory()
-    _goToPowerPlant()
-    _doPowerPlant()
     _goHome()
     
 
 #region Function Calls
-
-def _newrun4smallerattachment():
-    # Initialize the speed variables for this run.
-    turnSpeed = 25
-    slowSpeed = 25
-    alignSpeed = 35
-    fastSpeed = 50
-    goHomeSpeed = 75
-
-    # Reset the Gyro Sensor
-    primeHub.motion_sensor.reset_yaw_angle()
-    #moveArm(degrees = 3000, speed = 75, motor = motorD)
-    # Drive towards the Oil Platform
-    gyroStraight(distance = 30, speed = slowSpeed, backward = False, targetAngle = 0)
-
-    # Turn to go around the Oil Platform
-    angle = 30
-    _turnToAngle(targetAngle = angle, speed = turnSpeed, slowTurnRatio = 0.9)
-    gyroStraight(distance = 43, speed = slowSpeed, backward = False, targetAngle = angle)
-
-    # Drive towards the Energy Storage
-    angle = 0
-    _turnToAngle(targetAngle = angle, speed = turnSpeed, slowTurnRatio = 0.9)
-    gyroStraight(distance = 35, speed = alignSpeed, backward = False, targetAngle = angle)
-
-    for i in range(3):
-        #Raise the oil platform
-        moveArm(degrees = 1750, speed = -75, motor = motorF)
-        #Lower the oil platform
-        moveArm(degrees = 1750, speed = 75, motor = motorF)
-
-
-    #moveArm(degrees = 3000, speed = -75, motor = motorD)
-    # Turn and back up to home
-    gyroStraight(distance = 8, speed = goHomeSpeed, backward = True, targetAngle = angle)
-    angle = 20
-    _turnToAngle(targetAngle = angle, speed = fastSpeed, slowTurnRatio = 0.1)
-    gyroStraight(distance = 45, speed = goHomeSpeed, backward = True, targetAngle = angle)
-    
-
-
-    '''
-    # Lower the Oil Platform arm so that it fits underneath the Oil Platform lever
-    #gyroStraight(distance = 2, speed = slowSpeed, backward = True, targetAngle = angle)
-    #moveArm(degrees = 300, speed = 75, motor = motorF)
-
-    # Back up to the Oil Platform so that the Oil Platform arm is under the lever
-    backUpDist = 3
+def _run2():
     angle = 10
-    gyroStraight(distance = backUpDist, speed = slowSpeed, backward = True, targetAngle = angle)
-    _turnToAngle(targetAngle = angle, speed = turnSpeed, slowTurnRatio = 0.9)
+    correction = 0
+    angle, correction = calculateReducedTargetAngleAndCorrection(angle, correction)
+    _turnToAngle(targetAngle = angle, speed = 35, slowTurnRatio = 0.6, correction=correction)
+    gyroStraight(targetAngle = angle,  distance = 65, speed=60) 
+    _driveTillLine(speed = 35, distanceInCM = 24, target_angle = angle, colorSensorToUse="Left", blackOrWhite="Black")
+    gyroStraight(targetAngle = angle,  distance = 6, speed=25) 
+    #Reached powerplant now turn towards powerplant and move forward
+    angle = -90
+    angle, correction = calculateReducedTargetAngleAndCorrection(angle, correction)
+    _turnToAngle(targetAngle = angle, speed = 35, slowTurnRatio = 0.1, correction=correction)
+    #Bring both arms down
+    #moveArm(degrees = 150, speed = 75, motor = motorF)
+    moveArm(degrees = 150, speed = -75, motor = motorD)
 
-    # Repeatedly raise and lower the Oil Platform arm to expell the units. Drive forward and backward so that the arm does not end up on top of the lever
-    for i in range(3):
-        moveArm(degrees = 1500, speed = -100, motor = motorF)
-        gyroStraight(distance = backUpDist + 1, speed = slowSpeed, backward = False, targetAngle = primeHub.motion_sensor.get_yaw_angle())
-        _turnToAngle(targetAngle = angle, speed = turnSpeed, slowTurnRatio = 0.9)
-        moveArm(degrees = 1500, speed = 100, motor = motorF)
-        gyroStraight(distance = backUpDist, speed = slowSpeed, backward = True, targetAngle = primeHub.motion_sensor.get_yaw_angle())
+    gyroStraight(targetAngle = angle,  distance = 8, speed=25) 
+
+    motorD.start_at_power(75)
+    wait_for_seconds(0.2)
+    motorD.stop()
     
-    # Drive forward towards the Energy Storage
-    gyroStraight(distance = 5, speed = slowSpeed, backward = False, targetAngle = angle)
+    #Bring the arm down to do power plant
+    moveArm(degrees = 120, speed = -75, motor = motorD)
+    gyroStraight(distance = 1, speed = 20, backward=True, targetAngle=angle)
+    moveArm(degrees = 175, speed = 100, motor = motorD)
+    gyroStraight(distance=5, speed = 15, backward = True, targetAngle = angle)
 
-    # Lower the Solar Farm and Energy Storage Tray arms to collect them
-    moveArm(degrees = 3000, speed = -75, motor = motorF)
-
-    # Back out of the Energy Storage
-    gyroStraight(distance = 15, speed = fastSpeed, backward = True, targetAngle = angle)
-    
-    # Turn and back up to home
-    angle = 30
-    _turnToAngle(targetAngle = angle, speed = fastSpeed, slowTurnRatio = 0.1)
-    gyroStraight(distance = 40, speed = goHomeSpeed, backward = True, targetAngle = angle)
-    '''
-
-def tryPowerPlantWithRun3Arm():
-    #testTurnToAngle(speed = 35, slowturnratio=0.6, correction=0.30)
-    gyroStraight(distance=11, speed = 20, backward = False, targetAngle = 0)
-    moveArm(degrees = 250, speed = 100, motor = motorD)
-    gyroStraight(distance=8, speed = 20, backward = True, targetAngle = 0)
-    moveArm(degrees = 120, speed = -50, motor = motorF)
-    gyroStraight(distance=2, speed = 20, backward = False, targetAngle = 0)
-    moveArm(degrees = 120, speed = 50, motor = motorF)
-  
-    #gyroStraight(distance=3, speed = 20, backward = False, targetAngle = 0)
-    #moveArm(degrees = 150, speed = -50, motor = motorF)
-
-def _runhome1tohome2():
-    primeHub.motion_sensor.reset_yaw_angle()
-    gyroStraight(distance=180, speed = 100, backward = False, targetAngle = 0,multiplier=1)
+    angle = -170
+    _turnToAngle(targetAngle = angle, speed = 35, slowTurnRatio = 0.6, correction=correction)
+    gyroStraight(targetAngle = angle,  distance = 90, speed=100) 
 
 print("Battery voltage: " + str(hub.battery.voltage())) 
 _initialize()
-doRunWithTiming(_fasterRun2WithoutSmartGrid)
-#doRunWithTiming(_fasterRun1)
-#driverWithFewerArms()
-#_run3()
+#doRunWithTiming(_run5)
+driverWithFewerArms()
 raise SystemExit
 #endregion
 
