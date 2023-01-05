@@ -3,6 +3,12 @@
 # This file was created because after doing TestRound1WithPowerPlantAsSeparateRun we realized that the bucket arm can do the hybrid car,
 # since now it does not have any units. This means that the going home for bringing the hybrid car, which is error prone can be avoided.
 # The rest of the changes in TestRound1WithPowerPlantAsSeparateRun are all there in this file.
+#
+#
+# This file also contains one more change in addition to the above. We realized that we could do the toy factory as part of run3
+# this is because we have the units from the power plant from run2. This means that we need to do the toy factory in run3 and
+# not do this in run6. However because we are already aligning against the toy factory in run3, we dont really need any additional
+# code for run3. We only need to change run6 to not have the toyfactory.
 #  
 # Run1 : TV, wind turbine, rechargeable (note: no hybrid car.)
 # Run2 : Power plant and go back to Right home.
