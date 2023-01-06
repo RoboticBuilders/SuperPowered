@@ -1,4 +1,4 @@
-# LEGO type:standard slot:4
+# LEGO type:standard slot:6
 # This is the next version of the Round1 that we tried after TestRound1WithPowerPlantAsSeparateRun.py which was done after Round1FullRunWithFewerArms.py
 # This file was created because after doing TestRound1WithPowerPlantAsSeparateRun we realized that the bucket arm can do the hybrid car,
 # since now it does not have any units. This means that the going home for bringing the hybrid car, which is error prone can be avoided.
@@ -926,10 +926,13 @@ def _run4():
 
 def _run6():
     def _doSmartGrid():
+        angle = -95
+        gyroStraight(distance=3, speed = 35, backward = True, targetAngle = angle)
+
         angle = -90
         _turnToAngle(targetAngle = angle, speed = 30, slowTurnRatio = 0.7)
-        gyroStraight(distance=6, speed = 35, backward = False, targetAngle = angle)
-        gyroStraight(distance=8, speed = 35, backward = True, targetAngle = angle)
+        gyroStraight(distance=9, speed = 35, backward = False, targetAngle = angle)
+        gyroStraight(distance=14, speed = 35, backward = True, targetAngle = angle)
 
     def _dorun6ToyFactory():
         straightSpeed = 45
@@ -978,12 +981,10 @@ def _run6():
 
     # Turn towards the hydro-electric plant and then drop the water units. 
     # This also drops the energy units and the innovation project.
-    angle = 135
+    angle = 150
     _turnToAngle(targetAngle = angle, speed = 25, slowTurnRatio = 0.3)
 
     # Drop the water units    
-    #motorF.start(-50)
-    #moveArm(degrees = 2200, speed = -100, motor = motorF)
     gyroStraight(speed=20, distance=10, targetAngle=angle)
 
     motorF.start(-70)
@@ -996,7 +997,7 @@ def _run6():
     motorF.start_at_power(60)
     
     # Backoff to leave the water reservoir
-    gyroStraight(distance=12, speed = 40, backward = True, targetAngle = angle)
+    #gyroStraight(distance=12, speed = 40, backward = True, targetAngle = angle)
 
     motorF.stop()    
     #_dorun6ToyFactory()
@@ -1272,17 +1273,33 @@ def testSmartGridArm():
     gyroStraight(distance=7, speed = 35, backward = False, targetAngle = angle)
     gyroStraight(distance=9, speed = 25, backward = True, targetAngle = angle)
     '''
-
+    '''
     motorF.start_at_power(-20)
     wait_for_seconds(2)
     motorF.start_at_power(-100)
     wait_for_seconds(0.2)
     motorF.stop()
+    '''
+    angle = 0
+    #_turnToAngle(targetAngle = angle, speed = 30, slowTurnRatio = 0.7)
+
+    # First lift up the arm
+    motorD.start_at_power(100)
+    wait_for_seconds(0.1)
+    motorD.stop()
+
+    # Drive forward into the smart grid.
+    gyroStraight(distance=10, speed = 35, backward = False, targetAngle = angle)
+    
+    # Bring down the arm and keep it down till we back off.
+    motorD.start_at_power(-100)
+    gyroStraight(distance=10, speed = 25, backward = True, targetAngle = angle)
+    motorD.stop()
 
 print("Battery voltage: " + str(hub.battery.voltage())) 
 _initialize()
-doRunWithTiming(_run4)
-#testSmartGridArm()
+#doRunWithTiming(_run6)
+testSmartGridArm()
 #driverWithFewerArms()
 raise SystemExit
 #endregion
