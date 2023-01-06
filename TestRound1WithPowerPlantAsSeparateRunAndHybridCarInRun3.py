@@ -1,4 +1,4 @@
-# LEGO type:standard slot:3
+# LEGO type:standard slot:4
 # This is the next version of the Round1 that we tried after TestRound1WithPowerPlantAsSeparateRun.py which was done after Round1FullRunWithFewerArms.py
 # This file was created because after doing TestRound1WithPowerPlantAsSeparateRun we realized that the bucket arm can do the hybrid car,
 # since now it does not have any units. This means that the going home for bringing the hybrid car, which is error prone can be avoided.
@@ -926,7 +926,7 @@ def _run4():
 
 def _run6():
     def _doSmartGrid():
-        angle = -85
+        angle = -90
         _turnToAngle(targetAngle = angle, speed = 30, slowTurnRatio = 0.7)
         gyroStraight(distance=6, speed = 35, backward = False, targetAngle = angle)
         gyroStraight(distance=8, speed = 35, backward = True, targetAngle = angle)
@@ -950,6 +950,12 @@ def _run6():
         _turnToAngle(targetAngle = angle, speed = 25, slowTurnRatio = 0.9)
         gyroStraight(distance=14, speed = straightSpeed, backward = True, targetAngle = angle)
 
+    # This is used for testing only.
+    def resetArmForTesting():
+        motorF.start(100)
+        wait_for_seconds(1.6)
+        motorF.stop()
+
     primeHub.motion_sensor.reset_yaw_angle()
     # Drive forward first. Drive at a slight angle to avoid hitting the power plant.
     gyroStraight(distance= 60, speed= 65, targetAngle= -5)
@@ -972,7 +978,7 @@ def _run6():
 
     # Turn towards the hydro-electric plant and then drop the water units. 
     # This also drops the energy units and the innovation project.
-    angle = 143
+    angle = 135
     _turnToAngle(targetAngle = angle, speed = 25, slowTurnRatio = 0.3)
 
     # Drop the water units    
@@ -980,8 +986,9 @@ def _run6():
     #moveArm(degrees = 2200, speed = -100, motor = motorF)
     gyroStraight(speed=20, distance=10, targetAngle=angle)
 
-    motorF.start(-100)
+    motorF.start(-70)
     flushForTime(speed=25, timeInSeconds=1)
+    motorF.start(-100)
     wait_for_seconds(1.3)
     motorF.stop()
     
@@ -992,7 +999,9 @@ def _run6():
     gyroStraight(distance=12, speed = 40, backward = True, targetAngle = angle)
 
     motorF.stop()    
-    _dorun6ToyFactory()
+    #_dorun6ToyFactory()
+    #resetArmForTesting()
+    
 
 #endregion Nami
 
@@ -1057,9 +1066,9 @@ def _run1():
         angle = 40
         gyroStraight(distance=2, speed = 40, backward = False, targetAngle = angle)
 
-        angle = 145
+        angle = 135
         _turnToAngle(targetAngle = angle, speed = 35, slowTurnRatio = 0.9)
-        gyroStraight(distance=60, speed = 100, backward = False, targetAngle = angle)
+        gyroStraight(distance=70, speed = 100, backward = False, targetAngle = angle)
 
         #angle = -70
         #_turnToAngle(targetAngle = angle, speed = 25, slowTurnRatio = 0.6)
@@ -1077,11 +1086,11 @@ def _run1():
 def _run3():
 
     def _doRechargablebattery():
-        straightSpeed = 50
+        straightSpeed = 55
         angle = 0
         correction=0
         #angle, correction = calculateReducedTargetAngleAndCorrection(angle, correction)
-        gyroStraight(distance=33, speed=straightSpeed,targetAngle=angle,backward=False)
+        gyroStraight(distance=35, speed=straightSpeed,targetAngle=angle,backward=False)
 
         angle = -40
         #angle, correction = calculateReducedTargetAngleAndCorrection(angle, correction)
@@ -1105,7 +1114,7 @@ def _run3():
         moveArm(degrees = 130, speed = -75, motor = motorF)
 
         # Backoff from the toy factory.
-        gyroStraight(distance=8,speed=straightSpeed,targetAngle=angle,backward=True)   
+        gyroStraight(distance=8,speed=45,targetAngle=angle,backward=True)   
 
         # Drop the bucket so we have less chance of snagging.
         moveArm(degrees = 120, speed = 50, motor = motorF)
@@ -1272,7 +1281,7 @@ def testSmartGridArm():
 
 print("Battery voltage: " + str(hub.battery.voltage())) 
 _initialize()
-doRunWithTiming(_run3)
+doRunWithTiming(_run4)
 #testSmartGridArm()
 #driverWithFewerArms()
 raise SystemExit
