@@ -1,4 +1,4 @@
-# LEGO type:standard slot:6
+# LEGO type:standard slot:0
 # This is the next version of the Round1 that we tried after TestRound1WithPowerPlantAsSeparateRun.py which was done after Round1FullRunWithFewerArms.py
 # This file was created because after doing TestRound1WithPowerPlantAsSeparateRun we realized that the bucket arm can do the hybrid car,
 # since now it does not have any units. This means that the going home for bringing the hybrid car, which is error prone can be avoided.
@@ -112,7 +112,7 @@ def driverWithFewerArms():
         if counter == 5:
             doRunWithTiming(_run5)
         if counter == 6:
-            doRunWithTiming(_run6)
+            doRunWithTiming(_run6WithBucketDropForPowerToX)
         counter = counter + 1
 
 #region Utilities
@@ -1391,10 +1391,10 @@ def resetArmForRun6Testing():
 print("Battery voltage: " + str(hub.battery.voltage())) 
 _initialize()
 #doRunWithTiming(_run6)
-doRunWithTiming(_run6WithBucketDropForPowerToX)
-resetArmForRun6Testing()
+#doRunWithTiming(_run6WithBucketDropForPowerToX)
+#resetArmForRun6Testing()
 #testSmartGridArm()
-#driverWithFewerArms()
+driverWithFewerArms()
 raise SystemExit
 #endregion
 
