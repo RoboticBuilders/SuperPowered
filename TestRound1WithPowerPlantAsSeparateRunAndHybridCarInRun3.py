@@ -1390,7 +1390,6 @@ def resetArmForRun6Testing():
 
 print("Battery voltage: " + str(hub.battery.voltage())) 
 _initialize()
-#doRunWithTiming(_run6)
 #doRunWithTiming(_run6WithBucketDropForPowerToX)
 #resetArmForRun6Testing()
 #testSmartGridArm()
