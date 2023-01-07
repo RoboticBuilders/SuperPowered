@@ -1,4 +1,4 @@
-# LEGO type:standard slot:1
+# LEGO type:standard slot:0
 # This is the next version of the Round1 that we tried after TestRound1WithPowerPlantAsSeparateRun.py which was done after Round1FullRunWithFewerArms.py
 # This file was created because after doing TestRound1WithPowerPlantAsSeparateRun we realized that the bucket arm can do the hybrid car,
 # since now it does not have any units. This means that the going home for bringing the hybrid car, which is error prone can be avoided.
