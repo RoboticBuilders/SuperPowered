@@ -1025,6 +1025,90 @@ def _run6():
     #_dorun6ToyFactory()
     resetArmForTesting()
 
+def _run6WithBucketDropForPowerToX():
+    def _doSmartGrid():
+        # Turn and move forward 
+        angle = -90
+        _turnToAngle(targetAngle = angle, speed = 30, slowTurnRatio = 0.7)
+        gyroStraight(distance=5, speed = 35, backward = False, targetAngle = angle)
+
+        # Bring down the abucket arm and keep it down till we back off.
+        motorD.start_at_power(-100)
+        gyroStraight(distance=6, speed = 35, backward = True, targetAngle = angle)
+        motorD.stop()
+
+        # Bring up the bucket arm before doing the water units.
+        motorD.start_at_power(100)
+        wait_for_seconds(0.1)
+        motorD.stop()
+
+    # This is used for testing only.
+    def resetArmForTesting():
+        # Bring up the water unit arm for the next run
+        motorF.start(100)
+        wait_for_seconds(2)
+        motorF.stop()
+
+        # Bring down the bucket arm for the next test
+        motorD.start_at_power(-100)
+        wait_for_seconds(0.1)
+        motorD.stop()
+
+    primeHub.motion_sensor.reset_yaw_angle()
+    # Drive forward first. Drive at a slight angle to avoid hitting the power plant.
+    gyroStraight(distance= 60, speed= 65, targetAngle= -5)
+    
+    # Turn slightly to catch the n-s line in front of the power plant
+    angle = -8
+    _turnToAngle(targetAngle=angle, speed=25)
+    if _driveTillLine(speed=55, distanceInCM=27, target_angle=angle, colorSensorToUse="Left", blackOrWhite="Black", slowSpeedRatio=0.9) == False:
+        logMessage("Run6:_run6 NOTE -----------> Missed Catching the n-s line in front of power plant", level=0)
+    
+    # Turn towards the power plant and then try to catch the black line running e-w line in front of the smart grid.
+    angle = -95
+    _turnToAngle(targetAngle = angle, speed = 25, slowTurnRatio = 0.9)
+
+    # Drive forward to drop off the enerfy units and innovation project
+    gyroStraight(distance= 15, speed= 50, targetAngle= angle)
+
+    # First bring up the buecket arm so we dont snag before the smart grid.
+    motorD.start_at_power(100)
+    wait_for_seconds(0.1)
+    motorD.stop()
+
+    if _driveTillLine(speed=50, distanceInCM=35, target_angle = angle, colorSensorToUse="Left", blackOrWhite="Black",slowSpeedRatio=0.6) == False:
+        logMessage("Run6:_run6 NOTE -----------> Missed Catching the e-w line in front of smart grid", level=0)
+
+    _doSmartGrid()
+
+    # Backoff from the smart grid some more.
+    # gyroStraight(distance=5, speed = 35, backward = True, targetAngle = angle)
+
+    # Turn towards the hydro-electric plant and then drop the water units.
+    # This also drops the energy units and the innovation project.
+    angle = 140
+    _turnToAngle(targetAngle = angle, speed = 25, slowTurnRatio = 0.3)
+
+    # Drop the water units    
+    gyroStraight(speed=20, distance=10, targetAngle=angle)
+
+    motorF.start(-70)
+    flushForTime(speed=25, timeInSeconds=1)
+    motorF.start(-100)
+    wait_for_seconds(1.5)
+    motorF.stop()
+    
+    # Start bringing up the arm
+    motorF.start_at_power(60)
+    
+    # Backoff to leave the water reservoir
+    gyroStraight(distance=12, speed = 40, backward = True, targetAngle = angle)
+
+    motorF.stop()    
+    #_dorun6ToyFactory()
+    resetArmForTesting()
+
+
 #endregion Nami
 
 #region Rishabh
@@ -1309,7 +1393,8 @@ def testSmartGridArm():
 print("Battery voltage: " + str(hub.battery.voltage())) 
 _initialize()
 #doRunWithTiming(_run6)
-testSmartGridArm()
+doRunWithTiming(_run6WithBucketDropForPowerToX)
+#testSmartGridArm()
 #driverWithFewerArms()
 raise SystemExit
 #endregion
