@@ -1042,18 +1042,6 @@ def _run6WithBucketDropForPowerToX():
         wait_for_seconds(0.1)
         motorD.stop()
 
-    # This is used for testing only.
-    def resetArmForTesting():
-        # Bring up the water unit arm for the next run
-        motorF.start(100)
-        wait_for_seconds(2)
-        motorF.stop()
-
-        # Bring down the bucket arm for the next test
-        motorD.start_at_power(-100)
-        wait_for_seconds(0.1)
-        motorD.stop()
-
     primeHub.motion_sensor.reset_yaw_angle()
     # Drive forward first. Drive at a slight angle to avoid hitting the power plant.
     gyroStraight(distance= 60, speed= 65, targetAngle= -5)
@@ -1099,15 +1087,13 @@ def _run6WithBucketDropForPowerToX():
     motorF.stop()
     
     # Start bringing up the arm
-    motorF.start_at_power(60)
+    #motorF.start_at_power(60)
     
     # Backoff to leave the water reservoir
-    gyroStraight(distance=12, speed = 40, backward = True, targetAngle = angle)
+    gyroStraight(distance=5, speed = 40, backward = True, targetAngle = angle)
 
-    motorF.stop()    
+    #motorF.stop()    
     #_dorun6ToyFactory()
-    resetArmForTesting()
-
 
 #endregion Nami
 
@@ -1389,11 +1375,24 @@ def testSmartGridArm():
     wait_for_seconds(0.2)
     motorD.stop()
 
+# This is used for testing only.
+def resetArmForRun6Testing():
+    # Bring up the water unit arm for the next run
+    motorF.start(100)
+    wait_for_seconds(2)
+    motorF.stop()
+
+    # Bring down the bucket arm for the next test
+    motorD.start_at_power(-100)
+    wait_for_seconds(0.1)
+    motorD.stop()
+
 
 print("Battery voltage: " + str(hub.battery.voltage())) 
 _initialize()
 #doRunWithTiming(_run6)
 doRunWithTiming(_run6WithBucketDropForPowerToX)
+resetArmForRun6Testing()
 #testSmartGridArm()
 #driverWithFewerArms()
 raise SystemExit
