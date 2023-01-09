@@ -1,4 +1,6 @@
 # LEGO type:standard slot:6
+# This is now the version of Round1 that we are committed to.
+#
 # This is the next version of the Round1 that we tried after TestRound1WithPowerPlantAsSeparateRun.py which was done after Round1FullRunWithFewerArms.py
 # This file was created because after doing TestRound1WithPowerPlantAsSeparateRun we realized that the bucket arm can do the hybrid car,
 # since now it does not have any units. This means that the going home for bringing the hybrid car, which is error prone can be avoided.
@@ -12,12 +14,11 @@
 #  
 # Run1 : TV, wind turbine, rechargeable (note: no hybrid car.)
 # Run2 : Power plant and go back to Right home.
-# Run3 : Drop off units in rechargeable, hybrid car (DONE with bucket arm), two water units (Like the Round1FullRunWithFewerArms we dont do the smart grid here.), 
+# Run3 : Drop off units in rechargeable, hybrid car (DONE with bucket arm), toy factory, two water units (Like the Round1FullRunWithFewerArms we dont do the smart grid here.), 
 #        one solar power unit and go to Left home. We are carrying the dinosaur. (Note we dont do the power plant here.)
 # Run4 : Small run to get the one water unit and the hydro-electric unit.
 # Run5 : No change (oil platform run)
-# Run6 : Smart grid, Water reservoir, power to X, toy factory
-
+# Run6 : Smart grid(done with a bucket arm), Water reservoir, power to X(done with a bucket arm), (Note no toy factory)
 from spike import PrimeHub, ColorSensor,  Motor, MotorPair
 from math import *
 import collections
