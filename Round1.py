@@ -1028,13 +1028,13 @@ def _run6():
 def _run6WithBucketDropForPowerToX():
     def _doSmartGrid():
         # Turn and move forward 
-        angle = -85
+        angle = -90
         _turnToAngle(targetAngle = angle, speed = 30, slowTurnRatio = 0.7)
-        gyroStraight(distance=5, speed = 35, backward = False, targetAngle = angle)
+        gyroStraight(distance=6, speed = 30, backward = False, targetAngle = angle)
 
         # Bring down the abucket arm and keep it down till we back off.
         motorD.start_at_power(100)
-        gyroStraight(distance=6, speed = 35, backward = True, targetAngle = angle)
+        gyroStraight(distance=4, speed = 30, backward = True, targetAngle = angle)
         motorD.stop()
 
         # Move forward slightly before picking up the arm
@@ -1067,9 +1067,9 @@ def _run6WithBucketDropForPowerToX():
     # Drive forward to drop off the enerfy units and innovation project
     gyroStraight(distance=15, speed= 50, targetAngle= angle)
 
-    # First bring up the buecket arm so we dont snag before the smart grid.
+    # First bring up the buecket arm so we can pull the smart grid
     motorD.start_at_power(-100)
-    wait_for_seconds(0.2)
+    wait_for_seconds(0.4)
     motorD.stop()
 
     if _driveTillLine(speed=50, distanceInCM=30, target_angle = angle, colorSensorToUse="Left", blackOrWhite="Black",slowSpeedRatio=0.6) == False:
@@ -1097,7 +1097,6 @@ def _run6WithBucketDropForPowerToX():
     
     #motorF.stop()    
     #_dorun6ToyFactory()
-    
 
 #endregion Nami
 
@@ -1359,40 +1358,30 @@ def _run2():
     gyroStraight(targetAngle = angle,  distance = 90, speed=100) 
 
 def testSmartGridArm():
-    # First bring up the buecket arm so we dont snag before the smart grid.
-    motorD.start_at_power(-100)
-    wait_for_seconds(0.2)
-    motorD.stop()
-
     angle = -5
-    _turnToAngle(targetAngle = angle, speed = 30, slowTurnRatio = 0.7)
-    if _driveTillLine(speed=45, distanceInCM=40, target_angle = angle, colorSensorToUse="Left", blackOrWhite="Black",slowSpeedRatio=0.4) == False:
+    if _driveTillLine(speed=30, distanceInCM=20, target_angle = angle, colorSensorToUse="Left", blackOrWhite="Black",slowSpeedRatio=0.6) == False:
         logMessage("Run6:_run6 NOTE -----------> Missed Catching the e-w line in front of smart grid", level=0)
 
+    motorD.start_at_power(-100)
+    wait_for_seconds(0.4)
+    motorD.stop()
+    
     # Turn and move forward 
     angle = 0
     _turnToAngle(targetAngle = angle, speed = 30, slowTurnRatio = 0.7)
-    gyroStraight(distance=5, speed = 35, backward = False, targetAngle = angle)
+    gyroStraight(distance=4, speed = 30, backward = False, targetAngle = angle)
 
     # Bring down the abucket arm and keep it down till we back off.
     motorD.start_at_power(100)
-    gyroStraight(distance=6, speed = 35, backward = True, targetAngle = angle)
+    gyroStraight(distance=5, speed = 30, backward = True, targetAngle = angle)
     motorD.stop()
 
+    # Move forward slightly before picking up the arm
     gyroStraight(distance=1, speed = 35, backward = False, targetAngle = angle)
     # Bring up the bucket arm before doing the water units.
     motorD.start_at_power(-100)
     wait_for_seconds(0.4)
     motorD.stop()
-
-    '''
-    wait_for_seconds(5)
-
-    # Bring up the bucket arm before doing the water units.
-    motorD.start_at_power(100)
-    wait_for_seconds(0.1)
-    motorD.stop()
-    '''
 
 
 # This is used for testing only.
@@ -1411,9 +1400,10 @@ def resetArmForRun6Testing():
 print("Battery voltage: " + str(hub.battery.voltage())) 
 _initialize()
 doRunWithTiming(_run6WithBucketDropForPowerToX)
-resetArmForRun6Testing()
+#resetArmForRun6Testing()
 #testSmartGridArm()
 #driverWithFewerArms()
+#resetArmForRun6Testing()
 raise SystemExit
 #endregion
 
