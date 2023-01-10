@@ -393,7 +393,40 @@ def _turnRobotWithSlowDown(angleInDegrees, targetAngle, speed, slowTurnRatio, di
         currentAngle = getyawangle()
 
     wheels.stop()
+
+def _turnRobotWithSlowDownAndStallDetection(angleInDegrees, targetAngle, speed, slowTurnRatio, direction, oneWheelTurn="None", expected_time=2):
+    """
+    Turns the Robot using a fast turn loop at speed and for the slowTurnRatio
+    turns the robot at SLOW_SPEED.
+
+    angleInDegrees -- Angle in degrees to turn. Can be +ve or -ve.
+    targetAngle -- targetAngle should be in the -179 to 179 space
+    speed -- Fast turn speed. 
+    slowTurnRatio -- This is the % of the turn that we want to slow turn.
+                     For example 0.2 means that 20% of the turn we want
+                     to slow turn.
+    oneWheelTurn -- Optional parameter with "None" as the default. Values can be "Left", "Right", "None".
+    """
+    SLOW_SPEED = 10
+    currentAngle = getyawangle()
     
+    # First we will do a fast turn at speed. The amount to turn is 
+    # controlled by the slowTurnRatio.
+    start_time = time.ticks_ms()      
+    _turnRobot(direction, speed, oneWheelTurn)
+    fastTurnDegrees =  (1 - slowTurnRatio) * abs(angleInDegrees)
+    while (abs(currentAngle - targetAngle) > fastTurnDegrees) and (current_time - start_time) > expected_time:
+        currentAngle = getyawangle()
+        current_time = time.ticks_ms()
+
+    # After the initial fast turn that is done using speed, we are going to do a 
+    # slow turn using the slow speed.
+    _turnRobot(direction, SLOW_SPEED, oneWheelTurn)
+    while (abs(currentAngle - targetAngle) > 1):
+        currentAngle = getyawangle()
+
+    wheels.stop()
+
 def _turnRobot(direction, speed, oneWheelTurn):
     if (oneWheelTurn == "None"):
         if (direction == "Right"):
@@ -935,7 +968,9 @@ def _run6():
         # Bring down the abucket arm and keep it down till we back off.
         # This is the part that does the smart grid.
         motorD.start_at_power(100)
-        gyroStraight(distance=4, speed = 30, backward = True, targetAngle = angle)
+
+        # Distance changed to 6 from 4 on 1/9/2023 because it was not backing up enough
+        gyroStraight(distance=6, speed = 30, backward = True, targetAngle = angle)
         motorD.stop()
 
         # Move forward slightly before picking up the arm
@@ -943,7 +978,7 @@ def _run6():
 
         # Bring up the bucket arm before doing the water units.
         motorD.start_at_power(-100)
-        wait_for_seconds(0.4)
+        wait_for_seconds(0.3)
         motorD.stop()
         
     primeHub.motion_sensor.reset_yaw_angle()
@@ -969,17 +1004,21 @@ def _run6():
     # First bring up the buecket arm so we can pull the smart grid
     # This will also drop off the innovation project and the enerfy units.
     motorD.start_at_power(-100)
-    wait_for_seconds(0.4)
+    wait_for_seconds(0.3)
     motorD.stop()
 
-    if _driveTillLine(speed=50, distanceInCM=30, target_angle = angle, colorSensorToUse="Left", blackOrWhite="Black",slowSpeedRatio=0.6) == False:
+    if _driveTillLine(speed=50, distanceInCM=35, target_angle = angle, colorSensorToUse="Left", blackOrWhite="Black",slowSpeedRatio=0.4) == False:
         logMessage("Run6:_run6 NOTE -----------> Missed Catching the e-w line in front of smart grid", level=0)
 
     # We use the bucket arm to do the smart grid.
     _doSmartGrid()
 
+    # Added 1/9/2023 to stop the robot from snagging on the Smart Grid
+    angle = -90
+    gyroStraight(speed = 25, distance = 4, backward = True, targetAngle = angle)
+
     # Backoff from the smart grid some more.
-    #gyroStraight(distance=5, speed = 35, backward = True, targetAngle = angle)
+    #gyroStraight(distance=2, speed = 25, backward = True, targetAngle = angle)
 
     # Align against the hydro-electric power plant.
     angle = 133
@@ -993,7 +1032,7 @@ def _run6():
     wait_for_seconds(1.5)
     motorF.stop()
     
-    # Backoff to leave the water reservoir
+    # Backoff to leave the water reservoir(This code was uncommented on 1/9/2023 to avoid the arm touching the units)
     gyroStraight(distance=10, speed = 40, backward = True, targetAngle = angle)
     
 #endregion Nami
@@ -1284,6 +1323,9 @@ def testSmartGridArm():
 
 # This is used for testing only.
 def resetArmForRun6Testing():
+    angle = 133
+    gyroStraight(distance=10, speed = 40, backward = True, targetAngle = angle)
+
     # Bring up the water unit arm for the next run
     motorF.start(100)
     wait_for_seconds(2.3)
@@ -1298,7 +1340,7 @@ def resetArmForRun6Testing():
 print("Battery voltage: " + str(hub.battery.voltage())) 
 _initialize()
 doRunWithTiming(_run6)
-#resetArmForRun6Testing()
+resetArmForRun6Testing()
 #testSmartGridArm()
 #driverWithFewerArms()
 #resetArmForRun6Testing()
