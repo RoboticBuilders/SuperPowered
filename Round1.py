@@ -1,4 +1,4 @@
-# LEGO type:standard slot:6
+# LEGO type:standard slot:4
 # This is now the version of Round1 that we are committed to.
 #
 # This is the next version of the Round1 that we tried after TestRound1WithPowerPlantAsSeparateRun.py which was done after Round1FullRunWithFewerArms.py
@@ -948,9 +948,9 @@ def _run4():
     #Go forward towards the hydrodam
     gyroStraight(distance = 27,speed = 50, targetAngle = angle)
     #Hit the black part of hydrodam
-    moveArm(degrees = 75, speed = 100, motor = motorF)
+    moveArm(degrees = 110, speed = 100, motor = motorF)
     #Move the arm back up so the energy unit can fall out
-    moveArm(degrees = 75, speed = -100, motor= motorF)
+    moveArm(degrees = 110, speed = -100, motor= motorF)
     # This is needed to let the energy unit fall out from hydrodam
     time.sleep_ms(500)
     #Move arm back down to bring the water unit and energy unit home
@@ -1339,8 +1339,8 @@ def resetArmForRun6Testing():
 
 print("Battery voltage: " + str(hub.battery.voltage())) 
 _initialize()
-doRunWithTiming(_run6)
-resetArmForRun6Testing()
+doRunWithTiming(_run4)
+#resetArmForRun6Testing()
 #testSmartGridArm()
 #driverWithFewerArms()
 #resetArmForRun6Testing()
