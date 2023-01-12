@@ -1,4 +1,4 @@
-# LEGO type:standard slot:4
+# LEGO type:standard slot:6
 # This is now the version of Round1 that we are committed to.
 #
 # This is the next version of the Round1 that we tried after TestRound1WithPowerPlantAsSeparateRun.py which was done after Round1FullRunWithFewerArms.py
@@ -85,7 +85,7 @@ BLACK_COLOR = 20
 WHITE_COLOR = 90
 
 def driverWithFewerArms():
-    counter = 6
+    counter = 1
     arm_change_end_time = 0
     arm_change_start_time = 0
     while True:
@@ -1341,7 +1341,7 @@ def resetArmForRun6Testing():
 
 print("Battery voltage: " + str(hub.battery.voltage())) 
 _initialize()
-doRunWithTiming(_run4)
+doRunWithTiming(_run6)
 #resetArmForRun6Testing()
 #testSmartGridArm()
 #driverWithFewerArms()
