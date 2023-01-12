@@ -1,4 +1,4 @@
-# LEGO type:standard slot:6
+# LEGO type:standard slot:2
 # This is now the version of Round1 that we are committed to.
 #
 # This is the next version of the Round1 that we tried after TestRound1WithPowerPlantAsSeparateRun.py which was done after Round1FullRunWithFewerArms.py
@@ -1265,7 +1265,7 @@ def _run3():
 def _run2():
     primeHub.motion_sensor.reset_yaw_angle()
     # Drive to power plant.
-    angle = 10
+    angle = 17
     correction = 0
     angle, correction = calculateReducedTargetAngleAndCorrection(angle, correction)
     _turnToAngle(targetAngle = angle, speed = 35, slowTurnRatio = 0.6, correction=correction)
@@ -1281,7 +1281,7 @@ def _run2():
     # Bring up the power plant. We do a two part attempt to open the power plant.
     # We try first to pick up the arm and then try again by going back a little.
     #moveArm(degrees = 150, speed = -75, motor = motorD)
-    gyroStraight(targetAngle = angle,  distance = 10, speed=25) 
+    gyroStraight(targetAngle = angle,  distance = 16, speed=25) 
     motorD.start_at_power(75)
     wait_for_seconds(0.2)
     motorD.stop()
@@ -1341,7 +1341,7 @@ def resetArmForRun6Testing():
 
 print("Battery voltage: " + str(hub.battery.voltage())) 
 _initialize()
-doRunWithTiming(_run6)
+doRunWithTiming(_run2)
 #resetArmForRun6Testing()
 #testSmartGridArm()
 #driverWithFewerArms()
