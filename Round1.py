@@ -1,4 +1,4 @@
-# LEGO type:standard slot:0
+# LEGO type:standard slot:2
 # This is now the version of Round1 that we are committed to.
 #
 # This is the next version of the Round1 that we tried after TestRound1WithPowerPlantAsSeparateRun.py which was done after Round1FullRunWithFewerArms.py
@@ -896,14 +896,20 @@ def activeOilPlatform():
     motorD.run_for_degrees(degrees=-1000, speed=100)
 
     
-    wheels.move(amount = 4, unit = "in", steering = 0, speed = -40)
+    #wheels.move(amount = 4, unit = "in", steering = 0, speed = -40)
+    wheels.move(amount = 6, unit = "in", steering = 0, speed = -40)
+
     # motorD.stop()
     #time.sleep(10)
 
 
 def goBackHomeFromOilPlatform():
-    _turnToAngle(30)
-    gyroStraight(distance=24*_CM_PER_INCH, speed=100, targetAngle=30, backward=True) # Back home doesnt require accuracy
+   # _turnToAngle(30)
+   # gyroStraight(distance=24*_CM_PER_INCH, speed=100, targetAngle=30, backward=True) # Back home doesnt require accuracy
+   
+    _turnToAngle(40)
+    gyroStraight(distance=24*_CM_PER_INCH, speed=100, targetAngle=40, backward=True) # Back home doesnt require accuracy
+
     # wheels.move(amount = 20, unit = "in", steering = 0, speed = -100) # Back home doesnt require accuracy
    #turnToAngle(30)
    #wheels.move(amount = 11, unit = "in", steering = 0, speed = -30) # Back home doesnt require accuracy
@@ -914,6 +920,19 @@ def scale(amt):
     out_min = -10
     out_max =  10
     return (amt - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
+
+
+def _run7():
+    primeHub.motion_sensor.reset_yaw_angle()
+    pullTruckGoStraight()
+
+
+def pullTruckGoStraight():
+    gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH * 10, speed=40)
+    motorF.run_for_degrees(degrees=-1000, speed=100)
+    # motorF.start(speed=-100)
+    # time.sleep(2)
+    wheels.move(amount = 14, unit = "in", steering = 0, speed = -30)
 
 #endregion Arisha
 #region Nami    
@@ -1344,7 +1363,7 @@ def resetArmForRun6Testing():
 
 print("Battery voltage: " + str(hub.battery.voltage())) 
 _initialize()
-#doRunWithTiming(_run2)
+doRunWithTiming(_run2)
 #resetArmForRun6Testing()
 #testSmartGridArm()
 driverWithFewerArms()
