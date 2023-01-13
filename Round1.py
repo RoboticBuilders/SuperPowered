@@ -1,4 +1,4 @@
-# LEGO type:standard slot:2
+# LEGO type:standard slot:0
 # This is now the version of Round1 that we are committed to.
 #
 # This is the next version of the Round1 that we tried after TestRound1WithPowerPlantAsSeparateRun.py which was done after Round1FullRunWithFewerArms.py
@@ -1167,7 +1167,7 @@ def _run3():
         moveArm(degrees = 130, speed = -75, motor = motorF)
 
         # Backoff from the toy factory.
-        gyroStraight(distance=8,speed=45,targetAngle=angle,backward=True)   
+        gyroStraight(distance=9,speed=45,targetAngle=angle,backward=True)   
 
         # Drop the bucket so we have less chance of snagging.
         moveArm(degrees = 120, speed = 50, motor = motorF)
@@ -1176,7 +1176,9 @@ def _run3():
         angle = -90
         # Intentionally doing a slow turn.
         _turnToAngle(targetAngle = angle, speed = 20, slowTurnRatio = 0.2)
-        if _driveTillLine(speed=35, distanceInCM=45, target_angle=angle, colorSensorToUse="Left", blackOrWhite="White", slowSpeedRatio=0.6) == False:
+           # Move a little ahead before drivtillline so we dont catch the black line on the rechargeble battery
+        gyroStraight(distance=5,speed=45,targetAngle=angle,backward=False)   
+        if _driveTillLine(speed=35, distanceInCM=40, target_angle=angle, colorSensorToUse="Left", blackOrWhite="White", slowSpeedRatio=0.6) == False:
             logMessage("Note --------------------> Missed line between hybrid car and toy factory", level=0)
 
         # Turn towards the hybrid car.
@@ -1207,7 +1209,7 @@ def _run3():
 
     def _gotoSmartGrid():
         straightSpeed = 60
-        angle=-110
+        angle=-105
         correction = 0
         angle, correction = calculateReducedTargetAngleAndCorrection(angle, correction)
         _turnToAngle(targetAngle = angle, speed = 25, slowTurnRatio = 0.6, correction=correction)
@@ -1222,7 +1224,7 @@ def _run3():
         #moveArm(degrees = 130, speed = -75, motor = motorF)
  
         # Turn towards the water reservoir to pick up the two water units
-        angle = -110
+        angle = -105
         correction=0
         angle, correction = calculateReducedTargetAngleAndCorrection(angle, correction)
         #_turnToAngle(targetAngle=angle, speed=25, slowTurnRatio=0.6, correction=correction)
@@ -1238,7 +1240,7 @@ def _run3():
 
     def _pickSolarFarmUnitwithFlushing():
          # Now go to solar farm to pick the energy unit
-        angle = 155
+        angle = 150
         _turnToAngle(targetAngle = angle, speed = 25)
         #gyroStraight(distance = 8, speed = 20, backward = True, targetAngle = angle)
         _driveBackwardTillLine(distance = 10, speed = 35, target_angle = angle, colorSensorToUse = "Right", blackOrWhite = "Black")
@@ -1287,6 +1289,7 @@ def _run2():
     angle = 0
     correction = 0
     gyroStraight(targetAngle = angle,  distance = 35, speed=60) 
+
     angle = 27
     correction = 0
     angle, correction = calculateReducedTargetAngleAndCorrection(angle, correction)
@@ -1363,7 +1366,7 @@ def resetArmForRun6Testing():
 
 print("Battery voltage: " + str(hub.battery.voltage())) 
 _initialize()
-doRunWithTiming(_run2)
+#doRunWithTiming(_run3)
 #resetArmForRun6Testing()
 #testSmartGridArm()
 driverWithFewerArms()
