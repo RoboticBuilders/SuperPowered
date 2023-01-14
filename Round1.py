@@ -1177,7 +1177,7 @@ def _run3():
         # Intentionally doing a slow turn.
         _turnToAngle(targetAngle = angle, speed = 20, slowTurnRatio = 0.2)
            # Move a little ahead before drivtillline so we dont catch the black line on the rechargeble battery
-        gyroStraight(distance=5,speed=45,targetAngle=angle,backward=False)   
+        gyroStraight(distance=6,speed=45,targetAngle=angle,backward=False)   
         if _driveTillLine(speed=35, distanceInCM=40, target_angle=angle, colorSensorToUse="Left", blackOrWhite="White", slowSpeedRatio=0.6) == False:
             logMessage("Note --------------------> Missed line between hybrid car and toy factory", level=0)
 
