@@ -1,4 +1,4 @@
-# LEGO type:standard slot:0
+# LEGO type:standard slot:3
 # This is now the version of Round1 that we are committed to.
 #
 # This is the next version of the Round1 that we tried after TestRound1WithPowerPlantAsSeparateRun.py which was done after Round1FullRunWithFewerArms.py
@@ -1176,8 +1176,11 @@ def _run3():
         angle = -90
         # Intentionally doing a slow turn.
         _turnToAngle(targetAngle = angle, speed = 20, slowTurnRatio = 0.2)
+
+        time.sleep(10)
+
            # Move a little ahead before drivtillline so we dont catch the black line on the rechargeble battery
-        gyroStraight(distance=6,speed=45,targetAngle=angle,backward=False)   
+        gyroStraight(distance=12,speed=45,targetAngle=angle,backward=False)   
         if _driveTillLine(speed=35, distanceInCM=40, target_angle=angle, colorSensorToUse="Left", blackOrWhite="White", slowSpeedRatio=0.6) == False:
             logMessage("Note --------------------> Missed line between hybrid car and toy factory", level=0)
 
@@ -1366,10 +1369,10 @@ def resetArmForRun6Testing():
 
 print("Battery voltage: " + str(hub.battery.voltage())) 
 _initialize()
-#doRunWithTiming(_run3)
+doRunWithTiming(_run3)
 #resetArmForRun6Testing()
 #testSmartGridArm()
-driverWithFewerArms()
+# driverWithFewerArms()
 #resetArmForRun6Testing()
 raise SystemExit
 #endregion
