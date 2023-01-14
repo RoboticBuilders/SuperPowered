@@ -1,4 +1,4 @@
-# LEGO type:standard slot:2
+# LEGO type:standard slot:3
 # This is now the version of Round1 that we are committed to.
 #
 # This is the next version of the Round1 that we tried after TestRound1WithPowerPlantAsSeparateRun.py which was done after Round1FullRunWithFewerArms.py
@@ -39,6 +39,7 @@ GLOBAL_LEVEL = 0
 ANYA_RUN_START_OFFSET_TO_MAT_WEST = 0
 TOTAL_DEGREES_TURNED = 0
 LAST_TURN_LEFT = False
+TOY_FACTORY_ANGLE_OFFSET = 135
 
 # Which Marvin is this.
 # Amogh: A
@@ -1250,6 +1251,147 @@ def _run3():
         
         # flush with the wall, Reset the gyro after the flush.
         flushForTime(speed=-30, timeInSeconds=0.5)
+        #primeHub.motion_sensor.reset_yaw_angle()        
+
+        # Now find the line in front of the smart grid.        
+        #angle = 0
+        if _driveTillLine(speed = 35, distanceInCM = 15, target_angle = angle, colorSensorToUse = "Left", blackOrWhite = "Black") == False:
+            logMessage("Note --------------------> Missed e-w line in front of solar farm grid", level=0)
+           
+        #gyroStraight(distance = 4, speed = 40, backward = False, targetAngle = angle)
+
+    def _goHome():
+        # Go Home
+        angle = -100
+        correction = 0
+        angle, correction = calculateReducedTargetAngleAndCorrection(angle, correction)
+        _turnToAngle(targetAngle = angle, speed = 35, slowTurnRatio = 0.6, correction=correction)
+        gyroStraight(distance=25, speed = 80, backward = False, targetAngle = angle, multiplier=1.0, gradualAcceleration=False, slowDown=False)
+
+        angle = -145
+        angle, correction = calculateReducedTargetAngleAndCorrection(angle, correction)
+        _turnToAngle(targetAngle = angle, speed = 35, slowTurnRatio = 0.6, correction=correction)
+        gyroStraight(distance=80, speed = 100, backward = False, targetAngle = angle, multiplier=1.0, gradualAcceleration=False, slowDown=False)
+    
+    primeHub.motion_sensor.reset_yaw_angle()
+    _doRechargablebattery()
+    _doHybridCar()
+    _gotoSmartGrid()
+    _picktwoWaterUnits()
+    _pickSolarFarmUnitwithFlushing()
+    _goHome()
+
+
+
+
+
+def _run3withGyroResetAtToyFactory():
+
+    def _doRechargablebattery():
+        straightSpeed = 55
+        angle = 0
+        correction=0
+        #angle, correction = calculateReducedTargetAngleAndCorrection(angle, correction)
+        gyroStraight(distance=35, speed=straightSpeed,targetAngle=angle,backward=False)
+
+        angle = -40
+        #angle, correction = calculateReducedTargetAngleAndCorrection(angle, correction)
+        _turnToAngle(targetAngle = angle, speed = 25, slowTurnRatio = 0.9)
+        gyroStraight(distance=40, speed=straightSpeed,targetAngle=angle,backward=False)
+
+        # Flush with the toy factory using the bucket.
+        angle = -140
+        #angle, correction = calculateReducedTargetAngleAndCorrection(angle, correction)
+        _turnToAngle(targetAngle = angle, speed = 25, slowTurnRatio = 0.9)
+        gyroStraight(distance=7, speed=50,targetAngle=angle,backward=False)
+
+        # This distance used to be 10, made it 14 if we are using a front attachment
+        # tyo drop off units at the toy factory as part of this run.
+        gyroStraight(distance=14, speed=30,targetAngle=angle,backward=False)
+
+        #Reset the gyro as we are flushed.
+        primeHub.motion_sensor.reset_yaw_angle()
+        angle = 0
+        # Backoff a little bit before opening the buicket.
+        gyroStraight(distance=3, speed=45,targetAngle=angle,backward=True)
+
+        # Drop off the units by lifting the bucket. 
+        moveArm(degrees = 130, speed = -75, motor = motorF)
+
+        # Backoff from the toy factory.
+        gyroStraight(distance=10,speed=45,targetAngle=angle,backward=True)   
+
+        # Drop the bucket so we have less chance of snagging.
+        moveArm(degrees = 120, speed = 50, motor = motorF)
+
+    def _doHybridCar():
+        angle = -90 + TOY_FACTORY_ANGLE_OFFSET
+        # Intentionally doing a slow turn.
+        _turnToAngle(targetAngle = angle, speed = 20, slowTurnRatio = 0.2)
+        gyroStraight(distance=12,speed=35,targetAngle=angle,backward=False)   
+        if _driveTillLine(speed=35, distanceInCM=15, target_angle=angle, colorSensorToUse="Left", blackOrWhite="White", slowSpeedRatio=0.6) == False:
+            logMessage("Note --------------------> Missed line between hybrid car and toy factory", level=0)
+
+        # Turn towards the hybrid car.
+        angle = -42 + TOY_FACTORY_ANGLE_OFFSET
+        _turnToAngle(targetAngle = angle, speed = 20, slowTurnRatio = 0.2)
+        gyroStraight(distance=12, speed = 35, backward = False, targetAngle = angle)
+
+        # Turn towards the hybrid car before lifting the arm.
+        angle = -38 + TOY_FACTORY_ANGLE_OFFSET
+        _turnToAngle(targetAngle = angle, speed = 20, slowTurnRatio = 0.9)
+        
+        # Lift up the hybrid car using the bucket arm.
+        moveArm(degrees = 130, speed = -50, motor = motorF)
+        
+        # wait a little and drop the arm to allow the hybrid car to roll off.
+        time.sleep(0.1)
+        moveArm(degrees = 130, speed = 75, motor = motorF)
+
+        # Turn back before backing off.
+        angle = -43 + TOY_FACTORY_ANGLE_OFFSET
+        _turnToAngle(targetAngle = angle, speed = 20, slowTurnRatio = 0.9)
+
+        # Backoff from the hybrid car.
+        angle = -90 + TOY_FACTORY_ANGLE_OFFSET
+        if _driveBackwardTillLine(distance=15, speed=30,target_angle=angle, colorSensorToUse="Right", blackOrWhite="Black", gain=2) == False:
+            logMessage("Note --------------------> Missed backward line catch after hybrid car", level=0)
+        gyroStraight(distance=5, speed = 30, backward = True, targetAngle = angle)
+
+    def _gotoSmartGrid():
+        straightSpeed = 40
+        angle=-97 + TOY_FACTORY_ANGLE_OFFSET
+        _turnToAngle(targetAngle = angle, speed = 25, slowTurnRatio = 0.4)
+        gyroStraight(distance=25,speed=straightSpeed,targetAngle=angle,backward=False)
+        motorF.start_at_power(-50)
+        if _driveTillLine(speed=45, distanceInCM=15, target_angle=angle, colorSensorToUse="Left", blackOrWhite="Black",slowSpeedRatio=1) == False:
+            logMessage("Note --------------------> Missed n-s line in front of smart grid", level=0)
+       
+    def _picktwoWaterUnits():
+        # Pick up the bucket arm to be able to pick up the water units.
+        #moveArm(degrees = 130, speed = -75, motor = motorF)
+ 
+        # Turn towards the water reservoir to pick up the two water units
+        angle = -97 + TOY_FACTORY_ANGLE_OFFSET
+        gyroStraight(distance=18, speed = 30, backward = False, targetAngle = angle)
+        motorF.stop()
+        
+        # Drop the arm to get the water units.
+        moveArm(degrees = 150, speed = 50, motor = motorF)
+        gyroStraight(distance=8, speed = 45, backward = True, targetAngle = angle)
+
+    def _pickSolarFarmUnitwithFlushing():
+         # Now go to solar farm to pick the energy unit
+        angle = -90
+        _turnToAngle(targetAngle = angle, speed = 25)
+        _driveBackwardTillLine(distance = 10, speed = 35, target_angle = angle, colorSensorToUse = "Right", blackOrWhite = "Black")
+
+        # Collect the solar farm unit
+        angle = -45
+        _turnToAngle(targetAngle = angle, speed = 25)
+        
+        # flush with the wall, Reset the gyro after the flush.
+        flushForTime(speed=-30, timeInSeconds=1)
         primeHub.motion_sensor.reset_yaw_angle()        
 
         # Now find the line in front of the smart grid.        
@@ -1261,16 +1403,13 @@ def _run3():
 
     def _goHome():
         # Go Home
-        angle = 80
-        correction = 0
-        angle, correction = calculateReducedTargetAngleAndCorrection(angle, correction)
-        _turnToAngle(targetAngle = angle, speed = 35, slowTurnRatio = 0.6, correction=correction)
+        angle = 30
+        _turnToAngle(targetAngle = angle, speed = 35, slowTurnRatio = 0.6)
         gyroStraight(distance=25, speed = 80, backward = False, targetAngle = angle, multiplier=1.0, gradualAcceleration=False, slowDown=False)
 
-        angle = 35
-        angle, correction = calculateReducedTargetAngleAndCorrection(angle, correction)
-        _turnToAngle(targetAngle = angle, speed = 35, slowTurnRatio = 0.6, correction=correction)
-        gyroStraight(distance=80, speed = 100, backward = False, targetAngle = angle, multiplier=1.0, gradualAcceleration=False, slowDown=False)
+        angle = 0
+        _turnToAngle(targetAngle = angle, speed = 35, slowTurnRatio = 0.6)
+        gyroStraight(distance=70, speed = 100, backward = False, targetAngle = angle, multiplier=1.0, gradualAcceleration=False, slowDown=False)
     
     primeHub.motion_sensor.reset_yaw_angle()
     _doRechargablebattery()
@@ -1363,10 +1502,10 @@ def resetArmForRun6Testing():
 
 print("Battery voltage: " + str(hub.battery.voltage())) 
 _initialize()
-doRunWithTiming(_run2)
+doRunWithTiming(_run3withGyroResetAtToyFactory)
 #resetArmForRun6Testing()
 #testSmartGridArm()
-driverWithFewerArms()
+#driverWithFewerArms()
 #resetArmForRun6Testing()
 raise SystemExit
 #endregion
