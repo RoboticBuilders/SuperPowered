@@ -1,4 +1,4 @@
-# LEGO type:standard slot:2
+# LEGO type:standard slot:3
 # This is now the version of Round1 that we are committed to.
 #
 # This is the next version of the Round1 that we tried after TestRound1WithPowerPlantAsSeparateRun.py which was done after Round1FullRunWithFewerArms.py
@@ -1368,7 +1368,7 @@ def _run3withGyroResetAtToyFactory():
         angle=-97 + TOY_FACTORY_ANGLE_OFFSET
         _turnToAngle(targetAngle = angle, speed = 25, slowTurnRatio = 0.4)
         gyroStraight(distance=25,speed=straightSpeed,targetAngle=angle,backward=False)
-        motorF.start_at_power(-50)
+        motorF.start_at_power(-55)
         if _driveTillLine(speed=45, distanceInCM=15, target_angle=angle, colorSensorToUse="Left", blackOrWhite="Black",slowSpeedRatio=1) == False:
             logMessage("Note --------------------> Missed n-s line in front of smart grid", level=0)
        
@@ -1382,8 +1382,11 @@ def _run3withGyroResetAtToyFactory():
         motorF.stop()
         
         # Drop the arm to get the water units.
+       
         moveArm(degrees = 150, speed = 50, motor = motorF)
+        motorF.start_at_power(50)
         gyroStraight(distance=8, speed = 45, backward = True, targetAngle = angle)
+        motorF.stop()
 
     def _pickSolarFarmUnitwithFlushing():
          # Now go to solar farm to pick the energy unit
@@ -1397,10 +1400,10 @@ def _run3withGyroResetAtToyFactory():
         
         # flush with the wall, Reset the gyro after the flush.
         flushForTime(speed=-30, timeInSeconds=1)
-        primeHub.motion_sensor.reset_yaw_angle()        
+        #primeHub.motion_sensor.reset_yaw_angle()        
 
         # Now find the line in front of the smart grid.        
-        angle = 0
+        #angle = 0
         if _driveTillLine(speed = 35, distanceInCM = 15, target_angle = angle, colorSensorToUse = "Left", blackOrWhite = "Black") == False:
             logMessage("Note --------------------> Missed e-w line in front of solar farm grid", level=0)
            
@@ -1508,7 +1511,7 @@ def resetArmForRun6Testing():
 
 print("Battery voltage: " + str(hub.battery.voltage())) 
 _initialize()
-doRunWithTiming(_run2)
+doRunWithTiming(_run3withGyroResetAtToyFactory)
 #resetArmForRun6Testing()
 #testSmartGridArm()
 driverWithFewerArms()
