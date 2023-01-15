@@ -602,15 +602,17 @@ def findAndShowAllPaths():
     powerToX = Point(98, 54)
     windTurbine = Point(175, 90)
     RechargeableBattery = Point(149, 70)
+    hydroDam = Point(56, 49)
 
     missions = readMissionFile()
     actions = []
     coordinates = []
-    run1 = [home2, TV, windTurbine, HybridCar, RechargeableBattery, home2]
-    run2 = [home2, powerplant, home1]
-    run3 = [home1, smartgrid, solarplant, home1]
-    run4 = [home1, energyStorage, home1]
-    run6 = [home1, waterReservoir, toyfactory]
+    run1 = [home2, TV, windTurbine, RechargeableBattery, home2]
+    run2 = [home2, powerplant, home2]
+    run3 = [home2, RechargeableBattery, HybridCar, waterReservoir, solarplant, home1]
+    run4 = [home1, hydroDam, home1]
+    run5 = [home1, energyStorage, home1]
+    run6 = [home1, smartgrid, waterReservoir]
     justForFun = [home2, TV, windTurbine, HybridCar, RechargeableBattery, smartgrid, solarplant, waterReservoir, home1,
                 powerplant, powerToX, toyfactory, home2]
     points = run3
@@ -621,19 +623,30 @@ def findAndShowAllPaths():
             "run2": (run2, "blue", "Run 2"), 
             "run3": (run3, "green", "Run 3"), 
             "run4": (run4, "brown", "Run 4"), 
+            "run5": (run5, "black", "Run 5"),
             "run6": (run6, "black", "Run 6")
             }
     print("------------------------------")
     print("Printing code now, copy this code to edit and run robot.")
     print("------------------------------")
 
-    run = runs.get("run3")
+    # run = runs.get("run1")
+    # findPaths(points=run[0], color=run[1], runName=run[2])
+    run = runs.get("run2")
     findPaths(points=run[0], color=run[1], runName=run[2])
-    '''
-    for run in runs:
-        findPaths(run[0], run[1], run[2])
-        sleep(2)clear
-    '''
+    # run = runs.get("run3")
+    # findPaths(points=run[0], color=run[1], runName=run[2])
+    # run = runs.get("run4")
+    # findPaths(points=run[0], color=run[1], runName=run[2])
+    # run = runs.get("run5")
+    # findPaths(points=run[0], color=run[1], runName=run[2])
+    # run = runs.get("run6")
+    # findPaths(points=run[0], color=run[1], runName=run[2])
+    
+    # for run in runs:
+    #     findPaths(run[0], run[1], run[2])
+    #     sleep(2)
+    
 initializeGraphics()
 
 def repeatlyShowThePaths():
