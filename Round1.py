@@ -880,7 +880,11 @@ def getToOilPlatform_v2Point2():
 
     _turnToAngle(targetAngle=-1, oneWheelTurn="Right", speed=40)
     #time.sleep(5)
-    gyroStraight(distance=_CM_PER_INCH*11.5, speed=30, targetAngle=-2) # was 10.5 ####
+    
+    # On 1/16/2022
+    # Speed was 30 reduced to 25, targetAngle was -2 , changed to -1 to be
+    # Consistent with the _tunrToangle.
+    gyroStraight(distance=_CM_PER_INCH*11.5, speed=25, targetAngle=-1) # was 10.5 ####
     #time.sleep(10)
     #motorD.start(speed=-30)
     # gyroStraight(distance=_CM_PER_INCH*9.5, speed=30, targetAngle=0) # was 10.5 ####
