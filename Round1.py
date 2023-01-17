@@ -1,4 +1,4 @@
-# LEGO type:standard slot:3
+# LEGO type:standard slot:6
 # This is now the version of Round1 that we are committed to.
 #
 # This is the next version of the Round1 that we tried after TestRound1WithPowerPlantAsSeparateRun.py which was done after Round1FullRunWithFewerArms.py
@@ -86,7 +86,7 @@ BLACK_COLOR = 20
 WHITE_COLOR = 90
 
 def driverWithFewerArms():
-    counter = 1
+    counter = 5
     arm_change_end_time = 0
     arm_change_start_time = 0
     while True:
@@ -1137,7 +1137,7 @@ def _run1():
     _goHome()
 
 #endregion
-def _run3():
+def _run3old():
 
     def _doRechargablebattery():
         straightSpeed = 55
@@ -1290,7 +1290,7 @@ def _run3():
 
 
 
-def _run3withGyroResetAtToyFactory():
+def _run3():
 
     def _doRechargablebattery():
         straightSpeed = 55
@@ -1511,10 +1511,10 @@ def resetArmForRun6Testing():
 
 print("Battery voltage: " + str(hub.battery.voltage())) 
 _initialize()
-doRunWithTiming(_run3withGyroResetAtToyFactory)
+doRunWithTiming(_run6)
 #resetArmForRun6Testing()
 #testSmartGridArm()
-driverWithFewerArms()
+#driverWithFewerArms()
 #resetArmForRun6Testing()
 raise SystemExit
 #endregion
