@@ -613,12 +613,6 @@ def findAndShowAllPaths():
     run4 = [home1, hydroDam, home1]
     run5 = [home1, energyStorage, home1]
     run6 = [home1, smartgrid, waterReservoir]
-    run1 = [home2, TV, windTurbine, RechargeableBattery, home2]
-    run2 = [home2, powerplant, home2]
-    run3 = [home2, RechargeableBattery, HybridCar, waterReservoir, solarplant, home1]
-    run4 = [home1, hydroDam, home1]
-    run5 = [home1, energyStorage, home1]
-    run6 = [home1, smartgrid, waterReservoir]
     justForFun = [home2, TV, windTurbine, HybridCar, RechargeableBattery, smartgrid, solarplant, waterReservoir, home1,
                 powerplant, powerToX, toyfactory, home2]
     points = run3
