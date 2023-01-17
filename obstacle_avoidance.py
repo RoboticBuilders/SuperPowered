@@ -602,11 +602,17 @@ def findAndShowAllPaths():
     powerToX = Point(98, 54)
     windTurbine = Point(175, 90)
     RechargeableBattery = Point(149, 70)
-    hydroDam = Point(49, 54)
+    hydroDam = Point(56, 49)
 
     missions = readMissionFile()
     actions = []
     coordinates = []
+    run1 = [home2, TV, windTurbine, RechargeableBattery, home2]
+    run2 = [home2, powerplant, home2]
+    run3 = [home2, RechargeableBattery, HybridCar, waterReservoir, solarplant, home1]
+    run4 = [home1, hydroDam, home1]
+    run5 = [home1, energyStorage, home1]
+    run6 = [home1, smartgrid, waterReservoir]
     run1 = [home2, TV, windTurbine, RechargeableBattery, home2]
     run2 = [home2, powerplant, home2]
     run3 = [home2, RechargeableBattery, HybridCar, waterReservoir, solarplant, home1]

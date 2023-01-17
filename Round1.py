@@ -817,6 +817,11 @@ def isGyroGood():
     
     return True
    
+def _testGyroBeforeRobotGame():
+    _turnToAngle(45)
+    _turnToAngle(0)
+    _turnToAngle(-45)
+    _turnToAngle(0)
 
 def isBatteryGood():
     
@@ -1512,6 +1517,8 @@ def resetArmForRun6Testing():
 print("Battery voltage: " + str(hub.battery.voltage())) 
 _initialize()
 doRunWithTiming(_run6)
+# doRunWithTiming(_run2)
+# doRunWithTiming(_testGyroBeforeRobotGame)
 #resetArmForRun6Testing()
 #testSmartGridArm()
 #driverWithFewerArms()
