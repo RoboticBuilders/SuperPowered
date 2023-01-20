@@ -86,7 +86,7 @@ BLACK_COLOR = 20
 WHITE_COLOR = 90
 
 def driverWithFewerArms():
-    counter = 5
+    counter = 6
     arm_change_end_time = 0
     arm_change_start_time = 0
     while True:
@@ -1520,12 +1520,12 @@ def resetArmForRun6Testing():
 
 print("Battery voltage: " + str(hub.battery.voltage())) 
 _initialize()
-doRunWithTiming(_run6)
+#doRunWithTiming(_run6)
 # doRunWithTiming(_run2)
 # doRunWithTiming(_testGyroBeforeRobotGame)
 #resetArmForRun6Testing()
 #testSmartGridArm()
-#driverWithFewerArms()
+driverWithFewerArms()
 #resetArmForRun6Testing()
 raise SystemExit
 #endregion
