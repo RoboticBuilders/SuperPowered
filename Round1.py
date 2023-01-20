@@ -1,4 +1,4 @@
-# LEGO type:standard slot:6
+# LEGO type:standard slot:5
 # This is now the version of Round1 that we are committed to.
 #
 # This is the next version of the Round1 that we tried after TestRound1WithPowerPlantAsSeparateRun.py which was done after Round1FullRunWithFewerArms.py
@@ -907,7 +907,8 @@ def activeOilPlatform():
 
     
     #wheels.move(amount = 4, unit = "in", steering = 0, speed = -40)
-    wheels.move(amount = 6, unit = "in", steering = 0, speed = -40)
+    #was -40 and changed it to -30
+    wheels.move(amount = 6, unit = "in", steering = 0, speed = -30)
 
     # motorD.stop()
     #time.sleep(10)
@@ -1520,7 +1521,7 @@ def resetArmForRun6Testing():
 
 print("Battery voltage: " + str(hub.battery.voltage())) 
 _initialize()
-#doRunWithTiming(_run6)
+doRunWithTiming(_run6)
 # doRunWithTiming(_run2)
 # doRunWithTiming(_testGyroBeforeRobotGame)
 #resetArmForRun6Testing()
