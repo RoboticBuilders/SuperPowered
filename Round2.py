@@ -1400,7 +1400,9 @@ def _run3():
 
     def _pickSolarFarmUnitwithFlushing():
         # Now go to solar farm to pick the energy unit
-        angle = -90
+        # 1/20/2022
+        # Round2.py has this angle at -83 instead of -90.
+        angle = -83
         _turnToAngle(targetAngle = angle, speed = 25)
         _driveBackwardTillLine(distance = 10, speed = 35, target_angle = angle, colorSensorToUse = "Right", blackOrWhite = "Black")
 
@@ -1409,7 +1411,9 @@ def _run3():
         _turnToAngle(targetAngle = angle, speed = 25)
         
         # flush with the wall, Reset the gyro after the flush.
-        flushForTime(speed=-30, timeInSeconds=1)
+        # 1/20/2022
+        # Round2.py has the timeInSeconds at 1.5 instead of 1
+        flushForTime(speed=-30, timeInSeconds=1.5)
         #primeHub.motion_sensor.reset_yaw_angle()        
 
         # Now find the line in front of the smart grid.        
@@ -1423,7 +1427,10 @@ def _run3():
         # Go Home
         angle = 30
         _turnToAngle(targetAngle = angle, speed = 35, slowTurnRatio = 0.6)
-        gyroStraight(distance=25, speed = 80, backward = False, targetAngle = angle, multiplier=1.0, gradualAcceleration=False, slowDown=False)
+
+        # 1/20/2022
+        # Round2.py has this distance at 28 instead of 25.
+        gyroStraight(distance=28, speed = 80, backward = False, targetAngle = angle, multiplier=1.0, gradualAcceleration=False, slowDown=False)
 
         angle = 0
         _turnToAngle(targetAngle = angle, speed = 35, slowTurnRatio = 0.6)

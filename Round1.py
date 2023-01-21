@@ -1400,13 +1400,6 @@ def _run3():
 
     def _pickSolarFarmUnitwithFlushing():
         # Now go to solar farm to pick the energy unit
-        #
-        # NOTE NOTE NOTE
-        # This was -90 just before the semi-finals. Changed it right
-        # before to -80 to pick up the solar farm unit. 
-        # The risk with this is it might get snagged in the smart grid
-        # If we see that, then change the angle to -90 again.
-        #
         angle = -90
         _turnToAngle(targetAngle = angle, speed = 25)
         _driveBackwardTillLine(distance = 10, speed = 35, target_angle = angle, colorSensorToUse = "Right", blackOrWhite = "Black")
