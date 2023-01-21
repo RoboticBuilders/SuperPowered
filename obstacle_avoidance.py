@@ -2,9 +2,9 @@ import csv, math
 from time import *
 from turtle import Turtle, Screen
 
-#screen = Screen()
-#turtle = Turtle()
-#screen2 = Screen()
+screen = Screen()
+turtle = Turtle()
+screen2 = Screen()
 
 def initializeGraphics():
     
@@ -593,7 +593,7 @@ def findPaths(points, color="blue", runName="Run6"):
         print("    " + action)
 
     # Draw the path that the robot will take using Turtle Graphics 
-    #drawPath(coordinates, color, runName)
+    drawPath(coordinates, color, runName)
 
 def findAndShowAllPaths():
     home2 = Point(190, 20)
@@ -633,7 +633,7 @@ def findAndShowAllPaths():
             "run3": (run3, "green", "Run3"), 
             "run4": (run4, "brown", "Run4"),
             "run5": (run5, "pink", "Run5"),
-            "run6": (run6, "black", "Run6")
+            "run6": (run6, "blue", "Run6")
             }
     print("------------------------------")
     print("Printing code now, copy this code to edit and run robot.")
@@ -646,7 +646,7 @@ def findAndShowAllPaths():
         findPaths(run[0], run[1], run[2])
         sleep(2)clear
     '''
-#initializeGraphics()
+initializeGraphics()
 
 def repeatlyShowThePaths():
     while(True):
@@ -656,17 +656,17 @@ def repeatlyShowThePaths():
         turtle.pen(fillcolor="black", pencolor="blue", pensize=5)
 
 #repeatlyShowThePaths()
-#findAndShowAllPaths()
-#screen.mainloop()
+findAndShowAllPaths()
+screen.mainloop()
 
 # Inputs for Run6
 #         (Home1)     (Smart Grid)   (Water Reservoir)
-run6 = [Point(20,10), Point(97, 94), Point(80, 64)]
+#run6 = [Point(20,10), Point(97, 94), Point(80, 64)]
 
 # Call PathFinder to create run6 code.
-findPaths(run6)
+#findPaths(run6)
 
-print("\n\n")
+#print("\n\n")
 
 
 
