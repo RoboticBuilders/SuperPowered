@@ -1,4 +1,4 @@
-# LEGO type:standard slot:3
+# LEGO type:standard slot:0
 # This is now the version of Round1 that we are committed to.
 #
 # This is the next version of the Round1 that we tried after TestRound1WithPowerPlantAsSeparateRun.py which was done after Round1FullRunWithFewerArms.py
@@ -1528,9 +1528,9 @@ def resetArmForRun6Testing():
 
 print("Battery voltage: " + str(hub.battery.voltage())) 
 _initialize()
-doRunWithTiming(_run3)
+#doRunWithTiming(_run6)
 #doRunWithTiming(_testGyroBeforeRobotGame)
-#driverWithFewerArms()
+driverWithFewerArms()
 raise SystemExit
 #endregion
 
