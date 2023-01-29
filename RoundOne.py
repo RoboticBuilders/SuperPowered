@@ -1047,8 +1047,9 @@ def _run6():
     _doSmartGrid()
 
     # Added 1/9/2023 to stop the robot from snagging on the Smart Grid
+    # changed distance on 1/28/2023 from 4 to 3.
     angle = -90
-    gyroStraight(speed = 25, distance = 4, backward = True, targetAngle = angle)
+    gyroStraight(speed = 25, distance = 3, backward = True, targetAngle = angle)
 
     # Backoff from the smart grid some more.
     #gyroStraight(distance=2, speed = 25, backward = True, targetAngle = angle)
