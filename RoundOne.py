@@ -1,4 +1,4 @@
-# LEGO type:standard slot:0
+# LEGO type:standard slot:5
 # This is now the version of Round1 that we are committed to.
 #
 # This is the next version of the Round1 that we tried after TestRound1WithPowerPlantAsSeparateRun.py which was done after Round1FullRunWithFewerArms.py
@@ -86,7 +86,7 @@ BLACK_COLOR = 20
 WHITE_COLOR = 90
 
 def driverWithFewerArms():
-    counter = 1
+    counter = 5
     arm_change_end_time = 0
     arm_change_start_time = 0
     while True:
@@ -1002,7 +1002,7 @@ def _run6():
         motorD.start_at_power(100)
 
         # Distance changed to 6 from 4 on 1/9/2023 because it was not backing up enough
-        gyroStraight(distance=6, speed = 30, backward = True, targetAngle = angle)
+        gyroStraight(distance=7, speed = 30, backward = True, targetAngle = angle)
         motorD.stop()
 
         # Move forward slightly before picking up the arm
