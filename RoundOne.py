@@ -876,6 +876,7 @@ def getToOilPlatform_v2Point2():
     # time.sleep(5)
     gyroStraight(distance=_CM_PER_INCH*3, speed=60, targetAngle=45) #was 90
     _driveTillLine(speed = 30, distanceInCM = _CM_PER_INCH*6, target_angle = 45, blackOrWhite="White") # was 12 inches ####
+    gyroStraight(distance = 1, speed  = 25, targetAngle = 45)
     #time.sleep(5)
 
     _turnToAngle(targetAngle=-1, oneWheelTurn="Right", speed=40)
