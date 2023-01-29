@@ -655,7 +655,7 @@ def repeatlyShowThePaths():
         screen.reset()
         turtle.pen(fillcolor="black", pencolor="blue", pensize=5)
 
-#repeatlyShowThePaths()
+#repeatlyShowThePaths(
 findAndShowAllPaths()
 screen.mainloop()
 
