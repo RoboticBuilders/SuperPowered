@@ -1,7 +1,21 @@
 #include <Stepper.h>
 #include <LiquidCrystal.h>
+#include <SD.h>
+#include <SPI.h>
+
+
+
+//for RTC
+#include "RTClib.h"
+RTC_DS3231 rtc;
+char daysOfTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
 
 #define ANALOG_IN_VOLTAGE_PIN A0
+
+//Sd card variables
+int CS_PIN = 10;
+File file;
+
 
 // adc voltage
 float adc_voltage = 0.0;
@@ -23,10 +37,10 @@ int adc_value = 0;
 // LCD Pins
 const int rs = 7;
 const int en = 8;
-const int d4 = 9;
-const int d5 = 10;
-const int d6 = 11;
-const int d7 = 12;
+const int d4 = 5;
+const int d5 = 4;
+const int d6 = 3;
+const int d7 = 2;
 
 // LCD
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
@@ -160,35 +174,144 @@ Stepper stepper(STEPS_PER_REV, 2, 3, 4, 5);
 void setup() {
   Serial.begin(9600);
 
+  initializeRTC();
+
+  initializeSDCard();
+
+  
   initializeDigitParts();
   lcd.begin(16,2);
 }
 
+
+
 void loop() {
-    in_voltage = readInputVoltage();
+      
+      in_voltage = readInputVoltage();
+      String voltage(in_voltage, 2);
+      displayVoltageOnLCD(voltage);
+      
+      //Logging to SD Card
+      //RTC datetime
+      char bufDate[20];
+      DateTime now = rtc.now(); 
+      sprintf(bufDate, "%02d/%02d/%02d %02d:%02d:%02d",now.day(), now.month(), now.year(), now.hour(), now.minute(), now.second()); 
+      //Serial.print(F("Date/Time: "));
+      //Serial.println(voltage);
+      openFile("arduino.txt");
+      writeToFile(voltage + " volts" + " " + bufDate );
+      closeFile();
+      
+      char data = Serial.read();
+      bool onDemandChange = false;
+  
+      if (data == '1')
+      {
+        onDemandChange = true;
+      }
+      else if (data == '2')
+      {
+        Serial.println(voltage);
+      }
+  
+  
+  
+      if (onDemandChange || (in_voltage < voltage_threshold && isTimeToTriggerChange()))
+      {
+        changeProtectionSheet();
+      }
+  
+      delay(1000);
+}
 
-    String voltage(in_voltage, 2);
-    displayVoltageOnLCD(voltage);
-    char data = Serial.read();
-    bool onDemandChange = false;
-
-    if (data == '1')
-    {
-      onDemandChange = true;
-    }
-    else if (data == '2')
-    {
-      Serial.println(voltage);
-    }
 
 
+//SD card fuctions are over here
+void initializeSDCard()
+{
+  Serial.println("Initializing SD card...");
+  pinMode(CS_PIN, OUTPUT);
 
-    if (onDemandChange || (in_voltage < voltage_threshold && isTimeToTriggerChange()))
-    {
-      changeProtectionSheet();
-    }
+  /*if (SD.begin())
+  {
+    Serial.println("SD card is ready to use.");
+  } else
+  {
+    Serial.println("SD card initialization failed");
+    return;
+  } */
 
-    delay(1000);
+  if (!SD.begin(CS_PIN)) {
+    Serial.println("SD CARD FAILED, OR NOT PRESENT!");
+    while (1); // don't do anything more:
+  }
+
+  Serial.println("SD CARD INITIALIZED.");
+  //SD.remove("arduino.txt"); // delete the file if existed
+
+  // create new file by opening file for writing
+  //file = SD.open("arduino.txt", FILE_WRITE);
+
+}
+
+
+int openFile(char filename[])
+{
+  file = SD.open(filename, FILE_WRITE);
+
+  if (file)
+  {
+    Serial.println("File created successfully.");
+    return 1;
+  } else
+  {
+    Serial.println("Error while creating file.");
+    return 0;
+
+  }
+}
+int writeToFile(String logData)
+{
+  char logDataText[logData.length()+1];
+  logData.toCharArray(logDataText, logData.length()+1);
+  if (file)
+  {
+    file.println(logDataText);
+    Serial.println("Writing to file: ");
+    Serial.println(logDataText);
+    return 1;
+  } else
+  {
+    Serial.println("Couldn't write to file");
+    return 0;
+  }
+}
+void closeFile()
+{
+  if (file)
+  {
+    file.close();
+    Serial.println("File closed");
+  }
+}
+
+
+void initializeRTC()
+{
+  
+  if (!rtc.begin()) {
+    Serial.println("Couldn't find RTC");
+    Serial.flush();
+    while (1) delay(10);
+  }
+
+  if (rtc.lostPower()) {
+    rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+    // This line sets the RTC with an explicit date & time, for example to set
+    // January 21, 2014 at 3am you would call:
+    // rtc.adjust(DateTime(2014, 1, 21, 3, 0, 0));
+  }
+
 }
 
 bool isTimeToTriggerChange()
