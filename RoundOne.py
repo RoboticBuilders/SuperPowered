@@ -1018,6 +1018,23 @@ def _run6():
         wait_for_seconds(0.3)
         motorD.stop()
         
+    def _dropOffTruck():
+        _turnToAngle(targetAngle = 0, speed = 60)
+        #gyroStraight(distance = 55, speed = 20, backward = False, targetAngle = -10)
+        #gyroStraight(distance = 15, speed = 50, backward = False, targetAngle = -10)
+        _driveTillLine(speed = 55, distanceInCM = 5, target_angle = 0, colorSensorToUse = "Right", blackOrWhite = "Black")
+        _turnToAngle(targetAngle = -15, speed = 40)
+        gyroStraight(distance = 5, speed = 55, backward = False, targetAngle = -15)
+        _driveTillLine(speed = 55, distanceInCM = 10, target_angle = -15, colorSensorToUse = "Left", blackOrWhite = "Black")
+        gyroStraight(distance = 5, speed = 55, backward = False, targetAngle = -15)
+        _turnToAngle(targetAngle = 0, speed = 40)
+        gyroStraight(distance = 45, speed = 55, backward = False, targetAngle = 0)
+        _turnToAngle(targetAngle = 80, speed = 40)
+        gyroStraight(distance = 10, speed = 55, backward = True, targetAngle = 80)
+        # gyroStraight(distance = 25, speed = 50, backward = False, targetAngle = 0)
+        # _turnToAngle(targetAngle = 45, speed = 20)
+        # gyroStraight(distance = 15, speed = 20, backward = True, targetAngle = 45)
+
     primeHub.motion_sensor.reset_yaw_angle()
     angle = 0
     
@@ -1072,6 +1089,8 @@ def _run6():
     
     # Backoff to leave the water reservoir(This code was uncommented on 1/9/2023 to avoid the arm touching the units)
     gyroStraight(distance=10, speed = 40, backward = True, targetAngle = angle)
+   
+    _dropOffTruck()
     
 #endregion Nami
 
