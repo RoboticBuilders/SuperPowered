@@ -1,4 +1,4 @@
-# LEGO type:standard slot:11
+# LEGO type:standard slot:5
 # This is now the version of Round1 that we are committed to.
 #
 # This is the next version of the Round1 that we tried after TestRound1WithPowerPlantAsSeparateRun.py which was done after Round1FullRunWithFewerArms.py
@@ -1110,6 +1110,7 @@ def _run1():
         for i in range(3): 
             # Backup so the robot can push the Wind Turbine again
             gyroStraight(distance=6, speed = 30, backward = True, targetAngle = angle)
+            time.sleep(0.5)
             # Drive forward to push the Wind Turbine
             #flushForTime(speed=20, timeInSeconds=0.6)
             gyroStraight(distance=9, speed = 20, backward = False, targetAngle = angle)
@@ -1354,7 +1355,7 @@ def _run3():
             logMessage("Note --------------------> Missed line between hybrid car and toy factory", level=0)
 
         # Turn towards the hybrid car.
-        angle = -42 + TOY_FACTORY_ANGLE_OFFSET
+        angle = -45 + TOY_FACTORY_ANGLE_OFFSET
         _turnToAngle(targetAngle = angle, speed = 20, slowTurnRatio = 0.2)
         gyroStraight(distance=12, speed = 35, backward = False, targetAngle = angle)
 
@@ -1534,10 +1535,9 @@ def resetArmForRun6Testing():
 
 print("Battery voltage: " + str(hub.battery.voltage())) 
 _initialize()
-#doRunWithTiming(_run6)
+doRunWithTiming(_run6)
 #doRunWithTiming(_testGyroBeforeRobotGame)
-#driverWithFewerArms()
-doRunWithTiming(pullTruckGoStraight)
+driverWithFewerArms()
 raise SystemExit
 #endregion
 
