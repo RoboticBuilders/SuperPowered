@@ -1,4 +1,4 @@
-# LEGO type:standard slot:5
+# LEGO type:standard slot:11
 # This is now the version of Round1 that we are committed to.
 #
 # This is the next version of the Round1 that we tried after TestRound1WithPowerPlantAsSeparateRun.py which was done after Round1FullRunWithFewerArms.py
@@ -940,11 +940,15 @@ def _run7():
 
 
 def pullTruckGoStraight():
-    gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH * 10, speed=40)
-    motorF.run_for_degrees(degrees=-1000, speed=100)
+    motorF.start(-50)
+    gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH * 10, speed=50)
+    #motorF.run_for_degrees(degrees=-1000, speed=100)
+    time.sleep(1)
+    motorF.stop()
     # motorF.start(speed=-100)
     # time.sleep(2)
-    wheels.move(amount = 14, unit = "in", steering = 0, speed = -30)
+    wheels.move(amount = 5, unit = "in", steering = 0, speed = -40)
+    wheels.move(amount = 9, unit = "in", steering = 0, speed = -70)
 
 #endregion Arisha
 #region Nami    
@@ -1532,7 +1536,8 @@ print("Battery voltage: " + str(hub.battery.voltage()))
 _initialize()
 #doRunWithTiming(_run6)
 #doRunWithTiming(_testGyroBeforeRobotGame)
-driverWithFewerArms()
+#driverWithFewerArms()
+doRunWithTiming(pullTruckGoStraight)
 raise SystemExit
 #endregion
 
