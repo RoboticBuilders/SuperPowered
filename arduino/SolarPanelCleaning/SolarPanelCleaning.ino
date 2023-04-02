@@ -2,20 +2,46 @@
 #include <LiquidCrystal.h>
 #include <SD.h>
 #include <SPI.h>
+#include <string.h>
+#include <Wire.h>
+#include <Adafruit_Sensor.h>
+#include "Adafruit_TSL2591.h"
+#include "RTClib.h"
+#include "LowPower.h"
 
+// Standard Pins in Arduino
+// *I2C Protocol*:
+// SDA - data line - A4
+// SCL - clock - A5
+// These can be added to multiple perpherals. Used here for LightSensor and RTC
+// ------------------------
+// *SPI* protocol
+// MOSI - digital 11
+// MISO - digital 12
+// SCK - digital 13
+// CS - can be any pin, 10 used in this code
+// This protocol is being used for reading/writing SD card
+// -------------------------
 
+// **Curuit Creation and Pins used**
+// Light Sensor - GND, VIN (3.3V), A4 (SDA), A5 (SCL) (NOTE: A4 and A5 are shared with RTC module)
+// RTC Module - GND, VIN(3.3V), A4 (SDA), A5 (SCL) (NOTE: this is exactly same as LightSensor)
+// SD Module - GND, VCC(*5V* not 3.3 V), MISO (d12), MOSI (d11), SCK (d13), CS 
+// Other Pins arrangements for LCD and Stepper Motor are written next to their declaration below
 
 //for RTC
-#include "RTClib.h"
 RTC_DS3231 rtc;
-char daysOfTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
 
+// pin for voltage sensor
 #define ANALOG_IN_VOLTAGE_PIN A0
 
-//Sd card variables
-int CS_PIN = 10;
-File file;
+//sd card variables
+const unsigned long writeFrequencyinSeconds = 600;
+DateTime lastDataSaveTime = new DateTime((int)0);
 
+volatile int sleep_count = 0; // Keep track of how many sleep cycles have been completed.
+const int sleep_total = (writeFrequencyinSeconds)/8; // Approximate number of sleep cycles needed before the interval defined above elapses. Note that this does integer math.
+int CS_PIN = 10;
 
 // adc voltage
 float adc_voltage = 0.0;
@@ -158,18 +184,32 @@ const int DecimalChar = 8;
 const int CompleteCellChar = 255;
 
 // Stepper motor
-const int STEPS_PER_REV = 240;
+const int STEPS_PER_REV = 120;
 const float voltage_threshold = 2.0;
 const int numberOfRotationsForOneLength = 5;
 const int motorSpeed = 20;
 
 // Time to cool off before considering another change
 // 10 minutes
-const unsigned long coolOffTime = 600000; 
+const unsigned long coolOffTimeInSeconds = 600; 
 
-unsigned long lastTimeSheetWasChanged = 0;
+DateTime lastSheetChangeDateTime = new DateTime((int)0);
 
-Stepper stepper(STEPS_PER_REV, 2, 3, 4, 5);
+// Motor Pins
+const int motorIn1 = 2;
+const int motorIn2 = 3;
+const int motorIn3 = 4;
+const int motorIn4 = 5;
+
+Stepper stepper(STEPS_PER_REV, motorIn1, motorIn2, motorIn3, motorIn4);
+
+
+// Light sensor TSL2591
+// connect SCL to I2C Clock
+// connect SDA to I2C Data
+// connect Vin to 3.3-5V DC
+// connect GROUND to common ground
+Adafruit_TSL2591 tsl = Adafruit_TSL2591(2591); // pass in a number for the sensor identifier (for your use later)
 
 void setup() {
   Serial.begin(9600);
@@ -178,107 +218,162 @@ void setup() {
 
   initializeSDCard();
 
-  
+  initializeLightSensor();
+    
   initializeDigitParts();
   lcd.begin(16,2);
 }
 
 
-
 void loop() {
-      
-      in_voltage = readInputVoltage();
-      String voltage(in_voltage, 2);
-      displayVoltageOnLCD(voltage);
-      
-      //Logging to SD Card
-      //RTC datetime
-      char bufDate[20];
-      DateTime now = rtc.now(); 
-      sprintf(bufDate, "%02d/%02d/%02d %02d:%02d:%02d",now.day(), now.month(), now.year(), now.hour(), now.minute(), now.second()); 
-      //Serial.print(F("Date/Time: "));
-      //Serial.println(voltage);
-      openFile("arduino.txt");
-      writeToFile(voltage + " volts" + " " + bufDate );
-      closeFile();
-      
+
+    if (sleep_count < sleep_total)
+    {
+      //LowPower.idle(SLEEP_8S, ADC_OFF, TIMER2_OFF, TIMER1_OFF, TIMER0_OFF, 
+      //    SPI_OFF, USART0_OFF, TWI_OFF);
+      LowPower.powerDown(SLEEP_8S, ADC_OFF, BOD_OFF);
+      sleep_count++;
+      return;
+    }   
+
+    tsl.begin();
+    sleep_count = 0;    
+    delay(100);
+    //Serial.println("awake");
+
+    DateTime now = rtc.now(); 
+    in_voltage = readInputVoltage();
+    String voltage(in_voltage, 2);
+
+    if (true)
+    {
+       displayVoltageOnLCD(voltage);
+
+      long luxValue = (long)getLuminosity();
+      writeToFile("arduino.txt", now, luxValue, in_voltage);
+    }
+
+    if (false)
+    {    
+      // This is to read command from Bluetooth
+      // module when bluetooth module is connected
       char data = Serial.read();
       bool onDemandChange = false;
-  
+
       if (data == '1')
       {
         onDemandChange = true;
+        //Serial.println("Sheet change request recieved");
       }
       else if (data == '2')
       {
         Serial.println(voltage);
       }
-  
-  
-  
-      if (onDemandChange || (in_voltage < voltage_threshold && isTimeToTriggerChange()))
+
+      if (onDemandChange || (in_voltage < voltage_threshold && isTimeToTriggerChange(now)))
       {
         changeProtectionSheet();
       }
+    }
+      tsl.disable();
+  }
+
+void initializeLightSensor()
+{
+  if (tsl.begin())
+  {
+    Serial.println(F("Found a TSL2591 sensor"));
+  }
+  else
+  {
+    Serial.println(F("No sensor found ... check your wiring?"));
+    while (1); // stop and don't proceed
+  }
   
-      delay(1000);
+  tsl.setGain(TSL2591_GAIN_LOW); // 1x
+  tsl.setTiming(TSL2591_INTEGRATIONTIME_300MS);
+  Serial.println("Light sensor initialized!");
+}
+
+//returns luminosity in lux
+float getLuminosity()
+{  
+  uint32_t lum = tsl.getFullLuminosity();
+  uint16_t ir, full;
+  ir = lum >> 16;
+  full = lum & 0xFFFF;
+  float luxValue = tsl.calculateLux(full, ir);
+  return luxValue;
 }
 
 
+// determines if it is time to write data
+bool isTimeToWriteData(DateTime now)
+{
+  if(lastDataSaveTime.year() == 1970 or (now.secondstime() - lastDataSaveTime.secondstime() > writeFrequencyinSeconds))
+  {
+    lastDataSaveTime = now;
+    return true;
+  }
+
+  return false;
+}
 
 //SD card fuctions are over here
 void initializeSDCard()
 {
   Serial.println("Initializing SD card...");
   pinMode(CS_PIN, OUTPUT);
-
-  /*if (SD.begin())
-  {
-    Serial.println("SD card is ready to use.");
-  } else
-  {
-    Serial.println("SD card initialization failed");
-    return;
-  } */
-
+  digitalWrite(CS_PIN, HIGH);
+  
   if (!SD.begin(CS_PIN)) {
     Serial.println("SD CARD FAILED, OR NOT PRESENT!");
     while (1); // don't do anything more:
   }
 
   Serial.println("SD CARD INITIALIZED.");
-  //SD.remove("arduino.txt"); // delete the file if existed
-
-  // create new file by opening file for writing
-  //file = SD.open("arduino.txt", FILE_WRITE);
-
 }
 
 
-int openFile(char filename[])
+File openFile(char filename[])
 {
-  file = SD.open(filename, FILE_WRITE);
-
-  if (file)
-  {
-    Serial.println("File created successfully.");
-    return 1;
-  } else
-  {
-    Serial.println("Error while creating file.");
-    return 0;
-
-  }
+  return SD.open(filename, FILE_WRITE);
 }
-int writeToFile(String logData)
+
+// csv file line with following data in each line
+// dateAndTime, luxValue, voltage
+String formLineToWrite(DateTime dateTime, float luxValue, int voltage)
 {
-  char logDataText[logData.length()+1];
-  logData.toCharArray(logDataText, logData.length()+1);
+      char bufDate[20];
+      
+      //keeping US date format      
+      sprintf(bufDate, "%02d-%02d-%02d %02d:%02d:%02d", dateTime.year(), dateTime.month(), dateTime.day(), dateTime.hour(), dateTime.minute(), dateTime.second()); 
+
+      String dateString = String(bufDate);
+      String lineString = dateString + "," + luxValue + "," + in_voltage;
+
+      return lineString;
+}
+
+int writeToFile(char fileName[], DateTime dateTime, float luxValue, int voltage)
+{
+  String logData = formLineToWrite(dateTime, luxValue, voltage);
+  String logString = "Input string: " + logData; 
+  //Serial.println(logString.c_str());
+  
+  File file = openFile(fileName);
+ 
   if (file)
   {
+    char logDataText[logData.length()+1];
+    logData.toCharArray(logDataText, logData.length()+1);
+
+    // Serial.println("Writing to file: ");
+    // Serial.println(logDataText);
+  
     file.println(logDataText);
-    Serial.println("Writing to file: ");
-    Serial.println(logDataText);
+
+    closeFile(file);
     return 1;
   } else
   {
@@ -286,12 +381,13 @@ int writeToFile(String logData)
     return 0;
   }
 }
-void closeFile()
+
+void closeFile(File file)
 {
   if (file)
   {
     file.close();
-    Serial.println("File closed");
+    //Serial.println("File closed");
   }
 }
 
@@ -314,12 +410,12 @@ void initializeRTC()
 
 }
 
-bool isTimeToTriggerChange()
+bool isTimeToTriggerChange(DateTime now)
 {
-  unsigned long time = millis();
-  if (lastTimeSheetWasChanged == 0 ||  (time - lastTimeSheetWasChanged) > coolOffTime)
+
+    if(lastDataSaveTime.year() == 1970 or (now.secondstime() - lastSheetChangeDateTime.secondstime() > coolOffTimeInSeconds))
   {
-    lastTimeSheetWasChanged = time;
+    lastSheetChangeDateTime = now;
     return true;
   }
 
@@ -332,6 +428,7 @@ void changeProtectionSheet()
     stepper.setSpeed(motorSpeed);
     for(int i = 0; i < numberOfRotationsForOneLength; i++)
     {
+      // Serial.println("Rotation happening");
       stepper.step(STEPS_PER_REV);
     }
 }
