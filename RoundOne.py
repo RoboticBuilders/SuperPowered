@@ -1,4 +1,4 @@
-# LEGO type:standard slot:5
+# LEGO type:standard slot:0
 # This is now the version of Round1 that we are committed to.
 #
 # This is the next version of the Round1 that we tried after TestRound1WithPowerPlantAsSeparateRun.py which was done after Round1FullRunWithFewerArms.py
@@ -86,11 +86,11 @@ BLACK_COLOR = 20
 WHITE_COLOR = 90
 
 def driverWithFewerArms():
-    counter = 5
+    counter = 1
     arm_change_end_time = 0
     arm_change_start_time = 0
     while True:
-        if counter == 7: 
+        if counter == 8: 
             break
         # Skip printing for the first time the loop runs.
         if (counter != 1):
@@ -114,6 +114,8 @@ def driverWithFewerArms():
         if counter == 5:
             doRunWithTiming(_run5)
         if counter == 6:
+            doRunWithTiming(_run7)
+        if counter == 7:
             doRunWithTiming(_run6)
         counter = counter + 1
 
@@ -936,19 +938,18 @@ def scale(amt):
 
 def _run7():
     primeHub.motion_sensor.reset_yaw_angle()
-    pullTruckGoStraight()
+    _pullOilTruck()
 
-
-def pullTruckGoStraight():
-    motorF.start(-50)
-    gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH * 10, speed=50)
-    #motorF.run_for_degrees(degrees=-1000, speed=100)
-    time.sleep(1)
-    motorF.stop()
-    # motorF.start(speed=-100)
-    # time.sleep(2)
-    wheels.move(amount = 5, unit = "in", steering = 0, speed = -40)
-    wheels.move(amount = 9, unit = "in", steering = 0, speed = -70)
+def _pullOilTruck():
+    motorD.start(-30)
+    gyroStraight(targetAngle = 0,  distance = 25, speed=40)
+    motorD.stop()
+        
+    moveArm(degrees=20, speed=100, motor=motorD)
+    time.sleep(0.2)
+    motorD.start(80)
+    gyroStraight(targetAngle = 0,  distance = 35, speed=60, backward=True)
+    motorD.stop()
 
 #endregion Arisha
 #region Nami    
@@ -994,6 +995,7 @@ def _run4():
     moveArm(degrees = 120, speed = 75,motor = motorF)
     #Go back home
     gyroStraight(distance = 30, speed = 50, backward = True, targetAngle = angle)
+
 
 def _run6():
     def _doSmartGrid():
@@ -1091,7 +1093,13 @@ def _run6():
     gyroStraight(distance=10, speed = 40, backward = True, targetAngle = angle)
    
     _dropOffTruck()
-    
+
+def collectTruck():
+    gyroStraight(distance = 35, speed = 35, backward = False, targetAngle = 0)
+    moveArm(degrees = 30, speed = 75,motor = motorF)
+
+
+          
 #endregion Nami
 
 #region Rishabh
@@ -1554,9 +1562,10 @@ def resetArmForRun6Testing():
 
 print("Battery voltage: " + str(hub.battery.voltage())) 
 _initialize()
-doRunWithTiming(_run6)
-#doRunWithTiming(_testGyroBeforeRobotGame)
 driverWithFewerArms()
+#doRunWithTiming(_run7)
+#doRunWithTiming(_testGyroBeforeRobotGame)
+#driverWithFewerArms()
 raise SystemExit
 #endregion
 
