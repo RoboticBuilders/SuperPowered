@@ -4,8 +4,11 @@
 #include <LCD_I2C.h>
 #include <SD.h>
 #include <SPI.h>
-#include "RTClib.h"
+#include <string.h>
+#include <Wire.h>
+#include <Adafruit_Sensor.h>
 #include "Adafruit_TSL2591.h"
+#include "RTClib.h"
 #include "LowPower.h"
 
 // Standard Pins in Arduino
@@ -27,11 +30,18 @@
 // RTC Module - GND, VIN(3.3V), A4 (SDA), A5 (SCL) (NOTE: this is exactly same as LightSensor)
 // SD Module - GND, VCC(*5V* not 3.3 V), MISO (d12), MOSI (d11), SCK (d13), CS 
 // Other Pins arrangements for LCD and Stepper Motor are written next to their declaration below
-
 RTC_DS3231 rtc;
-char daysOfTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
 
+// pin for voltage sensor
 #define ANALOG_IN_VOLTAGE_PIN A0
+
+//sd card variables
+const unsigned long writeFrequencyinSeconds = 600;
+DateTime lastDataSaveTime = new DateTime((int)0);
+
+volatile int sleep_count = 0; // Keep track of how many sleep cycles have been completed.
+const int sleep_total = (writeFrequencyinSeconds)/8; // Approximate number of sleep cycles needed before the interval defined above elapses. Note that this does integer math.
+int CS_PIN = 10;
 #define USE_LCD_I2C 1
 
 // adc voltage
@@ -49,9 +59,6 @@ const float ref_voltage = 5.0;
 
 // integer for adc value
 int adc_value = 0;
-
-
-
 
 #ifdef USE_LCD_I2C
 LCD_I2C lcd(0x27, 16, 2);
@@ -85,18 +92,23 @@ const int motorSpeed = 20;
 
 // Time to cool off before considering another change
 // 10 minutes
-const unsigned long coolOffTime = 600000; 
+const unsigned long coolOffTimeInSeconds = 600; 
 
-unsigned long lastTimeSheetWasChanged = 0;
+DateTime lastSheetChangeDateTime = new DateTime((int)0);
 
-Stepper stepper(STEPS_PER_REV, 2, 3, 4, 5);
+// Motor Pins
+const int motorIn1 = 2;
+const int motorIn2 = 3;
+const int motorIn3 = 4;
+const int motorIn4 = 5;
+Stepper stepper(STEPS_PER_REV, motorIn1, motorIn2, motorIn3, motorIn4);
 
 // Light sensor TSL2591
 // connect SCL to I2C Clock
 // connect SDA to I2C Data
 // connect Vin to 3.3-5V DC
 // connect GROUND to common ground
-Adafruit_TSL2591 tsl = Adafruit_TSL2591(2591); // pass in a number for the sensor identifier (for your use later)
+Adafruit_TSL2591 tsl = Adafruit_TSL2591(2591);
 
 // Conditional elements in the circuit
 const bool circuitHasLCD = true;
@@ -105,22 +117,15 @@ const bool circuitHasRTC = true;
 const bool circuitHasSDCard = true;
 const bool circuitSetForDataCollection = false;
 
-//sd card variables
-const unsigned long writeFrequencyinSeconds = 600;
-DateTime lastDataSaveTime = new DateTime((int)0);
-int CS_PIN = 10;
-File file;
-
-// Sleep code variables for saving battery and data collection
-volatile int sleep_count = 0; // Keep track of how many sleep cycles have been completed.
-const int sleep_total = (writeFrequencyinSeconds)/8; // Approximate number of sleep cycles needed before the interval defined above elapses. Note that this does integer math.
-
 void setup() {
   Serial.begin(9600);
   if (circuitHasRTC == true) {
     initializeRTC();
   }
 
+
+  initializeLightSensor();
+    
   if (circuitHasSDCard) {
       initializeSDCard();
   }
@@ -135,8 +140,6 @@ void setup() {
   #endif   
   }
 }
-
-
 
 void loop() {
     if (circuitSetForDataCollection && (sleep_count < sleep_total))
@@ -179,13 +182,14 @@ void loop() {
       Serial.println(voltage);
     }
 
-    if (onDemandChange || (in_voltage < voltage_threshold && isTimeToTriggerChange()))
+    if (onDemandChange || (in_voltage < voltage_threshold && isTimeToTriggerChange(now)))
     {
       changeProtectionSheet();
     }
   
     delay(1000);
 }
+
 
 void initializeLightSensor()
 {
@@ -215,6 +219,17 @@ float getLuminosity()
   return luxValue;
 }
 
+// determines if it is time to write data
+bool isTimeToWriteData(DateTime now)
+{
+  if(lastDataSaveTime.year() == 1970 or (now.secondstime() - lastDataSaveTime.secondstime() > writeFrequencyinSeconds))
+  {
+    lastDataSaveTime = now;
+    return true;
+  }
+
+  return false;
+}
 
 //SD card fuctions are over here
 void initializeSDCard()
@@ -241,17 +256,16 @@ File openFile(char filename[])
 // dateAndTime, luxValue, voltage, temperature
 String formLineToWrite(DateTime dateTime, float luxValue, int voltage, float temperature)
 {
-  char bufDate[50];
+      char bufDate[50];
+      
+      //keeping US date format      
+      sprintf(bufDate, "%02d-%02d-%02d %02d:%02d:%02d", dateTime.year(), dateTime.month(), dateTime.day(), dateTime.hour(), dateTime.minute(), dateTime.second()); 
 
-  //keeping US date format
-  sprintf(bufDate, "%02d-%02d-%02d %02d:%02d:%02d", dateTime.year(), dateTime.month(), dateTime.day(), dateTime.hour(), dateTime.minute(), dateTime.second());
+      String dateString = String(bufDate);
+      String lineString = dateString + "," + luxValue + "," + in_voltage+ "," + temperature;
 
-  String dateString = String(bufDate);
-  String lineString = dateString + "," + luxValue + "," + in_voltage + "," + temperature;
-
-  return lineString;
+      return lineString;
 }
-
 
 int writeToFile(char fileName[], DateTime dateTime, float luxValue, int voltage, float temperature)
 {
@@ -266,6 +280,9 @@ int writeToFile(char fileName[], DateTime dateTime, float luxValue, int voltage,
     char logDataText[logData.length()+1];
     logData.toCharArray(logDataText, logData.length()+1);
 
+    // Serial.println("Writing to file: ");
+    // Serial.println(logDataText);
+  
     file.println(logDataText);
 
     closeFile(file);
@@ -282,6 +299,7 @@ void closeFile(File file)
   if (file)
   {
     file.close();
+    //Serial.println("File closed");
   }
 }
 
@@ -303,12 +321,12 @@ void initializeRTC()
 
 }
 
-bool isTimeToTriggerChange()
+bool isTimeToTriggerChange(DateTime now)
 {
-  unsigned long time = millis();
-  if (lastTimeSheetWasChanged == 0 ||  (time - lastTimeSheetWasChanged) > coolOffTime)
+
+    if(lastDataSaveTime.year() == 1970 or (now.secondstime() - lastSheetChangeDateTime.secondstime() > coolOffTimeInSeconds))
   {
-    lastTimeSheetWasChanged = time;
+    lastSheetChangeDateTime = now;
     return true;
   }
 
@@ -321,6 +339,7 @@ void changeProtectionSheet()
     stepper.setSpeed(motorSpeed);
     for(int i = 0; i < numberOfRotationsForOneLength; i++)
     {
+      // Serial.println("Rotation happening");
       stepper.step(STEPS_PER_REV);
     }
 }
