@@ -114,7 +114,7 @@ Adafruit_TSL2591 tsl = Adafruit_TSL2591(2591);
 const bool circuitHasLCD = true;
 const bool circuitHasLightSensor = true;
 const bool circuitHasRTC = true;
-const bool circuitHasSDCard = true;
+const bool circuitHasSDCard = false;
 const bool circuitSetForDataCollection = false;
 
 void setup() {
@@ -124,20 +124,22 @@ void setup() {
   }
 
 
+ if (circuitHasLightSensor) { 
   initializeLightSensor();
+ }
     
   if (circuitHasSDCard) {
       initializeSDCard();
   }
 
   if (circuitHasLCD) {
-    initializeDigitParts();
  #ifdef USE_LCD_I2C   
    lcd.begin();
    lcd.backlight();
   #else
     lcd.begin(16,2);
-  #endif   
+  #endif
+    initializeDigitParts();
   }
 }
 
@@ -154,13 +156,22 @@ void loop() {
     sleep_count = 0;    
     delay(100);  
     
-    DateTime now = rtc.now(); 
+    DateTime now =  new DateTime((int)0);
     
     in_voltage = readInputVoltage();
-    in_voltage = 8.5;
-    float temperature = rtc.getTemperature();
+    float temperature = 0.0;
+
+    if (circuitHasRTC) { 
+      now = rtc.now(); 
+      temperature = rtc.getTemperature();
+    }
+
     String voltage(in_voltage, 2);
-    long luxValue = (long)getLuminosity();
+
+    long luxValue = 0;
+    if (circuitHasLightSensor) {
+      luxValue = (long)getLuminosity();
+    }
 
     if (circuitHasLCD) {
       displayVoltageOnLCD(voltage);
@@ -361,11 +372,11 @@ void displayStringOnLCD(String str)
 // the custom big font
 void displayVoltageOnLCD(String str)
 {
-  int pos = 0;
   lcd.clear();
 
   // 4 chars assuming one for decimal
   // TBD: using array of functions will help
+  int pos = 0;
   for (int i = 0; i < 4; i++)
   {
     char ch = str[i];
@@ -414,9 +425,6 @@ void displayVoltageOnLCD(String str)
   }
 }
 
-// code to draw digits
-void initializeDigitParts()
-{
   // Bigger font chars to be drawn for voltage
   // Each character is 3 cell columns by two cell rows (with each cell being 40 pixels (8rows * 5 columns))
   // segments of chars
@@ -516,6 +524,9 @@ void initializeDigitParts()
     B00000
   };
 
+// code to draw digits
+void initializeDigitParts()
+{
   lcd.createChar(LeftTopTrimmedChar, LeftTopTrimmed);
   lcd.createChar(RightTopTrimmedChar, RightTopTrimmed);
   lcd.createChar(LeftBottomTrimmedChar, LeftBottomTrimmed);
