@@ -42,7 +42,7 @@ DateTime lastDataSaveTime = new DateTime((int)0);
 volatile int sleep_count = 0; // Keep track of how many sleep cycles have been completed.
 const int sleep_total = (writeFrequencyinSeconds)/8; // Approximate number of sleep cycles needed before the interval defined above elapses. Note that this does integer math.
 int CS_PIN = 10;
-#define USE_LCD_I2C 1
+#define USE_LCD_I2C 0
 
 // adc voltage
 float adc_voltage = 0.0;
