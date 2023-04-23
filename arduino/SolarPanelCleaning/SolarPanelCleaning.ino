@@ -42,7 +42,7 @@ DateTime lastDataSaveTime = new DateTime((int)0);
 volatile int sleep_count = 0; // Keep track of how many sleep cycles have been completed.
 const int sleep_total = (writeFrequencyinSeconds)/8; // Approximate number of sleep cycles needed before the interval defined above elapses. Note that this does integer math.
 int CS_PIN = 10;
-#define USE_LCD_I2C 1
+#define USE_LCD_I2C 0
 
 // adc voltage
 float adc_voltage = 0.0;
@@ -115,7 +115,7 @@ const bool circuitHasLCD = true;
 const bool circuitHasLightSensor = true;
 const bool circuitHasRTC = true;
 const bool circuitHasSDCard = true;
-const bool circuitSetForDataCollection = false;
+const bool circuitSetForDataCollection = true;
 
 void setup() {
   Serial.begin(9600);
@@ -157,7 +157,7 @@ void loop() {
     DateTime now = rtc.now(); 
     
     in_voltage = readInputVoltage();
-    in_voltage = 8.5;
+//    in_voltage = 8.5;
     float temperature = rtc.getTemperature();
     String voltage(in_voltage, 2);
     long luxValue = (long)getLuminosity();
