@@ -1,21 +1,38 @@
 #include <Stepper.h>
 #include <LiquidCrystal.h>
+#include <Wire.h>
+#include <LCD_I2C.h>
 #include <SD.h>
 #include <SPI.h>
-
-
-
-//for RTC
 #include "RTClib.h"
+#include "Adafruit_TSL2591.h"
+#include "LowPower.h"
+
+// Standard Pins in Arduino
+// *I2C Protocol*:
+// SDA - data line - A4
+// SCL - clock - A5
+// These can be added to multiple perpherals. Used here for LightSensor and RTC
+// ------------------------
+// *SPI* protocol
+// MOSI - digital 11
+// MISO - digital 12
+// SCK - digital 13
+// CS - can be any pin, 10 used in this code
+// This protocol is being used for reading/writing SD card
+// -------------------------
+
+// **Curuit Creation and Pins used**
+// Light Sensor - GND, VIN (3.3V), A4 (SDA), A5 (SCL) (NOTE: A4 and A5 are shared with RTC module)
+// RTC Module - GND, VIN(3.3V), A4 (SDA), A5 (SCL) (NOTE: this is exactly same as LightSensor)
+// SD Module - GND, VCC(*5V* not 3.3 V), MISO (d12), MOSI (d11), SCK (d13), CS 
+// Other Pins arrangements for LCD and Stepper Motor are written next to their declaration below
+
 RTC_DS3231 rtc;
 char daysOfTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
 
 #define ANALOG_IN_VOLTAGE_PIN A0
-
-//Sd card variables
-int CS_PIN = 10;
-File file;
-
+#define USE_LCD_I2C 1
 
 // adc voltage
 float adc_voltage = 0.0;
@@ -34,6 +51,11 @@ const float ref_voltage = 5.0;
 int adc_value = 0;
 
 
+
+
+#ifdef USE_LCD_I2C
+LCD_I2C lcd(0x27, 16, 2);
+#else
 // LCD Pins
 const int rs = 7;
 const int en = 8;
@@ -41,110 +63,8 @@ const int d4 = 5;
 const int d5 = 4;
 const int d6 = 3;
 const int d7 = 2;
-
-// LCD
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
-
-// Bigger font chars to be drawn for voltage
-// Each character is 3 cell columns by two cell rows (with each cell being 40 pixels (8rows * 5 columns))
-// segments of chars
-byte LeftTopTrimmed[8] = 
-{
-  B00111,
-  B01111,
-  B11111,
-  B11111,
-  B11111,
-  B11111,
-  B11111,
-  B11111
-};
-
-byte RightTopTrimmed[8] =
-{
-  B11100,
-  B11110,
-  B11111,
-  B11111,
-  B11111,
-  B11111,
-  B11111,
-  B11111
-};
-
-byte LeftBottomTrimmed[8] =
-{
-  B11111,
-  B11111,
-  B11111,
-  B11111,
-  B11111,
-  B11111,
-  B01111,
-  B00111
-};
-
-byte RightBottomTrimmed[8] =
-{
-  B11111,
-  B11111,
-  B11111,
-  B11111,
-  B11111,
-  B11111,
-  B11110,
-  B11100
-};
-
-byte TopBar[8] =
-{
-  B11111,
-  B11111,
-  B11111,
-  B00000,
-  B00000,
-  B00000,
-  B00000,
-  B00000
-};
-
-byte BottomBar[8] =
-{
-  B00000,
-  B00000,
-  B00000,
-  B00000,
-  B00000,
-  B11111,
-  B11111,
-  B11111
-};
-
-byte UpperAndMiddleBarPart[8] =
-{
-  B11111,
-  B11111,
-  B11111,
-  B00000,
-  B00000,
-  B00000,
-  B11111,
-  B11111
-};
-
-byte Decimal[8] =
-{
-  B00000,
-  B00000,
-  B01110,
-  B11111,
-  B11111,
-  B11111,
-  B01110,
-  B00000
-};
-
-
+#endif
 
 // char part numbers
 const int LeftTopTrimmedChar = 1;
@@ -171,59 +91,129 @@ unsigned long lastTimeSheetWasChanged = 0;
 
 Stepper stepper(STEPS_PER_REV, 2, 3, 4, 5);
 
+// Light sensor TSL2591
+// connect SCL to I2C Clock
+// connect SDA to I2C Data
+// connect Vin to 3.3-5V DC
+// connect GROUND to common ground
+Adafruit_TSL2591 tsl = Adafruit_TSL2591(2591); // pass in a number for the sensor identifier (for your use later)
+
+// Conditional elements in the circuit
+const bool circuitHasLCD = true;
+const bool circuitHasLightSensor = true;
+const bool circuitHasRTC = true;
+const bool circuitHasSDCard = true;
+const bool circuitSetForDataCollection = false;
+
+//sd card variables
+const unsigned long writeFrequencyinSeconds = 600;
+DateTime lastDataSaveTime = new DateTime((int)0);
+int CS_PIN = 10;
+File file;
+
+// Sleep code variables for saving battery and data collection
+volatile int sleep_count = 0; // Keep track of how many sleep cycles have been completed.
+const int sleep_total = (writeFrequencyinSeconds)/8; // Approximate number of sleep cycles needed before the interval defined above elapses. Note that this does integer math.
+
 void setup() {
   Serial.begin(9600);
+  if (circuitHasRTC == true) {
+    initializeRTC();
+  }
 
-  initializeRTC();
+  if (circuitHasSDCard) {
+      initializeSDCard();
+  }
 
-  initializeSDCard();
-
-  
-  initializeDigitParts();
-  lcd.begin(16,2);
+  if (circuitHasLCD) {
+    initializeDigitParts();
+ #ifdef USE_LCD_I2C   
+   lcd.begin();
+   lcd.backlight();
+  #else
+    lcd.begin(16,2);
+  #endif   
+  }
 }
 
 
 
 void loop() {
-      
-      in_voltage = readInputVoltage();
-      String voltage(in_voltage, 2);
+    if (circuitSetForDataCollection && (sleep_count < sleep_total))
+    {
+      //LowPower.idle(SLEEP_8S, ADC_OFF, TIMER2_OFF, TIMER1_OFF, TIMER0_OFF, 
+      //    SPI_OFF, USART0_OFF, TWI_OFF);
+      LowPower.powerDown(SLEEP_8S, ADC_OFF, BOD_OFF);
+      sleep_count++;
+      return;
+    } 
+
+    sleep_count = 0;    
+    delay(100);  
+    
+    DateTime now = rtc.now(); 
+    
+    in_voltage = readInputVoltage();
+    in_voltage = 8.5;
+    float temperature = rtc.getTemperature();
+    String voltage(in_voltage, 2);
+    long luxValue = (long)getLuminosity();
+
+    if (circuitHasLCD) {
       displayVoltageOnLCD(voltage);
+    }
+    
+    if (circuitSetForDataCollection) {
+      writeToFile("arduino.txt", now, luxValue, in_voltage, temperature);
+    }
       
-      //Logging to SD Card
-      //RTC datetime
-      char bufDate[20];
-      DateTime now = rtc.now(); 
-      sprintf(bufDate, "%02d/%02d/%02d %02d:%02d:%02d",now.day(), now.month(), now.year(), now.hour(), now.minute(), now.second()); 
-      //Serial.print(F("Date/Time: "));
-      //Serial.println(voltage);
-      openFile("arduino.txt");
-      writeToFile(voltage + " volts" + " " + bufDate );
-      closeFile();
-      
-      char data = Serial.read();
-      bool onDemandChange = false;
+    char data = Serial.read();
+    bool onDemandChange = false;
+
+    if (data == '1')
+    {
+      onDemandChange = true;
+    }
+    else if (data == '2')
+    {
+      Serial.println(voltage);
+    }
+
+    if (onDemandChange || (in_voltage < voltage_threshold && isTimeToTriggerChange()))
+    {
+      changeProtectionSheet();
+    }
   
-      if (data == '1')
-      {
-        onDemandChange = true;
-      }
-      else if (data == '2')
-      {
-        Serial.println(voltage);
-      }
-  
-  
-  
-      if (onDemandChange || (in_voltage < voltage_threshold && isTimeToTriggerChange()))
-      {
-        changeProtectionSheet();
-      }
-  
-      delay(1000);
+    delay(1000);
 }
 
+void initializeLightSensor()
+{
+  if (tsl.begin())
+  {
+    Serial.println(F("Found a TSL2591 sensor"));
+  }
+  else
+  {
+    Serial.println(F("No sensor found ... check your wiring?"));
+    while (1); // stop and don't proceed
+  }
+  
+  tsl.setGain(TSL2591_GAIN_LOW); // 1x
+  tsl.setTiming(TSL2591_INTEGRATIONTIME_300MS);
+  Serial.println("Light sensor initialized!");
+}
+
+//returns luminosity in lux
+float getLuminosity()
+{  
+  uint32_t lum = tsl.getFullLuminosity();
+  uint16_t ir, full;
+  ir = lum >> 16;
+  full = lum & 0xFFFF;
+  float luxValue = tsl.calculateLux(full, ir);
+  return luxValue;
+}
 
 
 //SD card fuctions are over here
@@ -231,54 +221,54 @@ void initializeSDCard()
 {
   Serial.println("Initializing SD card...");
   pinMode(CS_PIN, OUTPUT);
-
-  /*if (SD.begin())
-  {
-    Serial.println("SD card is ready to use.");
-  } else
-  {
-    Serial.println("SD card initialization failed");
-    return;
-  } */
-
+  digitalWrite(CS_PIN, HIGH);
+  
   if (!SD.begin(CS_PIN)) {
     Serial.println("SD CARD FAILED, OR NOT PRESENT!");
     while (1); // don't do anything more:
   }
 
   Serial.println("SD CARD INITIALIZED.");
-  //SD.remove("arduino.txt"); // delete the file if existed
-
-  // create new file by opening file for writing
-  //file = SD.open("arduino.txt", FILE_WRITE);
-
 }
 
 
-int openFile(char filename[])
+File openFile(char filename[])
 {
-  file = SD.open(filename, FILE_WRITE);
-
-  if (file)
-  {
-    Serial.println("File created successfully.");
-    return 1;
-  } else
-  {
-    Serial.println("Error while creating file.");
-    return 0;
-
-  }
+  return SD.open(filename, FILE_WRITE);
 }
-int writeToFile(String logData)
+
+// csv file line with following data in each line
+// dateAndTime, luxValue, voltage, temperature
+String formLineToWrite(DateTime dateTime, float luxValue, int voltage, float temperature)
 {
-  char logDataText[logData.length()+1];
-  logData.toCharArray(logDataText, logData.length()+1);
+  char bufDate[50];
+
+  //keeping US date format
+  sprintf(bufDate, "%02d-%02d-%02d %02d:%02d:%02d", dateTime.year(), dateTime.month(), dateTime.day(), dateTime.hour(), dateTime.minute(), dateTime.second());
+
+  String dateString = String(bufDate);
+  String lineString = dateString + "," + luxValue + "," + in_voltage + "," + temperature;
+
+  return lineString;
+}
+
+
+int writeToFile(char fileName[], DateTime dateTime, float luxValue, int voltage, float temperature)
+{
+  String logData = formLineToWrite(dateTime, luxValue, voltage, temperature);
+  String logString = "Input string: " + logData; 
+  //Serial.println(logString.c_str());
+  
+  File file = openFile(fileName);
+ 
   if (file)
   {
+    char logDataText[logData.length()+1];
+    logData.toCharArray(logDataText, logData.length()+1);
+
     file.println(logDataText);
-    Serial.println("Writing to file: ");
-    Serial.println(logDataText);
+
+    closeFile(file);
     return 1;
   } else
   {
@@ -286,19 +276,18 @@ int writeToFile(String logData)
     return 0;
   }
 }
-void closeFile()
+
+void closeFile(File file)
 {
   if (file)
   {
     file.close();
-    Serial.println("File closed");
   }
 }
 
 
 void initializeRTC()
 {
-  
   if (!rtc.begin()) {
     Serial.println("Couldn't find RTC");
     Serial.flush();
@@ -409,6 +398,105 @@ void displayVoltageOnLCD(String str)
 // code to draw digits
 void initializeDigitParts()
 {
+  // Bigger font chars to be drawn for voltage
+  // Each character is 3 cell columns by two cell rows (with each cell being 40 pixels (8rows * 5 columns))
+  // segments of chars
+  byte LeftTopTrimmed[8] = 
+  {
+    B00111,
+    B01111,
+    B11111,
+    B11111,
+    B11111,
+    B11111,
+    B11111,
+    B11111
+  };
+
+  byte RightTopTrimmed[8] =
+  {
+    B11100,
+    B11110,
+    B11111,
+    B11111,
+    B11111,
+    B11111,
+    B11111,
+    B11111
+  };
+
+  byte LeftBottomTrimmed[8] =
+  {
+    B11111,
+    B11111,
+    B11111,
+    B11111,
+    B11111,
+    B11111,
+    B01111,
+    B00111
+  };
+
+  byte RightBottomTrimmed[8] =
+  {
+    B11111,
+    B11111,
+    B11111,
+    B11111,
+    B11111,
+    B11111,
+    B11110,
+    B11100
+  };
+
+  byte TopBar[8] =
+  {
+    B11111,
+    B11111,
+    B11111,
+    B00000,
+    B00000,
+    B00000,
+    B00000,
+    B00000
+  };
+
+  byte BottomBar[8] =
+  {
+    B00000,
+    B00000,
+    B00000,
+    B00000,
+    B00000,
+    B11111,
+    B11111,
+    B11111
+  };
+
+  byte UpperAndMiddleBarPart[8] =
+  {
+    B11111,
+    B11111,
+    B11111,
+    B00000,
+    B00000,
+    B00000,
+    B11111,
+    B11111
+  };
+
+  byte Decimal[8] =
+  {
+    B00000,
+    B00000,
+    B01110,
+    B11111,
+    B11111,
+    B11111,
+    B01110,
+    B00000
+  };
+
   lcd.createChar(LeftTopTrimmedChar, LeftTopTrimmed);
   lcd.createChar(RightTopTrimmedChar, RightTopTrimmed);
   lcd.createChar(LeftBottomTrimmedChar, LeftBottomTrimmed);
