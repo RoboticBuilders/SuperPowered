@@ -87,9 +87,11 @@ WHITE_COLOR = 90
 
 def driverWithFewerArms():
     counter = 1
+    counter = 1
     arm_change_end_time = 0
     arm_change_start_time = 0
     while True:
+        if counter == 8: 
         if counter == 8: 
             break
         # Skip printing for the first time the loop runs.
@@ -993,8 +995,10 @@ def _run4():
     time.sleep_ms(500)
     #Move arm back down to bring the water unit and energy unit home
     moveArm(degrees = 120, speed = 75,motor = motorF)
+    motorF.start(50)
     #Go back home
     gyroStraight(distance = 30, speed = 50, backward = True, targetAngle = angle)
+    motorF.stop()
 
 
 def _run6():
