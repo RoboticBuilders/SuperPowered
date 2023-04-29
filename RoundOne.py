@@ -911,7 +911,10 @@ def activeOilPlatform():
     
     #wheels.move(amount = 4, unit = "in", steering = 0, speed = -40)
     #was -40 and changed it to -30
-    wheels.move(amount = 6, unit = "in", steering = 0, speed = -30)
+    #working code before pull truck
+    #wheels.move(amount = 6, unit = "in", steering = 0, speed = -30)
+    gyroStraight(distance=_CM_PER_INCH*6, speed=30,backward=True, targetAngle=-1)
+
 
     # motorD.stop()
     #time.sleep(10)
@@ -927,7 +930,9 @@ def goBackHomeFromOilPlatform():
     _turnToAngle(50)
     #time.sleep(5)
     gyroStraight(distance=6*_CM_PER_INCH, speed=30, targetAngle=50, backward=True)
+    _turnToAngle(targetAngle=30, oneWheelTurn="Right")
     #time.sleep(5)
+    # Might be OK to remove this
     _turnToAngle(targetAngle=30, oneWheelTurn="Left")
     gyroStraight(distance=18*_CM_PER_INCH, speed=100, targetAngle=30, backward=True) # Back home doesnt require accuracy
 
