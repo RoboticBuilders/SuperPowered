@@ -1,4 +1,4 @@
-# LEGO type:standard slot:0
+# LEGO type:standard slot:4
 # This is now the version of Round1 that we are committed to.
 #
 # This is the next version of the Round1 that we tried after TestRound1WithPowerPlantAsSeparateRun.py which was done after Round1FullRunWithFewerArms.py
@@ -86,12 +86,11 @@ BLACK_COLOR = 20
 WHITE_COLOR = 90
 
 def driverWithFewerArms():
-    counter = 1
-    counter = 1
+    counter = 4
     arm_change_end_time = 0
     arm_change_start_time = 0
     while True:
-        if counter == 8: 
+        
         if counter == 8: 
             break
         # Skip printing for the first time the loop runs.
@@ -116,10 +115,10 @@ def driverWithFewerArms():
         if counter == 5:
             doRunWithTiming(_run5)
         if counter == 6:
-            doRunWithTiming(_run7)
-        if counter == 7:
             doRunWithTiming(_run6)
-        counter = counter + 1
+        if counter == 7:
+            doRunWithTiming(_run7)
+        #counter = counter + 1
 
 #region Utilities
 def _initialize(): 
@@ -938,13 +937,13 @@ def scale(amt):
     return (amt - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
 
 
-def _run7():
+def _run6():
     primeHub.motion_sensor.reset_yaw_angle()
     _pullOilTruck()
 
 def _pullOilTruck():
     motorD.start(-30)
-    gyroStraight(targetAngle = 0,  distance = 25, speed=40)
+    gyroStraight(targetAngle = 0,  distance = 25, speed=20)
     motorD.stop()
         
     moveArm(degrees=20, speed=100, motor=motorD)
@@ -1001,7 +1000,7 @@ def _run4():
     motorF.stop()
 
 
-def _run6():
+def _run7():
     def _doSmartGrid():
         # Turn and move forward 
         angle = -90
@@ -1032,9 +1031,9 @@ def _run6():
         _turnToAngle(targetAngle = -15, speed = 40)
         gyroStraight(distance = 5, speed = 55, backward = False, targetAngle = -15)
         _driveTillLine(speed = 55, distanceInCM = 10, target_angle = -15, colorSensorToUse = "Left", blackOrWhite = "Black")
-        gyroStraight(distance = 5, speed = 55, backward = False, targetAngle = -15)
+        gyroStraight(distance = 6, speed = 55, backward = False, targetAngle = -15)
         _turnToAngle(targetAngle = 0, speed = 40)
-        gyroStraight(distance = 45, speed = 55, backward = False, targetAngle = 0)
+        gyroStraight(distance = 45, speed = 35, backward = False, targetAngle = 0)
         _turnToAngle(targetAngle = 80, speed = 40)
         gyroStraight(distance = 10, speed = 55, backward = True, targetAngle = 80)
         # gyroStraight(distance = 25, speed = 50, backward = False, targetAngle = 0)
@@ -1052,7 +1051,7 @@ def _run6():
     angle = -8
     _turnToAngle(targetAngle=angle, speed=25)
     if _driveTillLine(speed=45, distanceInCM=27, target_angle=angle, colorSensorToUse="Left", blackOrWhite="Black", slowSpeedRatio=0.9) == False:
-        logMessage("Run6:_run6 NOTE -----------> Missed Catching the n-s line in front of power plant", level=0)
+        logMessage("Run7: NOTE -----------> Missed Catching the n-s line in front of power plant", level=0)
     
     # Turn towards the power plant and then try to catch the black line running e-w line in front of the smart grid.
     angle = -95
@@ -1068,7 +1067,7 @@ def _run6():
     motorD.stop()
 
     if _driveTillLine(speed=50, distanceInCM=35, target_angle = angle, colorSensorToUse="Left", blackOrWhite="Black",slowSpeedRatio=0.4) == False:
-        logMessage("Run6:_run6 NOTE -----------> Missed Catching the e-w line in front of smart grid", level=0)
+        logMessage("Run7:NOTE -----------> Missed Catching the e-w line in front of smart grid", level=0)
 
     # We use the bucket arm to do the smart grid.
     _doSmartGrid()
@@ -1524,7 +1523,7 @@ def _run2():
 def testSmartGridArm():
     angle = -5
     if _driveTillLine(speed=30, distanceInCM=20, target_angle = angle, colorSensorToUse="Left", blackOrWhite="Black",slowSpeedRatio=0.6) == False:
-        logMessage("Run6:_run6 NOTE -----------> Missed Catching the e-w line in front of smart grid", level=0)
+        logMessage("Run7: NOTE -----------> Missed Catching the e-w line in front of smart grid", level=0)
 
     motorD.start_at_power(-100)
     wait_for_seconds(0.4)
@@ -1567,7 +1566,7 @@ def resetArmForRun6Testing():
 print("Battery voltage: " + str(hub.battery.voltage())) 
 _initialize()
 driverWithFewerArms()
-#doRunWithTiming(_run7)
+#doRunWithTiming(_run6)
 #doRunWithTiming(_testGyroBeforeRobotGame)
 #driverWithFewerArms()
 raise SystemExit
