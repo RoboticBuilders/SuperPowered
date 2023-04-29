@@ -935,7 +935,7 @@ def goBackHomeFromOilPlatform():
     # Might be OK to remove this
     _turnToAngle(targetAngle=30, speed=70, oneWheelTurn="Left")
     gyroStraight(distance=2*_CM_PER_INCH, speed=100, targetAngle=30, backward=True) # Back home doesnt require accuracy
-    gyroStraight(distance=16*_CM_PER_INCH, speed=50, targetAngle=25, backward=True) # Back home doesnt require accuracy
+    gyroStraight(distance=18*_CM_PER_INCH, speed=50, targetAngle=25, backward=True) # Back home doesnt require accuracy
 
 def resetRun5Arm():
     time.sleep(10)
