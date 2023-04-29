@@ -1,4 +1,4 @@
-# LEGO type:standard slot:4
+# LEGO type:standard slot:5
 # This is now the version of Round1 that we are committed to.
 #
 # This is the next version of the Round1 that we tried after TestRound1WithPowerPlantAsSeparateRun.py which was done after Round1FullRunWithFewerArms.py
@@ -86,7 +86,7 @@ BLACK_COLOR = 20
 WHITE_COLOR = 90
 
 def driverWithFewerArms():
-    counter = 4
+    counter = 5
     arm_change_end_time = 0
     arm_change_start_time = 0
     while True:
@@ -867,7 +867,7 @@ def _run5():
     getToOilPlatform_v2Point2()
     activeOilPlatform()
     goBackHomeFromOilPlatform()
-    #resetRun5Arm()
+    resetRun5Arm()
     # pullTruckGoStraight()
 
 def getToOilPlatform_v2Point2():
@@ -930,13 +930,15 @@ def goBackHomeFromOilPlatform():
     _turnToAngle(50)
     #time.sleep(5)
     gyroStraight(distance=6*_CM_PER_INCH, speed=30, targetAngle=50, backward=True)
-    _turnToAngle(targetAngle=30, oneWheelTurn="Right")
+    _turnToAngle(targetAngle=30, speed=70, oneWheelTurn="Right")
     #time.sleep(5)
     # Might be OK to remove this
-    _turnToAngle(targetAngle=30, oneWheelTurn="Left")
-    gyroStraight(distance=18*_CM_PER_INCH, speed=100, targetAngle=30, backward=True) # Back home doesnt require accuracy
+    _turnToAngle(targetAngle=30, speed=70, oneWheelTurn="Left")
+    gyroStraight(distance=2*_CM_PER_INCH, speed=100, targetAngle=30, backward=True) # Back home doesnt require accuracy
+    gyroStraight(distance=16*_CM_PER_INCH, speed=50, targetAngle=25, backward=True) # Back home doesnt require accuracy
 
 def resetRun5Arm():
+    time.sleep(10)
     motorF.run_for_degrees(degrees=-700, speed=100)
     motorD.run_for_degrees(degrees=1000, speed=100)
     
