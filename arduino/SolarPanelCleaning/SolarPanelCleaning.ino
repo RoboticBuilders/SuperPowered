@@ -1,5 +1,7 @@
 #include <Stepper.h>
 #include <LiquidCrystal.h>
+#include <Wire.h>
+#include <LCD_I2C.h>
 #include <SD.h>
 #include <SPI.h>
 #include <string.h>
@@ -28,8 +30,6 @@
 // RTC Module - GND, VIN(3.3V), A4 (SDA), A5 (SCL) (NOTE: this is exactly same as LightSensor)
 // SD Module - GND, VCC(*5V* not 3.3 V), MISO (d12), MOSI (d11), SCK (d13), CS 
 // Other Pins arrangements for LCD and Stepper Motor are written next to their declaration below
-
-//for RTC
 RTC_DS3231 rtc;
 
 // pin for voltage sensor
@@ -42,6 +42,7 @@ DateTime lastDataSaveTime = new DateTime((int)0);
 volatile int sleep_count = 0; // Keep track of how many sleep cycles have been completed.
 const int sleep_total = (writeFrequencyinSeconds)/8; // Approximate number of sleep cycles needed before the interval defined above elapses. Note that this does integer math.
 int CS_PIN = 10;
+#define USE_LCD_I2C 0
 
 // adc voltage
 float adc_voltage = 0.0;
@@ -59,7 +60,9 @@ const float ref_voltage = 5.0;
 // integer for adc value
 int adc_value = 0;
 
-
+#ifdef USE_LCD_I2C
+LCD_I2C lcd(0x27, 16, 2);
+#else
 // LCD Pins
 const int rs = 7;
 const int en = 8;
@@ -67,110 +70,8 @@ const int d4 = 5;
 const int d5 = 4;
 const int d6 = 3;
 const int d7 = 2;
-
-// LCD
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
-
-// Bigger font chars to be drawn for voltage
-// Each character is 3 cell columns by two cell rows (with each cell being 40 pixels (8rows * 5 columns))
-// segments of chars
-byte LeftTopTrimmed[8] = 
-{
-  B00111,
-  B01111,
-  B11111,
-  B11111,
-  B11111,
-  B11111,
-  B11111,
-  B11111
-};
-
-byte RightTopTrimmed[8] =
-{
-  B11100,
-  B11110,
-  B11111,
-  B11111,
-  B11111,
-  B11111,
-  B11111,
-  B11111
-};
-
-byte LeftBottomTrimmed[8] =
-{
-  B11111,
-  B11111,
-  B11111,
-  B11111,
-  B11111,
-  B11111,
-  B01111,
-  B00111
-};
-
-byte RightBottomTrimmed[8] =
-{
-  B11111,
-  B11111,
-  B11111,
-  B11111,
-  B11111,
-  B11111,
-  B11110,
-  B11100
-};
-
-byte TopBar[8] =
-{
-  B11111,
-  B11111,
-  B11111,
-  B00000,
-  B00000,
-  B00000,
-  B00000,
-  B00000
-};
-
-byte BottomBar[8] =
-{
-  B00000,
-  B00000,
-  B00000,
-  B00000,
-  B00000,
-  B11111,
-  B11111,
-  B11111
-};
-
-byte UpperAndMiddleBarPart[8] =
-{
-  B11111,
-  B11111,
-  B11111,
-  B00000,
-  B00000,
-  B00000,
-  B11111,
-  B11111
-};
-
-byte Decimal[8] =
-{
-  B00000,
-  B00000,
-  B01110,
-  B11111,
-  B11111,
-  B11111,
-  B01110,
-  B00000
-};
-
-
+#endif
 
 // char part numbers
 const int LeftTopTrimmedChar = 1;
@@ -184,7 +85,7 @@ const int DecimalChar = 8;
 const int CompleteCellChar = 255;
 
 // Stepper motor
-const int STEPS_PER_REV = 120;
+const int STEPS_PER_REV = 240;
 const float voltage_threshold = 2.0;
 const int numberOfRotationsForOneLength = 5;
 const int motorSpeed = 20;
@@ -200,83 +101,106 @@ const int motorIn1 = 2;
 const int motorIn2 = 3;
 const int motorIn3 = 4;
 const int motorIn4 = 5;
-
 Stepper stepper(STEPS_PER_REV, motorIn1, motorIn2, motorIn3, motorIn4);
-
 
 // Light sensor TSL2591
 // connect SCL to I2C Clock
 // connect SDA to I2C Data
 // connect Vin to 3.3-5V DC
 // connect GROUND to common ground
-Adafruit_TSL2591 tsl = Adafruit_TSL2591(2591); // pass in a number for the sensor identifier (for your use later)
+Adafruit_TSL2591 tsl = Adafruit_TSL2591(2591);
+
+// Conditional elements in the circuit
+const bool circuitHasLCD = true;
+const bool circuitHasLightSensor = true;
+const bool circuitHasRTC = true;
+const bool circuitHasSDCard = false;
+const bool circuitSetForDataCollection = false;
 
 void setup() {
   Serial.begin(9600);
+  if (circuitHasRTC == true) {
+    initializeRTC();
+  }
 
-  initializeRTC();
 
-  initializeSDCard();
-
+ if (circuitHasLightSensor) { 
   initializeLightSensor();
+ }
     
-  initializeDigitParts();
-  lcd.begin(16,2);
+  if (circuitHasSDCard) {
+      initializeSDCard();
+  }
+
+  if (circuitHasLCD) {
+ #ifdef USE_LCD_I2C   
+   lcd.begin();
+   lcd.backlight();
+  #else
+    lcd.begin(16,2);
+  #endif
+    initializeDigitParts();
+  }
 }
 
-
 void loop() {
-
-    if (sleep_count < sleep_total)
+    if (circuitSetForDataCollection && (sleep_count < sleep_total))
     {
       //LowPower.idle(SLEEP_8S, ADC_OFF, TIMER2_OFF, TIMER1_OFF, TIMER0_OFF, 
       //    SPI_OFF, USART0_OFF, TWI_OFF);
       LowPower.powerDown(SLEEP_8S, ADC_OFF, BOD_OFF);
       sleep_count++;
       return;
-    }   
+    } 
 
-    tsl.begin();
     sleep_count = 0;    
-    delay(100);
-    //Serial.println("awake");
-
-    DateTime now = rtc.now(); 
+    delay(100);  
+    
+    DateTime now =  new DateTime((int)0);
+    
     in_voltage = readInputVoltage();
+    float temperature = 0.0;
+
+    if (circuitHasRTC) { 
+      now = rtc.now(); 
+      temperature = rtc.getTemperature();
+    }
+
     String voltage(in_voltage, 2);
 
-    if (true)
+    long luxValue = 0;
+    if (circuitHasLightSensor) {
+      luxValue = (long)getLuminosity();
+    }
+
+    if (circuitHasLCD) {
+      displayVoltageOnLCD(voltage);
+    }
+    
+    if (circuitSetForDataCollection) {
+      writeToFile("arduino.txt", now, luxValue, in_voltage, temperature);
+    }
+      
+    char data = Serial.read();
+    bool onDemandChange = false;
+
+    if (data == '1')
     {
-       displayVoltageOnLCD(voltage);
-
-      long luxValue = (long)getLuminosity();
-      writeToFile("arduino.txt", now, luxValue, in_voltage);
+      onDemandChange = true;
+    }
+    else if (data == '2')
+    {
+      Serial.println(voltage);
     }
 
-    if (false)
-    {    
-      // This is to read command from Bluetooth
-      // module when bluetooth module is connected
-      char data = Serial.read();
-      bool onDemandChange = false;
-
-      if (data == '1')
-      {
-        onDemandChange = true;
-        //Serial.println("Sheet change request recieved");
-      }
-      else if (data == '2')
-      {
-        Serial.println(voltage);
-      }
-
-      if (onDemandChange || (in_voltage < voltage_threshold && isTimeToTriggerChange(now)))
-      {
-        changeProtectionSheet();
-      }
+    if (onDemandChange || (in_voltage < voltage_threshold && isTimeToTriggerChange(now)))
+    {
+      changeProtectionSheet();
     }
-      tsl.disable();
-  }
+  
+    delay(1000);
+}
+
 
 void initializeLightSensor()
 {
@@ -305,7 +229,6 @@ float getLuminosity()
   float luxValue = tsl.calculateLux(full, ir);
   return luxValue;
 }
-
 
 // determines if it is time to write data
 bool isTimeToWriteData(DateTime now)
@@ -341,23 +264,23 @@ File openFile(char filename[])
 }
 
 // csv file line with following data in each line
-// dateAndTime, luxValue, voltage
-String formLineToWrite(DateTime dateTime, float luxValue, int voltage)
+// dateAndTime, luxValue, voltage, temperature
+String formLineToWrite(DateTime dateTime, float luxValue, int voltage, float temperature)
 {
-      char bufDate[20];
+      char bufDate[50];
       
       //keeping US date format      
       sprintf(bufDate, "%02d-%02d-%02d %02d:%02d:%02d", dateTime.year(), dateTime.month(), dateTime.day(), dateTime.hour(), dateTime.minute(), dateTime.second()); 
 
       String dateString = String(bufDate);
-      String lineString = dateString + "," + luxValue + "," + in_voltage;
+      String lineString = dateString + "," + luxValue + "," + in_voltage+ "," + temperature;
 
       return lineString;
 }
 
-int writeToFile(char fileName[], DateTime dateTime, float luxValue, int voltage)
+int writeToFile(char fileName[], DateTime dateTime, float luxValue, int voltage, float temperature)
 {
-  String logData = formLineToWrite(dateTime, luxValue, voltage);
+  String logData = formLineToWrite(dateTime, luxValue, voltage, temperature);
   String logString = "Input string: " + logData; 
   //Serial.println(logString.c_str());
   
@@ -394,7 +317,6 @@ void closeFile(File file)
 
 void initializeRTC()
 {
-  
   if (!rtc.begin()) {
     Serial.println("Couldn't find RTC");
     Serial.flush();
@@ -450,11 +372,11 @@ void displayStringOnLCD(String str)
 // the custom big font
 void displayVoltageOnLCD(String str)
 {
-  int pos = 0;
   lcd.clear();
 
   // 4 chars assuming one for decimal
   // TBD: using array of functions will help
+  int pos = 0;
   for (int i = 0; i < 4; i++)
   {
     char ch = str[i];
@@ -502,6 +424,105 @@ void displayVoltageOnLCD(String str)
     pos += 4;
   }
 }
+
+  // Bigger font chars to be drawn for voltage
+  // Each character is 3 cell columns by two cell rows (with each cell being 40 pixels (8rows * 5 columns))
+  // segments of chars
+  byte LeftTopTrimmed[8] = 
+  {
+    B00111,
+    B01111,
+    B11111,
+    B11111,
+    B11111,
+    B11111,
+    B11111,
+    B11111
+  };
+
+  byte RightTopTrimmed[8] =
+  {
+    B11100,
+    B11110,
+    B11111,
+    B11111,
+    B11111,
+    B11111,
+    B11111,
+    B11111
+  };
+
+  byte LeftBottomTrimmed[8] =
+  {
+    B11111,
+    B11111,
+    B11111,
+    B11111,
+    B11111,
+    B11111,
+    B01111,
+    B00111
+  };
+
+  byte RightBottomTrimmed[8] =
+  {
+    B11111,
+    B11111,
+    B11111,
+    B11111,
+    B11111,
+    B11111,
+    B11110,
+    B11100
+  };
+
+  byte TopBar[8] =
+  {
+    B11111,
+    B11111,
+    B11111,
+    B00000,
+    B00000,
+    B00000,
+    B00000,
+    B00000
+  };
+
+  byte BottomBar[8] =
+  {
+    B00000,
+    B00000,
+    B00000,
+    B00000,
+    B00000,
+    B11111,
+    B11111,
+    B11111
+  };
+
+  byte UpperAndMiddleBarPart[8] =
+  {
+    B11111,
+    B11111,
+    B11111,
+    B00000,
+    B00000,
+    B00000,
+    B11111,
+    B11111
+  };
+
+  byte Decimal[8] =
+  {
+    B00000,
+    B00000,
+    B01110,
+    B11111,
+    B11111,
+    B11111,
+    B01110,
+    B00000
+  };
 
 // code to draw digits
 void initializeDigitParts()

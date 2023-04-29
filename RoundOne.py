@@ -867,7 +867,7 @@ def _run5():
     getToOilPlatform_v2Point2()
     activeOilPlatform()
     goBackHomeFromOilPlatform()
-
+    #resetRun5Arm()
     # pullTruckGoStraight()
 
 def getToOilPlatform_v2Point2():
@@ -876,7 +876,6 @@ def getToOilPlatform_v2Point2():
     gyroStraight(distance=_CM_PER_INCH*16.8, speed=60, targetAngle=0) #was 90
     # time.sleep(5)
     _turnToAngle(45)
-    # time.sleep(5)
     gyroStraight(distance=_CM_PER_INCH*3, speed=60, targetAngle=45) #was 90
     _driveTillLine(speed = 30, distanceInCM = _CM_PER_INCH*6, target_angle = 45, blackOrWhite="White") # was 12 inches ####
     gyroStraight(distance = 1, speed  = 25, targetAngle = 45)
@@ -919,16 +918,23 @@ def activeOilPlatform():
 
 
 def goBackHomeFromOilPlatform():
-   # _turnToAngle(30)
-   # gyroStraight(distance=24*_CM_PER_INCH, speed=100, targetAngle=30, backward=True) # Back home doesnt require accuracy
-   
-    _turnToAngle(40)
-    gyroStraight(distance=24*_CM_PER_INCH, speed=100, targetAngle=40, backward=True) # Back home doesnt require accuracy
+    #without pull truck
+    #_turnToAngle(40)
+    #gyroStraight(distance=24*_CM_PER_INCH, speed=100, targetAngle=40, backward=True) # Back home doesnt require accuracy
 
-    # wheels.move(amount = 20, unit = "in", steering = 0, speed = -100) # Back home doesnt require accuracy
-   #turnToAngle(30)
-   #wheels.move(amount = 11, unit = "in", steering = 0, speed = -30) # Back home doesnt require accuracy
 
+    #time.sleep(5)
+    _turnToAngle(50)
+    #time.sleep(5)
+    gyroStraight(distance=6*_CM_PER_INCH, speed=30, targetAngle=50, backward=True)
+    #time.sleep(5)
+    _turnToAngle(targetAngle=30, oneWheelTurn="Left")
+    gyroStraight(distance=18*_CM_PER_INCH, speed=100, targetAngle=30, backward=True) # Back home doesnt require accuracy
+
+def resetRun5Arm():
+    motorF.run_for_degrees(degrees=-700, speed=100)
+    motorD.run_for_degrees(degrees=1000, speed=100)
+    
 def scale(amt):
     in_min  =  BLACK_COLOR
     in_max  =  WHITE_COLOR
