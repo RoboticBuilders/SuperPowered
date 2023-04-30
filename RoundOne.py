@@ -1,4 +1,4 @@
-# LEGO type:standard slot:5
+# LEGO type:standard slot:0
 # This is now the version of Round1 that we are committed to.
 #
 # This is the next version of the Round1 that we tried after TestRound1WithPowerPlantAsSeparateRun.py which was done after Round1FullRunWithFewerArms.py
@@ -86,7 +86,7 @@ BLACK_COLOR = 20
 WHITE_COLOR = 90
 
 def driverWithFewerArms():
-    counter = 5
+    counter = 1
     arm_change_end_time = 0
     arm_change_start_time = 0
     while True:
@@ -116,7 +116,7 @@ def driverWithFewerArms():
             doRunWithTiming(_run5)
         if counter == 6:
             doRunWithTiming(_run7)
-        # counter = counter + 1
+        counter = counter + 1
 
 #region Utilities
 def _initialize(): 
@@ -891,31 +891,14 @@ def getToOilPlatform_v2Point2():
     # gyroStraight(distance=_CM_PER_INCH*9.5, speed=30, targetAngle=0) # was 10.5 ####
 
 def activeOilPlatform():
-    # gyroStraight(targetAngle = 0,  distance = _CM_PER_INCH*2.5, speed=40)
-    # motorD.start(speed=-30)
-
-    # time.sleep(10)
-    # for i in range(3):
-    #     motorF.run_for_degrees(degrees=700, speed=100)
-    #     if (i<=1):
-    #         motorF.run_for_degrees(degrees=-700, speed=100)
-        # if (i>=1):
-        # motorD.start(speed=-30)
-        # time.sleep(5)
-    # gyroStraight(distance=2, speed=40, targetAngle=0, backward=True)
-    # time.sleep(0.5)
-    motorD.run_for_degrees(degrees=-1000, speed=100)
-
+    # Release oil units into truck
+    for i in range(3):
+        motorF.run_for_degrees(degrees=700, speed=100)
+        if (i<=1):
+            motorF.run_for_degrees(degrees=-700, speed=100)
     
-    #wheels.move(amount = 4, unit = "in", steering = 0, speed = -40)
-    #was -40 and changed it to -30
-    #working code before pull truck
-    #wheels.move(amount = 6, unit = "in", steering = 0, speed = -30)
-
-
-    # motorD.stop()
-    #time.sleep(10)
-
+    # Lower arm to pick up energy unit in tray and two units from Solar Farm
+    motorD.run_for_degrees(degrees=-1000, speed=100)
 
 def goBackHomeFromOilPlatform():
     gyroStraight(distance=_CM_PER_INCH*6, speed=30,backward=True, targetAngle=-1)
