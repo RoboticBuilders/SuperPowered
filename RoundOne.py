@@ -91,7 +91,7 @@ def driverWithFewerArms():
     arm_change_start_time = 0
     while True:
         
-        if counter == 8: 
+        if counter == 7: 
             break
         # Skip printing for the first time the loop runs.
         if (counter != 1):
@@ -115,10 +115,8 @@ def driverWithFewerArms():
         if counter == 5:
             doRunWithTiming(_run5)
         if counter == 6:
-            doRunWithTiming(_run6)
-        if counter == 7:
             doRunWithTiming(_run7)
-        #counter = counter + 1
+        # counter = counter + 1
 
 #region Utilities
 def _initialize(): 
@@ -867,7 +865,7 @@ def _run5():
     getToOilPlatform_v2Point2()
     activeOilPlatform()
     goBackHomeFromOilPlatform()
-    resetRun5Arm()
+    #resetRun5Arm()
     # pullTruckGoStraight()
 
 def getToOilPlatform_v2Point2():
@@ -897,10 +895,10 @@ def activeOilPlatform():
     # motorD.start(speed=-30)
 
     # time.sleep(10)
-    for i in range(3):
-        motorF.run_for_degrees(degrees=700, speed=100)
-        if (i<=1):
-            motorF.run_for_degrees(degrees=-700, speed=100)
+    # for i in range(3):
+    #     motorF.run_for_degrees(degrees=700, speed=100)
+    #     if (i<=1):
+    #         motorF.run_for_degrees(degrees=-700, speed=100)
         # if (i>=1):
         # motorD.start(speed=-30)
         # time.sleep(5)
@@ -913,7 +911,6 @@ def activeOilPlatform():
     #was -40 and changed it to -30
     #working code before pull truck
     #wheels.move(amount = 6, unit = "in", steering = 0, speed = -30)
-    gyroStraight(distance=_CM_PER_INCH*6, speed=30,backward=True, targetAngle=-1)
 
 
     # motorD.stop()
@@ -921,6 +918,7 @@ def activeOilPlatform():
 
 
 def goBackHomeFromOilPlatform():
+    gyroStraight(distance=_CM_PER_INCH*6, speed=30,backward=True, targetAngle=-1)
     #without pull truck
     #_turnToAngle(40)
     #gyroStraight(distance=24*_CM_PER_INCH, speed=100, targetAngle=40, backward=True) # Back home doesnt require accuracy
@@ -928,14 +926,15 @@ def goBackHomeFromOilPlatform():
 
     #time.sleep(5)
     _turnToAngle(50)
-    #time.sleep(5)
-    gyroStraight(distance=6*_CM_PER_INCH, speed=30, targetAngle=50, backward=True)
-    _turnToAngle(targetAngle=30, speed=70, oneWheelTurn="Right")
-    #time.sleep(5)
-    # Might be OK to remove this
-    _turnToAngle(targetAngle=30, speed=70, oneWheelTurn="Left")
-    gyroStraight(distance=2*_CM_PER_INCH, speed=100, targetAngle=30, backward=True) # Back home doesnt require accuracy
-    gyroStraight(distance=18*_CM_PER_INCH, speed=50, targetAngle=25, backward=True) # Back home doesnt require accuracy
+    # time.sleep(5)
+    gyroStraight(distance=4*_CM_PER_INCH, speed=30, targetAngle=50, backward=True)
+    _turnToAngle(targetAngle=40, speed=70)
+    # time.sleep(5)
+    gyroStraight(distance=2*_CM_PER_INCH, speed=30, targetAngle=40, backward=True)
+    _turnToAngle(targetAngle=25, speed=70, oneWheelTurn="Right")
+    # time.sleep(5)
+    gyroStraight(distance=2*_CM_PER_INCH, speed=100, targetAngle=25, backward=True) # Back home doesnt require accuracy
+    gyroStraight(distance=18*_CM_PER_INCH, speed=75, targetAngle=25, backward=True) # Back home doesnt require accuracy
 
 def resetRun5Arm():
     time.sleep(10)
