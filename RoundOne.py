@@ -924,17 +924,29 @@ def goBackHomeFromOilPlatform():
     #gyroStraight(distance=24*_CM_PER_INCH, speed=100, targetAngle=40, backward=True) # Back home doesnt require accuracy
 
 
+    # Turn towards home to get closer to Truck
     #time.sleep(5)
-    _turnToAngle(50)
+    angle = 50
+    _turnToAngle(angle)
     # time.sleep(5)
-    gyroStraight(distance=4*_CM_PER_INCH, speed=30, targetAngle=50, backward=True)
-    _turnToAngle(targetAngle=40, speed=70)
+    gyroStraight(distance=4.5*_CM_PER_INCH, speed=30, targetAngle=angle, backward=True)
+
+    # Straighten a little to reduce the angle of approach to Truck and then engage the hook
+    angle = 40
+    _turnToAngle(targetAngle=angle, speed=70)
     # time.sleep(5)
-    gyroStraight(distance=2*_CM_PER_INCH, speed=30, targetAngle=40, backward=True)
-    _turnToAngle(targetAngle=25, speed=70, oneWheelTurn="Right")
+    gyroStraight(distance=1*_CM_PER_INCH, speed=30, targetAngle=angle, backward=True)
+
+    # Afte engaging straighten the robot with right wheel moving forward to avoid stalling
+    angle = 25
+    _turnToAngle(targetAngle=angle, speed=70, oneWheelTurn="Right")
     # time.sleep(5)
-    gyroStraight(distance=2*_CM_PER_INCH, speed=100, targetAngle=25, backward=True) # Back home doesnt require accuracy
-    gyroStraight(distance=18*_CM_PER_INCH, speed=75, targetAngle=25, backward=True) # Back home doesnt require accuracy
+
+    # Pull truck out of the parking spot
+    gyroStraight(distance=2*_CM_PER_INCH, speed=100, targetAngle=angle, backward=True)
+
+    # Pull truck home at slower speed to avoid dropping oil unit from back
+    gyroStraight(distance=18*_CM_PER_INCH, speed=75, targetAngle=angle, backward=True)
 
 def resetRun5Arm():
     time.sleep(10)
