@@ -42,7 +42,9 @@ DateTime lastDataSaveTime = new DateTime((int)0);
 volatile int sleep_count = 0; // Keep track of how many sleep cycles have been completed.
 const int sleep_total = (writeFrequencyinSeconds)/8; // Approximate number of sleep cycles needed before the interval defined above elapses. Note that this does integer math.
 int CS_PIN = 10;
-#define USE_LCD_I2C 0
+
+// uncommentline below to test with I2C LCD, just setting it to zero or 1  doesn't work
+// #define USE_LCD_I2C 0
 
 // adc voltage
 float adc_voltage = 0.0;
@@ -63,13 +65,41 @@ int adc_value = 0;
 #ifdef USE_LCD_I2C
 LCD_I2C lcd(0x27, 16, 2);
 #else
-// LCD Pins
+
+
+// Potentiometer
+// Bottom left on Potentiometer comes from Positive Rail (5v)
+// Bottom right on Potentionmeter goes to Negative Rail (Ground)
+// Top Potentiometer goes to V0
+
+// VSS goes to negative rail
+// VDD goes to positive rail
+// V0 comes from potentiometer, as above
+// RS as below
+// RW in negative rail
+// E as below for en
+// Leave four pins between E and d4 unconnected
+// d4 to d7 as below
+// A positive rail
+// K negative rail
+
+// LCD Pins for non Solar Rollar, which is using SD card needed on pins 10, 11, 12, 13 (check above)
+// These pins overlap with motors, but motor is not needed for Solar Rollar.
+//const int rs = 7;
+//const int en = 8;
+//const int d4 = 5;
+//const int d5 = 4;
+//const int d6 = 3;
+//const int d7 = 2;
+
+// LCD Pins for Solar Rollar (Wooden as well as Metal) - same as in Paul McWhorter's video
 const int rs = 7;
 const int en = 8;
-const int d4 = 5;
-const int d5 = 4;
-const int d6 = 3;
-const int d7 = 2;
+const int d4 = 9;
+const int d5 = 10;
+const int d6 = 11;
+const int d7 = 12;
+
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 #endif
 
@@ -92,9 +122,9 @@ const int motorSpeed = 20;
 
 // Time to cool off before considering another change
 // 10 minutes
-const unsigned long coolOffTimeInSeconds = 600; 
+const unsigned long coolOffTimeInMilliseconds = 600; 
 
-DateTime lastSheetChangeDateTime = new DateTime((int)0);
+unsigned long lastTimeSheetWasChanged = 0;
 
 // Motor Pins
 const int motorIn1 = 2;
@@ -112,10 +142,11 @@ Adafruit_TSL2591 tsl = Adafruit_TSL2591(2591);
 
 // Conditional elements in the circuit
 const bool circuitHasLCD = true;
-const bool circuitHasLightSensor = true;
-const bool circuitHasRTC = true;
+const bool circuitHasLightSensor = false;
+const bool circuitHasRTC = false;
 const bool circuitHasSDCard = false;
 const bool circuitSetForDataCollection = false;
+const bool circuitHasMotor = false;
 
 void setup() {
   Serial.begin(9600);
@@ -193,7 +224,7 @@ void loop() {
       Serial.println(voltage);
     }
 
-    if (onDemandChange || (in_voltage < voltage_threshold && isTimeToTriggerChange(now)))
+    if (circuitHasMotor && (onDemandChange || (in_voltage < voltage_threshold && isTimeToTriggerChange())))
     {
       changeProtectionSheet();
     }
@@ -332,12 +363,13 @@ void initializeRTC()
 
 }
 
-bool isTimeToTriggerChange(DateTime now)
+bool isTimeToTriggerChange()
 {
-
-    if(lastDataSaveTime.year() == 1970 or (now.secondstime() - lastSheetChangeDateTime.secondstime() > coolOffTimeInSeconds))
+  
+  unsigned long currentTime = millis();
+  if (lastTimeSheetWasChanged == 0 ||  (currentTime - lastTimeSheetWasChanged) > coolOffTimeInMilliseconds)
   {
-    lastSheetChangeDateTime = now;
+    lastTimeSheetWasChanged = currentTime;
     return true;
   }
 
