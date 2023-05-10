@@ -983,7 +983,7 @@ def _newrun4withHeavyArm():
      #Go back home
     gyroStraight(distance = 30, speed = 50, backward = True, targetAngle = angle)
 
-def _run4():
+def _oldrun4():
     # This is the new run3 with just doing the hydrodam. 
     # It picks the water unit in front of hydrodam and brings back the hydrodam unit.
 
@@ -1005,6 +1005,58 @@ def _run4():
     #Go back home
     gyroStraight(distance = 30, speed = 50, backward = True, targetAngle = angle)
     motorF.stop()
+
+def _oldRun4Typeone():
+    angle = 0
+    #Lift arm
+    moveArm(degrees = 120, speed = -100, motor = motorF)
+    
+    #Go forward towards the hydrodam
+    gyroStraight(distance = 24, speed = 50, targetAngle = angle)
+
+    # Turn to push the water unit out of the way
+    _turnToAngle(targetAngle= 40, speed=20)
+
+    #Turn back
+    _turnToAngle(targetAngle= angle, speed=20)
+
+    #Go forward
+    gyroStraight(distance = 6, speed = 30, targetAngle = angle)
+
+    #Come back to same place
+    gyroStraight(distance = 4, speed = 30, targetAngle = angle, backward = True)
+
+    #Lower arm
+    moveArm(degrees = 120, speed = 100, motor = motorF)
+
+    # Go back home
+    gyroStraight(distance = 28, speed = 50, targetAngle = angle, backward = True)
+
+def _run4():
+    primeHub.motion_sensor.reset_yaw_angle()
+    angle = 0
+    #Lift arm
+    moveArm(degrees = 120, speed = -100, motor = motorF)
+    
+    #Go forward towards the hydrodam
+    gyroStraight(distance = 24, speed = 50, targetAngle = angle)
+
+    # Turn to push the water unit out of the way
+    _turnToAngle(targetAngle= 40, speed=20)
+
+    #Turn back
+    _turnToAngle(targetAngle= angle, speed=20)
+
+    #Lower arm
+    moveArm(degrees = 120, speed = 50, motor = motorF)
+
+    #Go forward to hit the black part
+    gyroStraight(distance = 6, speed = 50, targetAngle = angle)
+
+    #Go back home
+    gyroStraight(distance = 27, speed = 50, targetAngle = angle, backward = True)
+ 
+ 
 
 
 def _run7():
@@ -1573,7 +1625,7 @@ def resetArmForRun6Testing():
 print("Battery voltage: " + str(hub.battery.voltage())) 
 _initialize()
 driverWithFewerArms()
-#doRunWithTiming(_run6)
+#doRunWithTiming(_newRun4Typetwo)
 #doRunWithTiming(_testGyroBeforeRobotGame)
 #driverWithFewerArms()
 raise SystemExit
