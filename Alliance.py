@@ -100,7 +100,7 @@ def driverWithFewerArms():
     arm_change_start_time = 0
     while True:
         
-        if counter == 8: 
+        if counter == 9: 
             break
         # Skip printing for the first time the loop runs.
         if (counter != 4):
@@ -128,7 +128,7 @@ def driverWithFewerArms():
         if counter == 7:
             doRunWithTiming(_run7)
         if counter == 8:
-            doRunWithTiming(runHydroUnits)
+            doRunWithTiming(_runHydroUnits)
         counter = counter + 1
 
 #region Utilities
@@ -1526,7 +1526,7 @@ def resetArmForRun6Testing():
 
 
 #new run for Alliance challenge
-def runHydroUnits():
+def _runHydroUnits():
     # Turns towards the n-s black line in front of the power station.
     #_driveTillLine(speed=20, distanceInCM=99, target_angle = 0, colorSensorToUse="Right", blackOrWhite="Black", slowSpeedRatio=0.9)
     
