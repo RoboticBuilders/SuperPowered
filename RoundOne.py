@@ -1,4 +1,4 @@
-# LEGO type:standard slot:10
+# LEGO type:standard slot:0
 # This is now the version of Round1 that we are committed to.
 #
 # This is the next version of the Round1 that we tried after TestRound1WithPowerPlantAsSeparateRun.py which was done after Round1FullRunWithFewerArms.py
@@ -86,7 +86,7 @@ BLACK_COLOR = 20
 WHITE_COLOR = 90
 
 def driverWithFewerArms():
-    counter = 6
+    counter = 1
     arm_change_end_time = 0
     arm_change_start_time = 0
     while True:
@@ -1055,11 +1055,8 @@ def _run4():
 
     #Go back home
     gyroStraight(distance = 27, speed = 50, targetAngle = angle, backward = True)
- 
- 
 
-
-def _run7():
+def _run7old():
     def _doSmartGrid():
         # Turn and move forward 
         angle = -90
@@ -1160,7 +1157,9 @@ def collectTruck():
     gyroStraight(distance = 35, speed = 35, backward = False, targetAngle = 0)
     moveArm(degrees = 30, speed = 75,motor = motorF)
 
-def _run7AvoidingKickingPowerToXOut():
+# New Run7, that first does the hydro units, and then the smart grid.
+# Finally drops off the oil truck
+def _run7():
     def _doSmartGrid():
         # Turn and move forward 
         angle = -90
@@ -1759,8 +1758,7 @@ def resetArmForRun6Testing():
 
 print("Battery voltage: " + str(hub.battery.voltage())) 
 _initialize()
-#driverWithFewerArms()
-doRunWithTiming(_run7AvoidingKickingPowerToXOut)
+driverWithFewerArms()
 #doRunWithTiming(_run7)
 #doRunWithTiming(_testGyroBeforeRobotGame)
 #driverWithFewerArms()
