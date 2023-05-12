@@ -1190,7 +1190,7 @@ def _run7AvoidingKickingPowerToXOut():
         _turnToAngle(targetAngle = angle, speed = 50, slowTurnRatio=0.6)
         _driveTillLine(speed = 35, distanceInCM = 7, target_angle = angle, colorSensorToUse = "Left", blackOrWhite = "Black")
         _doSmartGrid()
-        
+
         # Now drivbe forward to catch the n-s line between the toyfactory and the hybrid car.
         _turnToAngle(targetAngle = 0, speed = 30)
         # Catch the line
@@ -1213,12 +1213,12 @@ def _run7AvoidingKickingPowerToXOut():
         motorD.stop()
 
         # Catch the line between the Toy Factory and Hybrid Car
-        _driveTillLine(speed = 40, distanceInCM = 44, target_angle = 0, colorSensorToUse = "Left", blackOrWhite = "Black")
+        _driveTillLine(speed = 40, distanceInCM = 20, target_angle = 0, colorSensorToUse = "Left", blackOrWhite = "Black")
         
         # Now drive foward and turn to park.
-        gyroStraight(distance = 31, speed = 55, backward = False, targetAngle = 0)
-        _turnToAngle(targetAngle = 75, speed = 30)
-        gyroStraight(distance = 14, speed = 55, backward = True, targetAngle = 75)
+        gyroStraight(distance = 32, speed = 55, backward = False, targetAngle = 0)
+        _turnToAngle(targetAngle = 50, speed = 50)
+        gyroStraight(distance = 14, speed = 55, backward = True, targetAngle = 50)
         
 
     def _dropOffTruck():
