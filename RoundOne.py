@@ -1,4 +1,4 @@
-# LEGO type:standard slot:0
+# LEGO type:standard slot:10
 # This is now the version of Round1 that we are committed to.
 #
 # This is the next version of the Round1 that we tried after TestRound1WithPowerPlantAsSeparateRun.py which was done after Round1FullRunWithFewerArms.py
@@ -86,7 +86,7 @@ BLACK_COLOR = 20
 WHITE_COLOR = 90
 
 def driverWithFewerArms():
-    counter = 1
+    counter = 6
     arm_change_end_time = 0
     arm_change_start_time = 0
     while True:
@@ -1160,7 +1160,142 @@ def collectTruck():
     gyroStraight(distance = 35, speed = 35, backward = False, targetAngle = 0)
     moveArm(degrees = 30, speed = 75,motor = motorF)
 
+def _run7AvoidingKickingPowerToXOut():
+    def _doSmartGrid():
+        # Turn and move forward 
+        angle = -90
+        _turnToAngle(targetAngle = angle, speed = 30)
+        gyroStraight(distance=6, speed = 30, backward = False, targetAngle = angle)
 
+        # Bring down the abucket arm and keep it down till we back off.
+        # This is the part that does the smart grid.
+        motorD.start_at_power(100)
+
+        # Distance changed to 6 from 4 on 1/9/2023 because it was not backing up enough
+        gyroStraight(distance=7, speed = 30, backward = True, targetAngle = angle)
+        motorD.stop()
+
+        # Move forward slightly before picking up the arm
+        gyroStraight(distance=1, speed = 35, backward = False, targetAngle = angle)
+
+        # Bring up the bucket arm before doing the water units.
+        motorD.start_at_power(-100)
+        wait_for_seconds(0.3)
+        motorD.stop()
+
+    def _doSmartGridanddropOffTruck():
+        # Turn to catch the e-w line in front of the smart grid.
+        
+        angle = -45
+        _turnToAngle(targetAngle = angle, speed = 50, slowTurnRatio=0.6)
+        _driveTillLine(speed = 35, distanceInCM = 7, target_angle = angle, colorSensorToUse = "Left", blackOrWhite = "Black")
+        _doSmartGrid()
+        
+        # Now drivbe forward to catch the n-s line between the toyfactory and the hybrid car.
+        _turnToAngle(targetAngle = 0, speed = 30)
+        # Catch the line
+        _driveTillLine(speed = 40, distanceInCM = 44, target_angle = 0, colorSensorToUse = "Right", blackOrWhite = "Black")
+        # Drive past the line to avoid crashing into the Smart Grid
+        gyroStraight(distance = 10, speed = 55, backward = False, targetAngle = 0)
+        # Turn to catch the line in front of the Smart Grid
+        _turnToAngle(targetAngle = -45, speed = 30)
+      
+        # Catch the line in front of the Smart Grid
+        _driveTillLine(speed = 40, distanceInCM = 44, target_angle = -45, colorSensorToUse = "Right", blackOrWhite = "Black")
+        # Drive forward to avoid crashing into the Toy Factory
+        gyroStraight(distance = 3, speed = 55, backward = False, targetAngle = -45)
+        # Turn to catch the line between the Toy Factory and Hybrid Car
+        _turnToAngle(targetAngle = 0, speed = 30)
+
+        # Bring down the bucket to ensure that the hybrid car is pushed out of the way.
+        motorD.start_at_power(100)
+        wait_for_seconds(0.2)
+        motorD.stop()
+
+        # Catch the line between the Toy Factory and Hybrid Car
+        _driveTillLine(speed = 40, distanceInCM = 44, target_angle = 0, colorSensorToUse = "Left", blackOrWhite = "Black")
+        
+        # Now drive foward and turn to park.
+        gyroStraight(distance = 31, speed = 55, backward = False, targetAngle = 0)
+        _turnToAngle(targetAngle = 75, speed = 30)
+        gyroStraight(distance = 14, speed = 55, backward = True, targetAngle = 75)
+        
+
+    def _dropOffTruck():
+        # Turn to catch the e-w line in front of the smart grid.
+        
+        angle = -45
+        _turnToAngle(targetAngle = angle, speed = 50, slowTurnRatio=0.1)
+        _driveTillLine(speed = 35, distanceInCM = 7, target_angle = angle, colorSensorToUse = "Left", blackOrWhite = "Black")
+        
+
+        # Now catch the n-s line in front of the smart grid.
+        _turnToAngle(targetAngle = 0, speed = 30)
+        _driveTillLine(speed = 30, distanceInCM = 10, target_angle = 0, colorSensorToUse = "Right", blackOrWhite = "Black")
+        
+        # Now drive towards the smart grid at an angle.
+        _turnToAngle(targetAngle = -15, speed = 30)
+        #gyroStraight(distance = 10, speed = 30, backward = False, targetAngle = -15)
+        _driveTillLine(speed = 40, distanceInCM = 10, target_angle = 0, colorSensorToUse = "Right", blackOrWhite = "Black")
+
+        # Now drivbe forward to catch the n-s line between the toyfactory and the hybrid car.
+        _turnToAngle(targetAngle = 0, speed = 30)
+        _driveTillLine(speed = 40, distanceInCM = 24, target_angle = 0, colorSensorToUse = "Right", blackOrWhite = "Black")
+
+        # Now drive foward and turn to park.
+        gyroStraight(distance = 30, speed = 55, backward = False, targetAngle = 0)
+        _turnToAngle(targetAngle = 80, speed = 30)
+        gyroStraight(distance = 15, speed = 55, backward = True, targetAngle = 80)
+
+    primeHub.motion_sensor.reset_yaw_angle()
+    angle = 0
+    
+    angle = -5
+    #_turnToAngle(targetAngle=angle, speed=25)
+    gyroStraight(distance= 60, speed= 65, targetAngle= angle)
+    
+    # Turn slightly to catch the n-s line in front of the power plant
+    angle = -8
+    _turnToAngle(targetAngle=angle, speed=25)
+    if _driveTillLine(speed=45, distanceInCM=27, target_angle=angle, colorSensorToUse="Left", blackOrWhite="Black", slowSpeedRatio=0.9) == False:
+        logMessage("Run7: NOTE -----------> Missed Catching the n-s line in front of power plant", level=0)
+    
+    # Turn towards the power plant and then try to catch the black line running e-w line in front of the smart grid.
+    angle = -95
+    _turnToAngle(targetAngle = angle, speed = 25, slowTurnRatio = 0.9)
+
+    # Drive forward to drop off the enerfy units and innovation project
+    gyroStraight(distance=15, speed= 50, targetAngle= angle)
+
+    # First bring up the buecket arm so we can pull the smart grid
+    # This will also drop off the innovation project and the enerfy units.
+    motorD.start_at_power(-100)
+    wait_for_seconds(0.3)
+    motorD.stop()
+
+    if _driveTillLine(speed=50, distanceInCM=35, target_angle = angle, colorSensorToUse="Left", blackOrWhite="Black") == False:
+        logMessage("Run7:NOTE -----------> Missed Catching the e-w line in front of smart grid", level=0)
+
+    # Added 1/9/2023 to stop the robot from snagging on the Smart Grid
+    # changed distance on 1/28/2023 from 4 to 3.
+    angle = -90
+    gyroStraight(speed = 25, distance = 3, backward = True, targetAngle = angle)
+
+    # Align against the hydro-electric power plant.
+    angle = 133
+    _turnToAngle(targetAngle = angle, speed = 25, slowTurnRatio = 0.3)
+    gyroStraight(speed=25, distance=10, targetAngle=angle)
+
+    # Drop off the water units
+    motorF.start(-70)
+    flushForTime(speed=25, timeInSeconds=1.5)
+    motorF.start(-100)
+    wait_for_seconds(1.5)
+    motorF.stop()
+    
+    # Backoff to leave the water reservoir(This code was uncommented on 1/9/2023 to avoid the arm touching the units)
+    gyroStraight(distance=10, speed = 40, backward = True, targetAngle = angle)
+    _doSmartGridanddropOffTruck()
           
 #endregion Nami
 
@@ -1624,8 +1759,9 @@ def resetArmForRun6Testing():
 
 print("Battery voltage: " + str(hub.battery.voltage())) 
 _initialize()
-driverWithFewerArms()
-#doRunWithTiming(_newRun4Typetwo)
+#driverWithFewerArms()
+doRunWithTiming(_run7AvoidingKickingPowerToXOut)
+#doRunWithTiming(_run7)
 #doRunWithTiming(_testGyroBeforeRobotGame)
 #driverWithFewerArms()
 raise SystemExit
