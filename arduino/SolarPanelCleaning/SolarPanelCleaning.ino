@@ -49,9 +49,6 @@ int CS_PIN = 10;
 // adc voltage
 float adc_voltage = 0.0;
 
-//actual voltage we are measuring
-float in_voltage = 0.0;
-
 // resistor values in the sensor
 const float R1 = 30000.0;
 const float R2 = 7500.0;
@@ -122,7 +119,7 @@ const int motorSpeed = 20;
 
 // Time to cool off before considering another change
 // 10 minutes
-const unsigned long coolOffTimeInMilliseconds = 600; 
+const unsigned long coolOffTimeInMilliseconds = 600000; 
 
 unsigned long lastTimeSheetWasChanged = 0;
 
@@ -146,7 +143,7 @@ const bool circuitHasLightSensor = false;
 const bool circuitHasRTC = false;
 const bool circuitHasSDCard = false;
 const bool circuitSetForDataCollection = false;
-const bool circuitHasMotor = false;
+const bool circuitHasMotor = true;
 
 void setup() {
   Serial.begin(9600);
@@ -189,7 +186,6 @@ void loop() {
     
     DateTime now =  new DateTime((int)0);
     
-    in_voltage = readInputVoltage();
     float temperature = 0.0;
 
     if (circuitHasRTC) { 
@@ -197,17 +193,15 @@ void loop() {
       temperature = rtc.getTemperature();
     }
 
-    String voltage(in_voltage, 2);
-
     long luxValue = 0;
     if (circuitHasLightSensor) {
       luxValue = (long)getLuminosity();
     }
 
-    if (circuitHasLCD) {
-      displayVoltageOnLCD(voltage);
-    }
+    float in_voltage = readAndDisplayVoltage();
     
+    //Serial.println(in_voltage);
+
     if (circuitSetForDataCollection) {
       writeToFile("arduino.txt", now, luxValue, in_voltage, temperature);
     }
@@ -221,7 +215,7 @@ void loop() {
     }
     else if (data == '2')
     {
-      Serial.println(voltage);
+      Serial.println(in_voltage);
     }
 
     if (circuitHasMotor && (onDemandChange || (in_voltage < voltage_threshold && isTimeToTriggerChange())))
@@ -247,7 +241,7 @@ void initializeLightSensor()
   
   tsl.setGain(TSL2591_GAIN_LOW); // 1x
   tsl.setTiming(TSL2591_INTEGRATIONTIME_300MS);
-  Serial.println("Light sensor initialized!");
+  Serial.println(F("Light sensor initialized!"));
 }
 
 //returns luminosity in lux
@@ -276,16 +270,16 @@ bool isTimeToWriteData(DateTime now)
 //SD card fuctions are over here
 void initializeSDCard()
 {
-  Serial.println("Initializing SD card...");
+  Serial.println(F("Initializing SD card..."));
   pinMode(CS_PIN, OUTPUT);
   digitalWrite(CS_PIN, HIGH);
   
   if (!SD.begin(CS_PIN)) {
-    Serial.println("SD CARD FAILED, OR NOT PRESENT!");
+    Serial.println(F("SD CARD FAILED, OR NOT PRESENT!"));
     while (1); // don't do anything more:
   }
 
-  Serial.println("SD CARD INITIALIZED.");
+  Serial.println(F("SD CARD INITIALIZED."));
 }
 
 
@@ -296,7 +290,7 @@ File openFile(char filename[])
 
 // csv file line with following data in each line
 // dateAndTime, luxValue, voltage, temperature
-String formLineToWrite(DateTime dateTime, float luxValue, int voltage, float temperature)
+String formLineToWrite(DateTime dateTime, float luxValue, float voltage, float temperature)
 {
       char bufDate[50];
       
@@ -304,12 +298,12 @@ String formLineToWrite(DateTime dateTime, float luxValue, int voltage, float tem
       sprintf(bufDate, "%02d-%02d-%02d %02d:%02d:%02d", dateTime.year(), dateTime.month(), dateTime.day(), dateTime.hour(), dateTime.minute(), dateTime.second()); 
 
       String dateString = String(bufDate);
-      String lineString = dateString + "," + luxValue + "," + in_voltage+ "," + temperature;
+      String lineString = dateString + "," + luxValue + "," + voltage + "," + temperature;
 
       return lineString;
 }
 
-int writeToFile(char fileName[], DateTime dateTime, float luxValue, int voltage, float temperature)
+int writeToFile(char fileName[], DateTime dateTime, float luxValue, float voltage, float temperature)
 {
   String logData = formLineToWrite(dateTime, luxValue, voltage, temperature);
   String logString = "Input string: " + logData; 
@@ -331,7 +325,7 @@ int writeToFile(char fileName[], DateTime dateTime, float luxValue, int voltage,
     return 1;
   } else
   {
-    Serial.println("Couldn't write to file");
+    Serial.println(F("Couldn't write to file"));
     return 0;
   }
 }
@@ -349,7 +343,7 @@ void closeFile(File file)
 void initializeRTC()
 {
   if (!rtc.begin()) {
-    Serial.println("Couldn't find RTC");
+    Serial.println(F("Couldn't find RTC"));
     Serial.flush();
     while (1) delay(10);
   }
@@ -360,7 +354,6 @@ void initializeRTC()
     // January 21, 2014 at 3am you would call:
     // rtc.adjust(DateTime(2014, 1, 21, 3, 0, 0));
   }
-
 }
 
 bool isTimeToTriggerChange()
@@ -382,9 +375,21 @@ void changeProtectionSheet()
     stepper.setSpeed(motorSpeed);
     for(int i = 0; i < numberOfRotationsForOneLength; i++)
     {
-      // Serial.println("Rotation happening");
+      readAndDisplayVoltage();
       stepper.step(STEPS_PER_REV);
     }
+}
+
+float readAndDisplayVoltage()
+{
+  float in_voltage = readInputVoltage();
+
+  if (circuitHasLCD) {
+      String voltage(in_voltage, 2);
+      displayVoltageOnLCD(voltage);
+  }
+
+  return in_voltage;
 }
 
 float readInputVoltage()
