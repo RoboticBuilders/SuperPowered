@@ -1,4 +1,4 @@
-# LEGO type:standard slot:0
+# LEGO type:standard slot:6
 # This is now the version of Round1 that we are committed to.
 #
 # This is the next version of the Round1 that we tried after TestRound1WithPowerPlantAsSeparateRun.py which was done after Round1FullRunWithFewerArms.py
@@ -86,7 +86,7 @@ BLACK_COLOR = 20
 WHITE_COLOR = 90
 
 def driverWithFewerArms():
-    counter = 1
+    counter = 6
     arm_change_end_time = 0
     arm_change_start_time = 0
     while True:
@@ -1215,9 +1215,11 @@ def _run7():
         _driveTillLine(speed = 40, distanceInCM = 20, target_angle = 0, colorSensorToUse = "Left", blackOrWhite = "Black")
         
         # Now drive foward and turn to park.
-        gyroStraight(distance = 32, speed = 55, backward = False, targetAngle = 0)
-        _turnToAngle(targetAngle = 50, speed = 50)
-        gyroStraight(distance = 14, speed = 55, backward = True, targetAngle = 50)
+        gyroStraight(distance = 34, speed = 40, backward = False, targetAngle = 0)
+        gyroStraight(distance = 2, speed = 30, backward = True, targetAngle = 0)
+        # Changed from 50 to 55 
+        _turnToAngle(targetAngle = 55, speed = 30)
+        gyroStraight(distance = 14, speed = 55, backward = True, targetAngle = 55)
         
 
     def _dropOffTruck():
@@ -1264,7 +1266,8 @@ def _run7():
     _turnToAngle(targetAngle = angle, speed = 25, slowTurnRatio = 0.9)
 
     # Drive forward to drop off the enerfy units and innovation project
-    gyroStraight(distance=15, speed= 50, targetAngle= angle)
+    # Increased this to 17 from 15 on 5/14
+    gyroStraight(distance=17, speed= 50, targetAngle= angle)
 
     # First bring up the buecket arm so we can pull the smart grid
     # This will also drop off the innovation project and the enerfy units.
@@ -1272,7 +1275,8 @@ def _run7():
     wait_for_seconds(0.3)
     motorD.stop()
 
-    if _driveTillLine(speed=50, distanceInCM=35, target_angle = angle, colorSensorToUse="Left", blackOrWhite="Black") == False:
+    # Droppped this to 33 from 35 on 5/14
+    if _driveTillLine(speed=50, distanceInCM=33, target_angle = angle, colorSensorToUse="Left", blackOrWhite="Black") == False:
         logMessage("Run7:NOTE -----------> Missed Catching the e-w line in front of smart grid", level=0)
 
     # Added 1/9/2023 to stop the robot from snagging on the Smart Grid
