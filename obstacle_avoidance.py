@@ -1,6 +1,7 @@
 import csv, math
 from time import *
 from turtle import Turtle, Screen
+import os
 
 screen = Screen()
 turtle = Turtle()
@@ -510,7 +511,7 @@ def drawPath(coordinates, color, runName):
     for coordinate in range(len(coordinates)):
             #print(str(coordinates[coordinate].getX()) + ", " + str(coordinates[coordinate].getY()))
             turtle.goto(coordinates[coordinate].getX(), coordinates[coordinate].getY())
-
+    os.system("cls")
 def checkIfEndInMission(endX, endY, missions):
     for row in missions:
         if endX >= row[1] and endX <= row[3] and endY >= row[2] and endY <= row[4]:
@@ -655,8 +656,8 @@ def repeatlyShowThePaths():
         screen.reset()
         turtle.pen(fillcolor="black", pencolor="blue", pensize=5)
 
-#repeatlyShowThePaths(
-findAndShowAllPaths()
+repeatlyShowThePaths()
+#findAndShowAllPaths()
 screen.mainloop()
 
 # Inputs for Run6
