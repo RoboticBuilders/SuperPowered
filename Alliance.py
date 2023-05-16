@@ -1,4 +1,4 @@
-# LEGO type:standard slot:0
+# LEGO type:standard slot:10
 # This is now the version of Round1 that we are committed to.
 #
 # This is the next version of the Round1 that we tried after TestRound1WithPowerPlantAsSeparateRun.py which was done after Round1FullRunWithFewerArms.py
@@ -94,7 +94,6 @@ WHITE_COLOR = 90
 
 
 def driverWithFewerArms():
-    #starting with counter 4 because of run4
     counter = 1
     arm_change_end_time = 0
     arm_change_start_time = 0
@@ -113,12 +112,6 @@ def driverWithFewerArms():
             arm_change_end_time = time.ticks_ms()      
             logMessage("Time for arm change time(ms): {}".format(str(time.ticks_diff(arm_change_end_time, arm_change_start_time))), level=0)
 
-        #if counter == 1:
-        #    doRunWithTiming(_run1)
-        #if counter == 2:
-        #    doRunWithTiming(_run2)
-        #if counter == 3:
-        #    doRunWithTiming(_run3)
         if counter == 1:
             doRunWithTiming(_run5)
         if counter == 2:
