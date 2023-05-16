@@ -79,7 +79,7 @@ _CM_PER_INCH = 2.54
 testX2 = [10]
 testY2 = [10]
 
-# This is based on emperical tests and by looking at the color sensor.
+# This is based on tests and by looking at the color sensor.
 # This is also based on the new sensor mount which roughly puts the sensor
 # at about 18-20mm of the ground.
 BLACK_COLOR = 20
