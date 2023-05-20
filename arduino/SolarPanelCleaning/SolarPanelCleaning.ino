@@ -114,6 +114,7 @@ const int CompleteCellChar = 255;
 // Stepper motor
 const int STEPS_PER_REV = 240;
 const float voltage_threshold = 2.0;
+const float lux_threshold = 20;
 const int numberOfRotationsForOneLength = 5;
 const int motorSpeed = 20;
 
@@ -218,7 +219,7 @@ void loop() {
       Serial.println(in_voltage);
     }
 
-    if (circuitHasMotor && (onDemandChange || (in_voltage < voltage_threshold && isTimeToTriggerChange())))
+    if (circuitHasMotor && (onDemandChange || (in_voltage < voltage_threshold && circuitHasLightSensor && luxValue > lux_threshhold && isTimeToTriggerChange())))
     {
       changeProtectionSheet();
     }
